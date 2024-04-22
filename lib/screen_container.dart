@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ScreenContainer extends StatelessWidget {
@@ -14,9 +13,6 @@ class ScreenContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CupertinoNavigationBar(
-        middle: Text(title ?? ''),
-      ),
       body: SafeArea(
         child: child,
       ),

@@ -3,8 +3,6 @@
 A new Flutter project.
 
 ## TODO
-- router/navbar
-- git
 - ci/cd
 - show current weight
 - tare button
