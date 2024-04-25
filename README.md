@@ -3,15 +3,15 @@
 A new Flutter project.
 
 ## TODO
-- ci/cd
-- show current weight
-- tare button
-- add mock scale
 - show weight change
+- add mock scale
 - plot weight
+- ci/cd
+- speed-up connecting OR show progress
 - damping/normalisation
 - plot weight change
 - settings screen
+
 
 ## Getting Started
 

@@ -1,8 +1,11 @@
-import 'package:espresso_log/bottom_navigation.dart';
-import 'package:espresso_log/history.dart';
-import 'package:espresso_log/home.dart';
-import 'package:espresso_log/settings.dart';
+import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
+import 'package:espresso_log/ui/history/history.dart';
+import 'package:espresso_log/ui/home/home.dart';
+import 'package:espresso_log/ui/scaffold/screen_container.dart';
+import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -23,17 +26,26 @@ class AppRouter {
       routes: [
         StatefulShellRoute.indexedStack(
           parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state, child) {
+            return MultiBlocProvider(providers: [
+              BlocProvider(create: (_) => CurrentWeightCubit()),
+            ], child: child);
+          },
           branches: [
             StatefulShellBranch(
               navigatorKey: _homeTabNavigatorKey,
               routes: [
                 GoRoute(
                   path: homePath,
-                  pageBuilder: (context, GoRouterState state) {
-                    return getPage(
-                      child: const HomeScreen(),
-                      state: state,
-                    );
+                  builder: (context, state) {
+                    return MultiBlocProvider(
+                        providers: [
+                          BlocProvider(create: (_) => CurrentWeightCubit()),
+                        ],
+                        child: ScreenContainer(
+                          key: state.pageKey,
+                          child: const HomeScreen(),
+                        ));
                   },
                 ),
               ],

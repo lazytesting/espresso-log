@@ -5,7 +5,12 @@ import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 void main() {
-  getIt.registerSingleton<ScaleService>(ScaleService());
+  getIt.registerSingletonAsync<ScaleService>(() async {
+    final scaleService = ScaleService();
+    await scaleService.init();
+    return scaleService;
+  });
+
   runApp(const MyApp());
 }
 
@@ -15,11 +20,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      theme: ThemeData.from(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Color.fromARGB(255, 84, 48, 134))),
-      routerConfig: AppRouter().router,
-    );
+    return FutureBuilder(
+        future: getIt.allReady(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return MaterialApp.router(
+              theme: ThemeData.from(
+                  colorScheme: ColorScheme.fromSeed(
+                      seedColor: const Color.fromARGB(255, 84, 48, 134))),
+              routerConfig: AppRouter().router,
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
+        });
   }
 }

@@ -1,6 +1,6 @@
 import 'package:espresso_log/main.dart';
 import 'package:espresso_log/scale_service.dart';
-import 'package:espresso_log/screen_container.dart';
+import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {

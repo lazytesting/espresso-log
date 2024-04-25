@@ -1,4 +1,4 @@
-import 'package:espresso_log/screen_container.dart';
+import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 
 class HistoryScreen extends StatelessWidget {

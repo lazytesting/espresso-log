@@ -1,20 +1,28 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ScaleService {
   BluetoothDevice? _device; // TODO get this out of class, move to init
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
+  bool isInitialized = false;
   double reading = 0;
+  final weightNotificationController = BehaviorSubject<WeightNotification>();
+  final scaleStatusController = BehaviorSubject<String>();
 
   Future<void> init() async {
+    scaleStatusController.add("checking Bluetooth");
     await _ensureBluethooth();
+    scaleStatusController.add("scanning");
     await _scanForDevice();
+    scaleStatusController.add("connecting to scale");
     await _connectDevice();
     await _setCharacteristics();
+    scaleStatusController.add("start listening");
     await _subscribeToReadings();
+    await tareCommand();
   }
 
   Future<void> _ensureBluethooth() async {
@@ -107,7 +115,6 @@ class ScaleService {
 
   Future<void> _subscribeToReadings() async {
     // todo figure out negative weight
-    // todo expose stream
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       var decaGrams = (value[2] * 256) + value[3];
       var grams = decaGrams / 10;
@@ -120,7 +127,9 @@ class ScaleService {
           (minutesSinceOn * 60 * 1000) + secondsSinceOn * 1000 + millisSinceOn;
       var notification = WeightNotification(
           weight: grams, isStable: isStable, millisSinceOn: totalMillisSinceOn);
-      // emit event
+      // ignore: avoid_print
+      print("reading ${notification.weight}");
+      weightNotificationController.add(notification);
     });
 
     // cleanup: cancel subscription when disconnected
