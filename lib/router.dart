@@ -1,4 +1,5 @@
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
 import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
@@ -26,11 +27,6 @@ class AppRouter {
       routes: [
         StatefulShellRoute.indexedStack(
           parentNavigatorKey: _rootNavigatorKey,
-          builder: (context, state, child) {
-            return MultiBlocProvider(providers: [
-              BlocProvider(create: (_) => CurrentWeightCubit()),
-            ], child: child);
-          },
           branches: [
             StatefulShellBranch(
               navigatorKey: _homeTabNavigatorKey,
@@ -41,6 +37,7 @@ class AppRouter {
                     return MultiBlocProvider(
                         providers: [
                           BlocProvider(create: (_) => CurrentWeightCubit()),
+                          BlocProvider(create: (_) => WeightChangeCubit())
                         ],
                         child: ScreenContainer(
                           key: state.pageKey,
