@@ -7,7 +7,7 @@ final getIt = GetIt.instance;
 void main() {
   getIt.registerSingletonAsync<ScaleService>(() async {
     final scaleService = ScaleService();
-    await scaleService.init();
+    //await scaleService.init();
     return scaleService;
   });
 
