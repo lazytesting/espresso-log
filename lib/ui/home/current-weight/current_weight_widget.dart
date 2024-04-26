@@ -11,7 +11,7 @@ class CurrentWeightWidget extends StatelessWidget {
       builder: (context, state) {
         var weight = '--.-';
         if (state is CurrentWeightMeasured) {
-          weight = state.weight.toString();
+          weight = state.weight.toStringAsFixed(1);
         }
 
         return Center(

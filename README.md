@@ -3,8 +3,6 @@
 A new Flutter project.
 
 ## TODO
-- show weight change
-- add mock scale
 - plot weight
 - ci/cd
 - speed-up connecting OR show progress

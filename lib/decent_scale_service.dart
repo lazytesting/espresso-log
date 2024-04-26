@@ -1,17 +1,19 @@
 import 'dart:io';
 
+import 'package:espresso_log/abstract_scale_service.dart';
+import 'package:espresso_log/weight_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ScaleService {
+class DecentScaleService implements AbstractScaleService {
   BluetoothDevice? _device; // TODO get this out of class, move to init
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
-  bool isInitialized = false;
-  double reading = 0;
+  @override
   final weightNotificationController = BehaviorSubject<WeightNotification>();
   final scaleStatusController = BehaviorSubject<String>();
 
+  @override
   Future<void> init() async {
     scaleStatusController.add("checking Bluetooth");
     await _ensureBluethooth();
@@ -106,6 +108,7 @@ class ScaleService {
     _writeCharacteristic!.write(value);
   }
 
+  @override
   Future<void> tareCommand() async {
     int incremental = 0x00; // todo increment
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
@@ -150,15 +153,4 @@ class ScaleService {
     input.add(xorSign);
     return input;
   }
-}
-
-class WeightNotification {
-  final double weight;
-  final bool isStable;
-  final int millisSinceOn;
-
-  WeightNotification(
-      {required this.weight,
-      required this.isStable,
-      required this.millisSinceOn});
 }

@@ -1,13 +1,16 @@
+import 'package:espresso_log/abstract_scale_service.dart';
+import 'package:espresso_log/mock_scale_service.dart';
 import 'package:espresso_log/router.dart';
-import 'package:espresso_log/scale_service.dart';
+import 'package:espresso_log/decent_scale_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 void main() {
-  getIt.registerSingletonAsync<ScaleService>(() async {
-    final scaleService = ScaleService();
-    //await scaleService.init();
+  getIt.registerSingletonAsync<AbstractScaleService>(() async {
+    final scaleService = MockScaleService();
+    //final scaleService = DecentScaleService();
+    await scaleService.init();
     return scaleService;
   });
 

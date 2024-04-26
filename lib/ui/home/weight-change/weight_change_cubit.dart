@@ -1,11 +1,12 @@
+import 'package:espresso_log/abstract_scale_service.dart';
 import 'package:espresso_log/main.dart';
-import 'package:espresso_log/scale_service.dart';
+import 'package:espresso_log/weight_notification.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'weight_change_state.dart';
 
 class WeightChangeCubit extends Cubit<WeightChangeState> {
-  final ScaleService _scaleService = getIt.get<ScaleService>();
+  final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   final List<WeightNotification> _history = [];
   WeightChangeCubit() : super(WeightChangeInitial()) {
     _scaleService.weightNotificationController.stream.listen((event) {

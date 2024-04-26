@@ -1,11 +1,13 @@
+import 'package:espresso_log/abstract_scale_service.dart';
 import 'package:espresso_log/main.dart';
-import 'package:espresso_log/scale_service.dart';
+import 'package:espresso_log/decent_scale_service.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
-  late final ScaleService _scaleService = getIt.get<ScaleService>();
+  late final AbstractScaleService _scaleService =
+      getIt.get<DecentScaleService>();
   double _reading = 0;
 
   @override
@@ -29,8 +31,7 @@ class SettingsScreen extends StatelessWidget {
               onPressed: () => _scaleService.tareCommand(),
               child: Text("tare")),
           FilledButton(
-              onPressed: () => _reading = _scaleService.reading,
-              child: Text("get reading")),
+              onPressed: () => _reading = 42, child: Text("get reading")),
           Text(_reading.toString())
         ],
       ),
