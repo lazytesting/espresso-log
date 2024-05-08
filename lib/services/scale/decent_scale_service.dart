@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:espresso_log/abstract_scale_service.dart';
-import 'package:espresso_log/weight_notification.dart';
+import 'package:espresso_log/services/scale/abstract_scale_service.dart';
+import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -128,8 +128,9 @@ class DecentScaleService implements AbstractScaleService {
       var millisSinceOn = value[6];
       var totalMillisSinceOn =
           (minutesSinceOn * 60 * 1000) + secondsSinceOn * 1000 + millisSinceOn;
+      // TODO: check received time vs message time
       var notification = WeightNotification(
-          weight: grams, isStable: isStable, millisSinceOn: totalMillisSinceOn);
+          weight: grams, isStable: isStable, timeStamp: DateTime.now());
       // ignore: avoid_print
       print("reading ${notification.weight}");
       weightNotificationController.add(notification);

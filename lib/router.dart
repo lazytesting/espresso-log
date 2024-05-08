@@ -1,6 +1,7 @@
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
+import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
@@ -35,16 +36,10 @@ class AppRouter {
                 GoRoute(
                   path: homePath,
                   builder: (context, state) {
-                    return MultiBlocProvider(
-                        providers: [
-                          BlocProvider(create: (_) => CurrentWeightCubit()),
-                          BlocProvider(create: (_) => WeightChangeCubit()),
-                          BlocProvider(create: (_) => TimerCubit()),
-                        ],
-                        child: ScreenContainer(
-                          key: state.pageKey,
-                          child: const HomeScreen(),
-                        ));
+                    return ScreenContainer(
+                      key: state.pageKey,
+                      child: const HomeScreen(),
+                    );
                   },
                 ),
               ],

@@ -1,6 +1,6 @@
-import 'package:espresso_log/abstract_scale_service.dart';
+import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/main.dart';
-import 'package:espresso_log/decent_scale_service.dart';
+import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 

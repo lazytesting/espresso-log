@@ -1,4 +1,4 @@
-import 'package:espresso_log/abstract_scale_service.dart';
+import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

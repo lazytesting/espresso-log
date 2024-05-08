@@ -1,4 +1,4 @@
-import 'package:espresso_log/weight_notification.dart';
+import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class AbstractScaleService {

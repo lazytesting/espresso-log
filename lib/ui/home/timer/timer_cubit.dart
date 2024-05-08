@@ -1,30 +1,29 @@
 import 'dart:async';
 
+import 'package:espresso_log/main.dart';
+import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'timer_state.dart';
 
 class TimerCubit extends Cubit<TimerState> {
-  final _stopwatch = Stopwatch();
-  bool _isRunning = false;
+  final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
 
-  TimerCubit() : super(TimerInitial());
-
-  void start() {
-    _stopwatch.reset();
-    _stopwatch.start();
-    _isRunning = true;
-    Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      if (!_isRunning) {
-        timer.cancel();
-        emit(TimerStopped((_stopwatch.elapsedMilliseconds / 1000).round()));
+  TimerCubit() : super(TimerInitial()) {
+    _timerService.timerUpdates.listen((event) {
+      if (event is TimerStoppedEvent) {
+        emit(TimerStopped((event.milliseconds / 1000).round()));
       } else {
-        emit(TimerRunning((_stopwatch.elapsedMilliseconds / 1000).round()));
+        emit(TimerRunning((event.milliseconds / 1000).round()));
       }
     });
   }
 
+  void start() {
+    _timerService.start();
+  }
+
   void stop() {
-    _isRunning = false;
+    _timerService.stop();
   }
 }

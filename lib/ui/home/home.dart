@@ -1,6 +1,7 @@
 import 'package:espresso_log/ui/home/current-weight/current_weight_widget.dart';
 import 'package:espresso_log/ui/home/timer/timer_widget.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_widget.dart';
+import 'package:espresso_log/ui/home/weight_graph/weight_graph_widget.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class HomeScreen extends StatelessWidget {
           TimerWidget(),
           CurrentWeightWidget(),
           WeightChangeWidget(),
+          WeightGraphWidget()
         ]));
   }
 }

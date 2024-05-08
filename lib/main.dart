@@ -1,12 +1,20 @@
-import 'package:espresso_log/abstract_scale_service.dart';
-import 'package:espresso_log/mock_scale_service.dart';
+import 'package:espresso_log/services/scale/abstract_scale_service.dart';
+import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/router.dart';
-import 'package:espresso_log/decent_scale_service.dart';
+import 'package:espresso_log/services/scale/decent_scale_service.dart';
+import 'package:espresso_log/services/timer/abstract_timer_service.dart';
+import 'package:espresso_log/services/timer/timer_service.dart';
+import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
+import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
+import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 void main() {
+  getIt.registerSingleton<AbstractTimerService>(TimerService());
   getIt.registerSingletonAsync<AbstractScaleService>(() async {
     final scaleService = MockScaleService();
     //final scaleService = DecentScaleService();
@@ -14,7 +22,12 @@ void main() {
     return scaleService;
   });
 
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider(create: (_) => CurrentWeightCubit()),
+    BlocProvider(create: (_) => WeightChangeCubit()),
+    BlocProvider(create: (_) => TimerCubit()),
+    BlocProvider(create: (_) => WeightGraphCubit()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
