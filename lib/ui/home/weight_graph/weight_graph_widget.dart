@@ -58,18 +58,13 @@ class WeightGraphWidget extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 1.70,
             child: Padding(
-              padding: const EdgeInsets.only(
-                right: 18,
-                left: 12,
-                top: 24,
-                bottom: 30,
-              ),
+              padding: EdgeInsets.all(8.0),
               child: LineChart(LineChartData(
                 gridData: FlGridData(
                   show: true,
                   drawVerticalLine: true,
                   horizontalInterval: 5,
-                  verticalInterval: 5,
+                  verticalInterval: 5000,
                   getDrawingHorizontalLine: (value) {
                     return const FlLine(
                       color: Colors.grey,

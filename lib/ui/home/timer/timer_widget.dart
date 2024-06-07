@@ -35,8 +35,10 @@ class TimerWidget extends StatelessWidget {
         }
 
         return Center(
-          child: Card(
-            clipBehavior: Clip.hardEdge,
+            child: Card(
+          clipBehavior: Clip.hardEdge,
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -58,7 +60,7 @@ class TimerWidget extends StatelessWidget {
               ],
             ),
           ),
-        );
+        ));
       },
     );
   }

@@ -1,7 +1,6 @@
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/router.dart';
-import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
@@ -33,6 +32,14 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  ThemeData _getTheme() {
+    var baseTheme = ThemeData.from(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 84, 48, 134)));
+
+    return baseTheme;
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -41,9 +48,7 @@ class MyApp extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return MaterialApp.router(
-              theme: ThemeData.from(
-                  colorScheme: ColorScheme.fromSeed(
-                      seedColor: const Color.fromARGB(255, 84, 48, 134))),
+              theme: _getTheme(),
               routerConfig: AppRouter().router,
             );
           } else {
