@@ -1,4 +1,3 @@
-import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +7,6 @@ class WeightGraphWidget extends StatelessWidget {
   const WeightGraphWidget({super.key});
 
   Widget _bottomTitleWidgets(double value, TitleMeta meta) {
-    const style = TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 2,
-    );
     var text = Text((value / 1000).round().toString());
 
     return SideTitleWidget(
@@ -58,7 +53,7 @@ class WeightGraphWidget extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 1.70,
             child: Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               child: LineChart(LineChartData(
                 gridData: FlGridData(
                   show: true,

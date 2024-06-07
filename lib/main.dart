@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
               routerConfig: AppRouter().router,
             );
           } else {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
         });
   }

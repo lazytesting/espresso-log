@@ -68,7 +68,7 @@ class DecentScaleService implements AbstractScaleService {
         .first;
 
     await FlutterBluePlus.startScan(
-        withNames: ["Decent Scale"], timeout: Duration(seconds: 15));
+        withNames: ["Decent Scale"], timeout: const Duration(seconds: 15));
 
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
   }

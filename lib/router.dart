@@ -1,14 +1,9 @@
-import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
-import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
-import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
-import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {

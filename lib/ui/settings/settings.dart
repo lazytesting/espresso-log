@@ -8,7 +8,6 @@ class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
   late final AbstractScaleService _scaleService =
       getIt.get<DecentScaleService>();
-  double _reading = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +25,10 @@ class SettingsScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           FilledButton(
-              onPressed: () => _scaleService.init(), child: Text("init")),
+              onPressed: () => _scaleService.init(), child: const Text("init")),
           FilledButton(
               onPressed: () => _scaleService.tareCommand(),
-              child: Text("tare")),
-          FilledButton(
-              onPressed: () => _reading = 42, child: Text("get reading")),
-          Text(_reading.toString())
+              child: const Text("tare")),
         ],
       ),
     );

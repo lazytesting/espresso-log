@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
-import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:rxdart/rxdart.dart';
 
 class TimerService implements AbstractTimerService {

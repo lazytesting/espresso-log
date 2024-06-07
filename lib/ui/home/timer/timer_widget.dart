@@ -38,7 +38,7 @@ class TimerWidget extends StatelessWidget {
             child: Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
