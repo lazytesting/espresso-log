@@ -3,12 +3,15 @@ import 'dart:io';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 class DecentScaleService implements AbstractScaleService {
   BluetoothDevice? _device; // TODO get this out of class, move to init
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
+  Logger logger = Logger();
+
   @override
   final weightNotificationController = BehaviorSubject<WeightNotification>();
   final scaleStatusController = BehaviorSubject<String>();
@@ -29,13 +32,13 @@ class DecentScaleService implements AbstractScaleService {
 
   Future<void> _ensureBluethooth() async {
     if (await FlutterBluePlus.isSupported == false) {
-      print("Bluetooth not supported by this device");
+      logger.d("Bluetooth not supported by this device");
       return;
     }
 
     var subscription =
         FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
-      print(state);
+      logger.d(state);
       if (state == BluetoothAdapterState.on) {
         // usually start scanning, connecting, etc
       } else {
@@ -56,10 +59,10 @@ class DecentScaleService implements AbstractScaleService {
         if (results.isNotEmpty) {
           ScanResult r = results.last; // the most recently found device
           _device = r.device;
-          print('${r.device.remoteId}: "${r.device.platformName}" found!');
+          logger.d('${r.device.remoteId}: "${r.device.platformName}" found!');
         }
       },
-      onError: (e) => print(e),
+      onError: (e) => logger.e(e),
     );
     FlutterBluePlus.cancelWhenScanComplete(subscription);
 
@@ -123,11 +126,11 @@ class DecentScaleService implements AbstractScaleService {
       var grams = decaGrams / 10;
 
       var isStable = value[1] == 0xCE;
-      var minutesSinceOn = value[4];
-      var secondsSinceOn = value[5];
-      var millisSinceOn = value[6];
-      var totalMillisSinceOn =
-          (minutesSinceOn * 60 * 1000) + secondsSinceOn * 1000 + millisSinceOn;
+      // var minutesSinceOn = value[4];
+      // var secondsSinceOn = value[5];
+      // var millisSinceOn = value[6];
+      // var totalMillisSinceOn =
+      //     (minutesSinceOn * 60 * 1000) + secondsSinceOn * 1000 + millisSinceOn;
       // TODO: check received time vs message time
       var notification = WeightNotification(
           weight: grams, isStable: isStable, timeStamp: DateTime.now());
