@@ -3,12 +3,12 @@
 A new Flutter project.
 
 ## TODO
-- plot weight
-- ci/cd
+- plot weight (test)
 - speed-up connecting OR show progress
 - damping/normalisation
 - plot weight change
 - settings screen
+- save and history
 
 
 ## Getting Started

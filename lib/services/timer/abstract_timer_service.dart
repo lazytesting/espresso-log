@@ -15,13 +15,13 @@ abstract class TimerEvent {
 }
 
 class TimerStartedEvent extends TimerEvent {
-  TimerStartedEvent(int milliseconds) : super(milliseconds);
+  TimerStartedEvent(super.milliseconds);
 }
 
 class TimerTickedEvent extends TimerEvent {
-  TimerTickedEvent(int milliseconds) : super(milliseconds);
+  TimerTickedEvent(super.milliseconds);
 }
 
 class TimerStoppedEvent extends TimerEvent {
-  TimerStoppedEvent(int milliseconds) : super(milliseconds);
+  TimerStoppedEvent(super.milliseconds);
 }
