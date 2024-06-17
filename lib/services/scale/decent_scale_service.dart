@@ -13,7 +13,7 @@ class DecentScaleService implements AbstractScaleService {
   Logger logger = Logger();
 
   @override
-  final weightNotificationController = BehaviorSubject<WeightNotification>();
+  final scaleNotificationController = BehaviorSubject<ScaleNotification>();
   final scaleStatusController = BehaviorSubject<String>();
 
   @override
@@ -117,6 +117,8 @@ class DecentScaleService implements AbstractScaleService {
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
     List<int> signedCommand = _signWithXor(command);
     await _sendCommand(signedCommand);
+    scaleNotificationController
+        .add(TareNotification(timeStamp: DateTime.now()));
   }
 
   Future<void> _subscribeToReadings() async {
@@ -126,17 +128,12 @@ class DecentScaleService implements AbstractScaleService {
       var grams = decaGrams / 10;
 
       var isStable = value[1] == 0xCE;
-      // var minutesSinceOn = value[4];
-      // var secondsSinceOn = value[5];
-      // var millisSinceOn = value[6];
-      // var totalMillisSinceOn =
-      //     (minutesSinceOn * 60 * 1000) + secondsSinceOn * 1000 + millisSinceOn;
       // TODO: check received time vs message time
       var notification = WeightNotification(
           weight: grams, isStable: isStable, timeStamp: DateTime.now());
       // ignore: avoid_print
       print("reading ${notification.weight}");
-      weightNotificationController.add(notification);
+      scaleNotificationController.add(notification);
     });
 
     // cleanup: cancel subscription when disconnected

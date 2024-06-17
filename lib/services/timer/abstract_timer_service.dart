@@ -1,7 +1,7 @@
-import 'package:rxdart/rxdart.dart';
+import 'dart:async';
 
 abstract class AbstractTimerService {
-  final timerUpdates = BehaviorSubject<TimerEvent>();
+  final timerUpdates = StreamController<TimerEvent>();
 
   Future<void> start() async {}
 
@@ -9,19 +9,19 @@ abstract class AbstractTimerService {
 }
 
 abstract class TimerEvent {
-  final int milliseconds;
+  final DateTime timeStamp;
 
-  TimerEvent(this.milliseconds);
+  TimerEvent(this.timeStamp);
 }
 
 class TimerStartedEvent extends TimerEvent {
-  TimerStartedEvent(super.milliseconds);
-}
-
-class TimerTickedEvent extends TimerEvent {
-  TimerTickedEvent(super.milliseconds);
+  TimerStartedEvent(super.timeStamp);
 }
 
 class TimerStoppedEvent extends TimerEvent {
-  TimerStoppedEvent(super.milliseconds);
+  TimerStoppedEvent(super.timeStamp);
+}
+
+class TimerTickedEvent extends TimerEvent {
+  TimerTickedEvent(super.timeStamp);
 }

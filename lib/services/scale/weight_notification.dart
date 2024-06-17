@@ -1,8 +1,17 @@
-class WeightNotification {
-  final double weight;
-  final bool isStable;
+abstract class ScaleNotification {
   final DateTime timeStamp;
 
+  ScaleNotification({required this.timeStamp});
+}
+
+class WeightNotification extends ScaleNotification {
+  final double weight;
+  final bool isStable;
+
   WeightNotification(
-      {required this.weight, required this.isStable, required this.timeStamp});
+      {required this.weight, required this.isStable, required super.timeStamp});
+}
+
+class TareNotification extends ScaleNotification {
+  TareNotification({required super.timeStamp});
 }

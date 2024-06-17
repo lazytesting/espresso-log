@@ -1,6 +1,7 @@
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/mock_scale_service.dart';
+import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/router.dart';
+import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';

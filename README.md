@@ -3,7 +3,7 @@
 A new Flutter project.
 
 ## TODO
-- plot weight (test)
+- auto tare
 - speed-up connecting OR show progress
 - damping/normalisation
 - plot weight change

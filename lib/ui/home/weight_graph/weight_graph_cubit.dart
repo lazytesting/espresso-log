@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
@@ -9,16 +11,41 @@ part 'weight_graph_state.dart';
 class WeightGraphCubit extends Cubit<WeightGraphState> {
   final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
-  bool _isTimmerRunning = false;
-  List<WeightNotification> _weightNotifications = [];
-  DateTime? _startTime;
+  late StreamSubscription<int> _timerSubscription;
+  List<ScaleNotification> _scaleNotifications = [];
+  late StreamSubscription<ScaleNotification> _scaleNotificationSubscription;
 
   List<GraphData> _getGraphData() {
-    if (_weightNotifications.isEmpty) return [];
-    if (_startTime == null) return []; //todo check
-    var allGraphPoints = _weightNotifications.map((wn) => GraphData(
-        wn.timeStamp.difference(_startTime!).inMilliseconds, wn.weight));
+    if (_scaleNotifications.isEmpty) return [];
+    // create list with ordered weightNotifications
+    List<WeightNotification> weightNotifications = [];
+    weightNotifications
+        .addAll(_scaleNotifications.whereType<WeightNotification>());
+    weightNotifications.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
 
+    // set everything before last tare to 0
+    var tareEvents = _scaleNotifications.whereType<TareNotification>();
+
+    var lastTareTime = tareEvents.isNotEmpty ? tareEvents.last.timeStamp : null;
+
+    //weightNotifications.where((wn) => wn.timeStamp.isBefore(lastTareTime));
+    var taredWeightNotifications = weightNotifications.map((wn) {
+      var taredWeight =
+          lastTareTime != null && wn.timeStamp.isBefore(lastTareTime)
+              ? 0.0
+              : wn.weight;
+      return WeightNotification(
+          weight: taredWeight, isStable: wn.isStable, timeStamp: wn.timeStamp);
+    });
+
+    // map to graphData
+    var timeStampZero = taredWeightNotifications.first.timeStamp;
+
+    var allGraphPoints = taredWeightNotifications.map((wn) => GraphData(
+        wn.timeStamp.difference(timeStampZero).inMilliseconds, wn.weight));
+
+    // only one point per second
+    // later add more advanced damping
     List<GraphData> filteredList = [];
     int nextSecond = 0;
 
@@ -29,10 +56,6 @@ class WeightGraphCubit extends Cubit<WeightGraphState> {
       }
     }
 
-    if (allGraphPoints.last.millisecond > filteredList.last.millisecond) {
-      filteredList.add(allGraphPoints.last);
-    }
-
     return filteredList.toList();
   }
 
@@ -41,21 +64,27 @@ class WeightGraphCubit extends Cubit<WeightGraphState> {
 
     _timerService.timerUpdates.stream.listen((event) {
       if (event is TimerStartedEvent) {
-        _isTimmerRunning = true;
-        _startTime = DateTime.now();
+        // reset scale notifications
+        _scaleNotifications = [];
+
+        // subscribe to scalenotifications
+        _scaleNotificationSubscription =
+            _scaleService.scaleNotificationController.listen((scaleEvent) {
+          _scaleNotifications.add(scaleEvent);
+        });
+
+        // emit update every second
+        var stream =
+            Stream.periodic(const Duration(seconds: 1), (index) => index);
+        _timerSubscription = stream.listen((onData) {
+          emit(WeightGraphUpdating(_getGraphData()));
+        });
       }
       if (event is TimerStoppedEvent) {
-        _isTimmerRunning = false;
+        _timerSubscription.cancel();
         emit(WeightGraphStopped(_getGraphData()));
-        _weightNotifications = [];
-        _startTime = null;
+        _scaleNotificationSubscription.cancel();
       }
-    });
-
-    _scaleService.weightNotificationController.stream.listen((event) {
-      if (!_isTimmerRunning) return;
-      _weightNotifications.add(event);
-      emit(WeightGraphUpdating(_getGraphData()));
     });
   }
 }

@@ -9,7 +9,15 @@ class WeightChangeCubit extends Cubit<WeightChangeState> {
   final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   final List<WeightNotification> _history = [];
   WeightChangeCubit() : super(WeightChangeInitial()) {
-    _scaleService.weightNotificationController.stream.listen((event) {
+    _scaleService.scaleNotificationController.stream.listen((event) {
+      // remove event occured before taring
+      if (event is TareNotification) {
+        _history.removeWhere(
+            (element) => element.timeStamp.isBefore(event.timeStamp));
+        return;
+      }
+
+      if (event is WeightNotification == false) return;
       // prevent out of order events
       if (_history.isNotEmpty &&
           _history.last.timeStamp.millisecondsSinceEpoch >
@@ -17,7 +25,7 @@ class WeightChangeCubit extends Cubit<WeightChangeState> {
         return;
       }
 
-      _history.add(event);
+      _history.add(event as WeightNotification);
 
       // cleanup history
       var removeBefore =
