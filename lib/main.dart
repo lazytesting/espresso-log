@@ -1,6 +1,6 @@
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/router.dart';
+import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
@@ -12,12 +12,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+const useMockScale =
+    bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
+
 final getIt = GetIt.instance;
 void main() {
   getIt.registerSingleton<AbstractTimerService>(TimerService());
   getIt.registerSingletonAsync<AbstractScaleService>(() async {
-    final scaleService = MockScaleService();
-    //final scaleService = DecentScaleService();
+    var scaleService;
+    if (useMockScale) {
+      scaleService = MockScaleService();
+    } else {
+      scaleService = DecentScaleService();
+    }
     await scaleService.init();
     return scaleService;
   });

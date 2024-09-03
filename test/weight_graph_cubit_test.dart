@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
-import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
 import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
