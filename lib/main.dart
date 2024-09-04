@@ -19,7 +19,7 @@ final getIt = GetIt.instance;
 void main() {
   getIt.registerSingleton<AbstractTimerService>(TimerService());
   getIt.registerSingletonAsync<AbstractScaleService>(() async {
-    var scaleService;
+    AbstractScaleService scaleService;
     if (useMockScale) {
       scaleService = MockScaleService();
     } else {
