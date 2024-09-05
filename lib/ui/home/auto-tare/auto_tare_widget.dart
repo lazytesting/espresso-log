@@ -1,5 +1,4 @@
 import 'package:espresso_log/ui/home/auto-tare/auto_tare_cubit.dart';
-import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
