@@ -1,9 +1,11 @@
+import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/router.dart';
 import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
+import 'package:espresso_log/ui/home/auto-tare/auto_tare_cubit.dart';
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
@@ -16,7 +18,7 @@ const useMockScale =
     bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
 
 final getIt = GetIt.instance;
-void main() {
+void main() async {
   getIt.registerSingleton<AbstractTimerService>(TimerService());
   getIt.registerSingletonAsync<AbstractScaleService>(() async {
     AbstractScaleService scaleService;
@@ -29,11 +31,18 @@ void main() {
     return scaleService;
   });
 
+  getIt.registerSingletonAsync<AbstractAutoTare>(() async {
+    await getIt.isReady<AbstractScaleService>();
+    var scaleService = getIt.get<AbstractScaleService>();
+    return AutoTare(scaleService);
+  });
+
   runApp(MultiBlocProvider(providers: [
     BlocProvider(create: (_) => CurrentWeightCubit()),
     BlocProvider(create: (_) => WeightChangeCubit()),
     BlocProvider(create: (_) => TimerCubit()),
     BlocProvider(create: (_) => WeightGraphCubit()),
+    BlocProvider(create: (_) => AutoTareCubit())
   ], child: const MyApp()));
 }
 
