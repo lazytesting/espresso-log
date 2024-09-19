@@ -14,10 +14,13 @@ class MockScaleService implements AbstractScaleService {
   @override
   Future<void> init() async {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer t) {
+      var weight = (_count / 5) + Random().nextDouble();
+      if (t.tick >= 40 && t.tick <= 55) {
+        weight = 52;
+      }
+
       scaleNotificationController.add(WeightNotification(
-          weight: (_count / 5) + Random().nextDouble(),
-          isStable: true,
-          timeStamp: DateTime.now()));
+          weight: weight, isStable: true, timeStamp: DateTime.now()));
       _count++;
     });
   }
