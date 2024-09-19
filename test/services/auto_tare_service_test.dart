@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
@@ -12,8 +10,6 @@ import 'package:rxdart/rxdart.dart';
 import 'auto_tare_service_test.mocks.dart';
 
 void main() {
-  // final getIt = GetIt.instance;
-
   test('stable weight increase should trigger tare', () async {
     var fakeScaleService = MockAbstractScaleService();
     var controller = BehaviorSubject<ScaleNotification>();
