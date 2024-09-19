@@ -18,7 +18,7 @@ class AutoTare implements AbstractAutoTare {
 
   @override
   void start() {
-    scaleSubscription = scaleService.scaleNotificationController
+    scaleSubscription = scaleService.scaleNotificationController.stream
         .where((event) => event is WeightNotification)
         .cast<WeightNotification>()
         .listen((weightNotification) {
@@ -49,8 +49,8 @@ class AutoTare implements AbstractAutoTare {
 
       // weight is stable
       _history.add(weightNotification);
-      if (_history.first.timeStamp
-              .difference(weightNotification.timeStamp)
+      if (weightNotification.timeStamp
+              .difference(_history.first.timeStamp)
               .inMilliseconds >
           1000) {
         scaleService.tareCommand();
