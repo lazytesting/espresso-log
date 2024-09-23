@@ -3,14 +3,10 @@
 A new Flutter project.
 
 ## TODO
-- timer 10th of seconds
-- auto tare
-- add tests
 - fix negative values
 - show timer on scale OR use scale buttons
 - speed-up connecting OR show progress
-- damping/normalisation
-- plot weight change
+- check bloc usages (too many rebuilds?)
 - settings screen
 - save and history
 

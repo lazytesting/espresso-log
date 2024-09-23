@@ -18,7 +18,7 @@ class TimerWidget extends StatelessWidget {
         );
 
         if (state is TimerRunning) {
-          timer = state.seconds.toString();
+          timer = "${state.seconds}.${state.deciSeconds}";
           button = FilledButton(
             style: TextButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.tertiary,
@@ -31,7 +31,7 @@ class TimerWidget extends StatelessWidget {
         }
 
         if (state is TimerStopped) {
-          timer = state.seconds.toString();
+          timer = "${state.seconds}.${state.deciSeconds}";
         }
 
         return Center(

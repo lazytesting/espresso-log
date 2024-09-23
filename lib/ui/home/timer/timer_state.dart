@@ -6,12 +6,14 @@ final class TimerInitial extends TimerState {}
 
 final class TimerRunning extends TimerState {
   final int seconds;
+  final int deciSeconds;
 
-  TimerRunning(this.seconds);
+  TimerRunning(this.seconds, this.deciSeconds);
 }
 
 final class TimerStopped extends TimerState {
   final int seconds;
+  final int deciSeconds;
 
-  TimerStopped(this.seconds);
+  TimerStopped(this.seconds, this.deciSeconds);
 }
