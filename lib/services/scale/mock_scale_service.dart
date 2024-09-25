@@ -19,8 +19,8 @@ class MockScaleService implements AbstractScaleService {
         weight = 52;
       }
 
-      scaleNotificationController.add(WeightNotification(
-          weight: weight, isStable: true, timeStamp: DateTime.now()));
+      scaleNotificationController
+          .add(WeightNotification(weight: weight, timeStamp: DateTime.now()));
       _count++;
     });
   }

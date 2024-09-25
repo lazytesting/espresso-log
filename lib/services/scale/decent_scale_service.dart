@@ -28,6 +28,7 @@ class DecentScaleService implements AbstractScaleService {
     scaleStatusController.add("start listening");
     await _subscribeToReadings();
     await tareCommand();
+    scaleStatusController.add("ready");
   }
 
   Future<void> _ensureBluethooth() async {
@@ -126,11 +127,9 @@ class DecentScaleService implements AbstractScaleService {
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       var decaGrams = (value[2] * 256) + value[3];
       var grams = decaGrams / 10;
-
-      var isStable = value[1] == 0xCE;
       // TODO: check received time vs message time
-      var notification = WeightNotification(
-          weight: grams, isStable: isStable, timeStamp: DateTime.now());
+      var notification =
+          WeightNotification(weight: grams, timeStamp: DateTime.now());
       // ignore: avoid_print
       print("reading ${notification.weight}");
       scaleNotificationController.add(notification);

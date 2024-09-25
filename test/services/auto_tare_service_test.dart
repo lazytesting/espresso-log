@@ -21,16 +21,12 @@ void main() {
 
     // when
     autoTareService.start();
-    controller.add(
-        WeightNotification(weight: 10, isStable: true, timeStamp: startTime));
+    controller.add(WeightNotification(weight: 10, timeStamp: startTime));
     controller.add(WeightNotification(
-        weight: 62,
-        isStable: true,
-        timeStamp: startTime.add(const Duration(milliseconds: 1))));
+        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
 
     controller.add(WeightNotification(
         weight: 62,
-        isStable: true,
         timeStamp: startTime.add(const Duration(milliseconds: 1002))));
 
     // then
@@ -49,16 +45,12 @@ void main() {
 
     // when
     autoTareService.start();
-    controller.add(
-        WeightNotification(weight: 10, isStable: true, timeStamp: startTime));
+    controller.add(WeightNotification(weight: 10, timeStamp: startTime));
     controller.add(WeightNotification(
-        weight: 62,
-        isStable: true,
-        timeStamp: startTime.add(const Duration(milliseconds: 1))));
+        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
 
     controller.add(WeightNotification(
         weight: 62.3,
-        isStable: true,
         timeStamp: startTime.add(const Duration(milliseconds: 1002))));
 
     // then
@@ -77,16 +69,12 @@ void main() {
 
     // when
     autoTareService.start();
-    controller.add(
-        WeightNotification(weight: 10, isStable: true, timeStamp: startTime));
+    controller.add(WeightNotification(weight: 10, timeStamp: startTime));
     controller.add(WeightNotification(
-        weight: 62,
-        isStable: true,
-        timeStamp: startTime.add(const Duration(milliseconds: 1))));
+        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
 
     controller.add(WeightNotification(
         weight: 62,
-        isStable: true,
         timeStamp: startTime.add(const Duration(milliseconds: 101))));
 
     // then
@@ -105,16 +93,12 @@ void main() {
 
     // when
     autoTareService.start();
-    controller.add(
-        WeightNotification(weight: 10, isStable: true, timeStamp: startTime));
+    controller.add(WeightNotification(weight: 10, timeStamp: startTime));
     controller.add(WeightNotification(
-        weight: 20,
-        isStable: true,
-        timeStamp: startTime.add(const Duration(milliseconds: 1))));
+        weight: 20, timeStamp: startTime.add(const Duration(milliseconds: 1))));
 
     controller.add(WeightNotification(
         weight: 20,
-        isStable: true,
         timeStamp: startTime.add(const Duration(milliseconds: 2001))));
 
     // then

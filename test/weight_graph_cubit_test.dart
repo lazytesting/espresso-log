@@ -31,39 +31,12 @@ void main() {
     getIt.registerSingleton<AbstractScaleService>(fakeScaleService);
   });
 
-  // test("Should show graph based on serie of weightnotificatiosn", () {
-  //   // Arrange
-  //   final cubit = WeightGraphCubit();
-
-  //   // Act
-  //   fakeTimerService.timerUpdates.add(TimerStartedEvent(0));
-  //   fakeScaleService.scaleNotificationController.add(WeightNotification(
-  //       weight: 0,
-  //       isStable: true,
-  //       timeStamp: DateTime(2020, 10, 15, 10, 00, 00)));
-  //   fakeTimerService.timerUpdates.add(TimerTickedEvent(100));
-  //   fakeScaleService.scaleNotificationController.add(WeightNotification(
-  //       weight: 2,
-  //       isStable: true,
-  //       timeStamp: DateTime(2020, 10, 15, 10, 00, 01)));
-  //   fakeTimerService.timerUpdates.add(TimerTickedEvent(200));
-  //   fakeScaleService.scaleNotificationController.add(WeightNotification(
-  //       weight: 5,
-  //       isStable: true,
-  //       timeStamp: DateTime(2020, 10, 15, 10, 00, 02)));
-
-  //   // Assert
-  //   expectLater(cubit.stream, emitsInOrder(<int>[0, 1, 2, 3]));
-  // });
-
   blocTest('CounterBloc emits [2] when increment is added twice',
       build: () => WeightGraphCubit(),
       act: (bloc) {
         fakeTimerService.timerUpdates.add(TimerStartedEvent(DateTime.now()));
         fakeScaleService.scaleNotificationController.add(WeightNotification(
-            weight: 0,
-            isStable: true,
-            timeStamp: DateTime(2020, 10, 15, 10, 00, 00)));
+            weight: 0, timeStamp: DateTime(2020, 10, 15, 10, 00, 00)));
       },
       expect: () => {
             const TypeMatcher<WeightGraphUpdating>()

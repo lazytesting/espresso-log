@@ -34,8 +34,7 @@ class WeightGraphCubit extends Cubit<WeightGraphState> {
           lastTareTime != null && wn.timeStamp.isBefore(lastTareTime)
               ? 0.0
               : wn.weight;
-      return WeightNotification(
-          weight: taredWeight, isStable: wn.isStable, timeStamp: wn.timeStamp);
+      return WeightNotification(weight: taredWeight, timeStamp: wn.timeStamp);
     });
 
     // map to graphData

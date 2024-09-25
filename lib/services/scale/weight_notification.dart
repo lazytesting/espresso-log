@@ -6,10 +6,8 @@ abstract class ScaleNotification {
 
 class WeightNotification extends ScaleNotification {
   final double weight;
-  final bool isStable;
 
-  WeightNotification(
-      {required this.weight, required this.isStable, required super.timeStamp});
+  WeightNotification({required this.weight, required super.timeStamp});
 }
 
 class TareNotification extends ScaleNotification {
