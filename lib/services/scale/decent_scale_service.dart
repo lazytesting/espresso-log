@@ -123,9 +123,17 @@ class DecentScaleService implements AbstractScaleService {
   }
 
   Future<void> _subscribeToReadings() async {
-    // todo figure out negative weight
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       var decaGrams = (value[2] * 256) + value[3];
+
+      // if above 3200 gram it is actually a negative weight
+      // TODO: negative weight is still off a bit
+      if (decaGrams > 32000) {
+        var signed2 = value[2].toSigned(8);
+        var signed3 = value[3].toSigned(8);
+        decaGrams = (signed2 * 256) + signed3;
+      }
+
       var grams = decaGrams / 10;
       // TODO: check received time vs message time
       var notification =

@@ -3,17 +3,11 @@
 A new Flutter project.
 
 ## TODO
-- fix negative values
-- show timer on scale OR use scale buttons
 - speed-up connecting OR show progress
 - check bloc usages (too many rebuilds?)
 - settings screen
 - save and history
-
-autotare 
-- enabled?
-- first increase with at least 50 gram
-- stable 
+- fix negative values being off a bit
 
 ## Development
 - install FVM
