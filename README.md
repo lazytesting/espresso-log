@@ -9,6 +9,11 @@ A new Flutter project.
 - save and history
 - fix negative values being off a bit
 
+bluetooth performance:
+- add scan filter
+- cache id (using shared prefs)
+- try to connect, on failure scan
+
 ## Development
 - install FVM
 - run `fvm flutter pub get`

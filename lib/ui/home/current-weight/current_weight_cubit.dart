@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';

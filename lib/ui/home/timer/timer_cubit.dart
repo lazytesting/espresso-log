@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:equatable/equatable.dart';
 import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
