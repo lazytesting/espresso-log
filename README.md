@@ -3,16 +3,12 @@
 A new Flutter project.
 
 ## TODO
-- speed-up connecting OR show progress
-- check bloc usages (too many rebuilds?)
+- fix weight change
 - settings screen
+  - forget scale
 - save and history
 - fix negative values being off a bit
 
-bluetooth performance:
-- add scan filter
-- cache id (using shared prefs)
-- try to connect, on failure scan
 
 ## Development
 - install FVM
