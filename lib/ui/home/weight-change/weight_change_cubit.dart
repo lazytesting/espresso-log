@@ -19,20 +19,15 @@ class WeightChangeCubit extends Cubit<WeightChangeState> {
       }
 
       if (event is WeightNotification == false) return;
-      // prevent out of order events
-      if (_history.isNotEmpty &&
-          _history.last.timeStamp.millisecondsSinceEpoch >
-              event.timeStamp.millisecondsSinceEpoch) {
-        return;
-      }
-
-      _history.add(event as WeightNotification);
 
       // cleanup history
       var removeBefore =
-          _history.last.timeStamp.subtract(const Duration(microseconds: 600));
+          event.timeStamp.subtract(const Duration(milliseconds: 600));
       _history
           .removeWhere((element) => element.timeStamp.isBefore(removeBefore));
+
+      // add to history
+      _history.add(event as WeightNotification);
 
       // emit average
       if (_history.length > 1) {
