@@ -5,6 +5,7 @@ import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DecentScaleService implements AbstractScaleService {
   BluetoothDevice? _device; // TODO get this out of class, move to init
@@ -18,10 +19,18 @@ class DecentScaleService implements AbstractScaleService {
 
   @override
   Future<void> init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     scaleStatusController.add("checking Bluetooth");
     await _ensureBluethooth();
-    scaleStatusController.add("scanning");
-    await _scanForDevice();
+    final String? storedDeviceId = prefs.getString('scaleId');
+    if (storedDeviceId == null) {
+      scaleStatusController.add("scanning for new device");
+      await _scanForDevice();
+    } else {
+      scaleStatusController.add("user stored device");
+      _device = BluetoothDevice.fromId(storedDeviceId);
+    }
     scaleStatusController.add("connecting to scale");
     await _connectDevice();
     await _setCharacteristics();
@@ -29,6 +38,7 @@ class DecentScaleService implements AbstractScaleService {
     await _subscribeToReadings();
     await tareCommand();
     scaleStatusController.add("ready");
+    await prefs.setString('scaleId', _device!.remoteId.toString());
   }
 
   Future<void> _ensureBluethooth() async {
