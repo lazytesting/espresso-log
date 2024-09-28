@@ -99,7 +99,7 @@ class DecentScaleService implements AbstractScaleService {
     });
 
     _device!.cancelWhenDisconnected(subscription, delayed: true, next: true);
-    await _device!.connect(autoConnect: true);
+    await _device!.connect();
   }
 
   Future<void> _setCharacteristics() async {
