@@ -181,10 +181,10 @@ packages:
     dependency: "direct dev"
     description:
       name: commitlint_cli
-      sha256: "59921b80b415b81cabbbcf7e18a99aacd3a13eafbb040a19f8804ef4473fd7af"
+      sha256: c41d6648f0a211398fd0d044411110e251ccbec48e18c699c4d932d9bb2c83d0
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.8.0"
   console:
     dependency: transitive
     description:
