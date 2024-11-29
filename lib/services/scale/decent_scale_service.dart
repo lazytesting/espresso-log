@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -134,17 +136,11 @@ class DecentScaleService implements AbstractScaleService {
 
   Future<void> _subscribeToReadings() async {
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
-      var decaGrams = (value[2] * 256) + value[3];
+      var d = ByteData(2);
+      d.setInt8(0, value[2]);
+      d.setInt8(1, value[3]);
+      var grams = d.getInt16(0) / 10;
 
-      // if above 3200 gram it is actually a negative weight
-      // TODO: negative weight is still off a bit
-      if (decaGrams > 32000) {
-        var signed2 = value[2].toSigned(8);
-        var signed3 = value[3].toSigned(8);
-        decaGrams = (signed2 * 256) + signed3;
-      }
-
-      var grams = decaGrams / 10;
       // TODO: check received time vs message time
       var notification =
           WeightNotification(weight: grams, timeStamp: DateTime.now());

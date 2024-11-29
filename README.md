@@ -3,7 +3,6 @@
 A new Flutter project.
 
 ## TODO
-- fix weight change
 - settings screen
   - forget scale
 - save and history
