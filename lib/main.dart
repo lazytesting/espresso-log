@@ -1,4 +1,6 @@
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
+import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
+import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/router.dart';
 import 'package:espresso_log/services/scale/decent_scale_service.dart';
@@ -29,6 +31,17 @@ void main() async {
     }
     await scaleService.init();
     return scaleService;
+  });
+
+  getIt.registerSingletonAsync<AbstractPressureService>(() async {
+    AbstractPressureService pressureService;
+    if (useMockScale) {
+      pressureService = MockPressureService();
+    } else {
+      pressureService = MockPressureService(); //TODO
+    }
+    await pressureService.init();
+    return pressureService;
   });
 
   getIt.registerSingletonAsync<AbstractAutoTare>(() async {
