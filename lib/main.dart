@@ -1,5 +1,6 @@
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
+import 'package:espresso_log/services/pressure/kooboo_pressure_service.dart';
 import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/router.dart';
@@ -39,7 +40,7 @@ void main() async {
     if (useMockScale) {
       pressureService = MockPressureService();
     } else {
-      pressureService = MockPressureService(); //TODO
+      pressureService = KoobooPressureService();
     }
     await pressureService.init();
     return pressureService;
