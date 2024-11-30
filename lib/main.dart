@@ -9,6 +9,7 @@ import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
 import 'package:espresso_log/ui/home/auto-tare/auto_tare_cubit.dart';
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
 import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
@@ -55,7 +56,8 @@ void main() async {
     BlocProvider(create: (_) => WeightChangeCubit()),
     BlocProvider(create: (_) => TimerCubit()),
     BlocProvider(create: (_) => WeightGraphCubit()),
-    BlocProvider(create: (_) => AutoTareCubit())
+    BlocProvider(create: (_) => AutoTareCubit()),
+    BlocProvider(create: (_) => PressureCubit())
   ], child: const MyApp()));
 }
 
