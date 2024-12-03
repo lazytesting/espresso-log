@@ -1,6 +1,6 @@
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/pressure/kooboo_pressure_service.dart';
+import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/router.dart';
@@ -20,6 +20,8 @@ import 'package:get_it/get_it.dart';
 
 const useMockScale =
     bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
+const useMockPressure =
+    bool.fromEnvironment('USE_MOCK_PRESSURE', defaultValue: false);
 
 final getIt = GetIt.instance;
 void main() async {
@@ -37,10 +39,10 @@ void main() async {
 
   getIt.registerSingletonAsync<AbstractPressureService>(() async {
     AbstractPressureService pressureService;
-    if (useMockScale) {
+    if (useMockPressure) {
       pressureService = MockPressureService();
     } else {
-      pressureService = KoobooPressureService();
+      pressureService = BookooPressureService();
     }
     await pressureService.init();
     return pressureService;
