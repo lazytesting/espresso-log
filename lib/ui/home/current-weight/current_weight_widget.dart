@@ -15,39 +15,19 @@ class CurrentWeightWidget extends StatelessWidget {
           weight = state.weight.toStringAsFixed(1);
         }
 
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(children: [
-                  Text(
-                    weight,
-                    style: const TextStyle(fontSize: 25),
-                  )
-                ]),
-                const Row(children: [Text('Grams')]),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    const AutoTareWidget(),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      child: const Text('Tare'),
-                      onPressed: () {
-                        context.read<CurrentWeightCubit>().tareScale();
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ],
-            ),
+            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              Text(
+                weight,
+                style: const TextStyle(fontSize: 25),
+              ),
+              const Row(children: [Text('Grams')]),
+            ]),
           ),
-        ));
+        );
       },
     );
   }

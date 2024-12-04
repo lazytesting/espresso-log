@@ -47,81 +47,77 @@ class WeightGraphWidget extends StatelessWidget {
                 .weight
             : 40;
 
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
-          child: AspectRatio(
-            aspectRatio: 1.70,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: LineChart(LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: true,
-                  horizontalInterval: 5,
-                  verticalInterval: 5000,
-                  getDrawingHorizontalLine: (value) {
-                    return const FlLine(
-                      color: Colors.grey,
-                      strokeWidth: 1,
-                    );
-                  },
-                  getDrawingVerticalLine: (value) {
-                    return const FlLine(
-                      color: Colors.grey,
-                      strokeWidth: 1,
-                    );
-                  },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: LineChart(LineChartData(
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: true,
+                horizontalInterval: 5,
+                verticalInterval: 5000,
+                getDrawingHorizontalLine: (value) {
+                  return const FlLine(
+                    color: Colors.grey,
+                    strokeWidth: 1,
+                  );
+                },
+                getDrawingVerticalLine: (value) {
+                  return const FlLine(
+                    color: Colors.grey,
+                    strokeWidth: 1,
+                  );
+                },
+              ),
+              titlesData: FlTitlesData(
+                show: true,
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
-                titlesData: FlTitlesData(
-                  show: true,
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      interval: 5000,
-                      getTitlesWidget: _bottomTitleWidgets,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 5,
-                      getTitlesWidget: _leftTitleWidgets,
-                      reservedSize: 40,
-                    ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 30,
+                    interval: 5000,
+                    getTitlesWidget: _bottomTitleWidgets,
                   ),
                 ),
-                borderData: FlBorderData(
-                  show: false,
-                  border: Border.all(color: const Color(0xff37434d)),
-                ),
-                minX: 0,
-                maxX: maxX.toDouble(),
-                minY: 0,
-                maxY: maxY.toDouble(),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    color: Colors.purple,
-                    barWidth: 5,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(
-                      show: false,
-                    ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 5,
+                    getTitlesWidget: _leftTitleWidgets,
+                    reservedSize: 40,
                   ),
-                ],
-              )),
-            ),
+                ),
+              ),
+              borderData: FlBorderData(
+                show: false,
+                border: Border.all(color: const Color(0xff37434d)),
+              ),
+              minX: 0,
+              maxX: maxX.toDouble(),
+              minY: 0,
+              maxY: maxY.toDouble(),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  color: Colors.purple,
+                  barWidth: 5,
+                  isStrokeCapRound: true,
+                  dotData: const FlDotData(
+                    show: false,
+                  ),
+                ),
+              ],
+            )),
           ),
-        ));
+        );
       },
     );
   }

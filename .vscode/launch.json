@@ -25,7 +25,8 @@
             "request": "launch",
             "type": "dart",
             "args":[
-                "--dart-define", "USE_MOCK_PRESSURE=true", "USE_MOCK_SCALE=true",
+                "--dart-define", "USE_MOCK_PRESSURE=true", 
+                "--dart-define", "USE_MOCK_SCALE=true",
 			]
         },
         {

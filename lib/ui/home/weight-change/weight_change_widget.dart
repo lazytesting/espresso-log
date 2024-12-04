@@ -28,7 +28,7 @@ class WeightChangeWidget extends StatelessWidget {
                     style: const TextStyle(fontSize: 25),
                   )
                 ]),
-                const Row(children: [Text('Grams/second')]),
+                const Row(children: [Text('g/s')]),
               ],
             ),
           ),
