@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
         title: 'Home',
         child: Column(children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(child: CurrentWeightWidget()),
               Expanded(child: WeightChangeWidget()),

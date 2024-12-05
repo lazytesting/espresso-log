@@ -13,8 +13,7 @@ class PressureWidget extends StatelessWidget {
         if (state is Pressure) {
           pressureText = state.pressure.toStringAsFixed(1);
         }
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -29,7 +28,7 @@ class PressureWidget extends StatelessWidget {
               ],
             ),
           ),
-        ));
+        );
       },
     );
   }

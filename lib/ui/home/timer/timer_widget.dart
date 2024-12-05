@@ -15,8 +15,7 @@ class TimerWidget extends StatelessWidget {
           timer = "${state.seconds}.${state.deciSeconds}";
         }
 
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -28,7 +27,7 @@ class TimerWidget extends StatelessWidget {
               const Text('Seconds')
             ]),
           ),
-        ));
+        );
       },
     );
   }
