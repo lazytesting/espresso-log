@@ -1,3 +1,4 @@
+import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
@@ -48,10 +49,11 @@ void main() async {
     return pressureService;
   });
 
-  getIt.registerSingletonAsync<AbstractAutoTare>(() async {
-    await getIt.isReady<AbstractScaleService>();
-    var scaleService = getIt.get<AbstractScaleService>();
-    return AutoTare(scaleService);
+  getIt.registerSingletonAsync<AutoStartStopService>(() async {
+    await getIt.isReady<AbstractPressureService>();
+    var timerService = getIt.get<AbstractTimerService>();
+    var pressureService = getIt.get<AbstractPressureService>();
+    return AutoStartStopService(pressureService, timerService);
   });
 
   runApp(MultiBlocProvider(providers: [

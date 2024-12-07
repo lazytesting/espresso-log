@@ -9,10 +9,17 @@ class TimerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TimerCubit, TimerState>(
       builder: (context, state) {
-        var timer = '--.-';
+        String timer = "";
+        if (state is TimerInitial) {
+          timer = '--.-';
+        }
+
+        if (state is TimerRunning) {
+          timer = '${state.seconds}.${state.deciSeconds}';
+        }
 
         if (state is TimerStopped) {
-          timer = "${state.seconds}.${state.deciSeconds}";
+          timer = '${state.seconds}.${state.deciSeconds}';
         }
 
         return Card(

@@ -3,6 +3,7 @@ import 'dart:async';
 abstract class AbstractTimerService {
   final timerUpdates = StreamController<TimerEvent>();
 
+  bool get isRunning;
   Future<void> start() async {}
 
   Future<void> stop() async {}
@@ -10,18 +11,19 @@ abstract class AbstractTimerService {
 
 abstract class TimerEvent {
   final DateTime timeStamp;
+  final int milliSeconds;
 
-  TimerEvent(this.timeStamp);
+  TimerEvent(this.timeStamp, this.milliSeconds);
 }
 
 class TimerStartedEvent extends TimerEvent {
-  TimerStartedEvent(super.timeStamp);
+  TimerStartedEvent(super.timeStamp, super.milliSeconds);
 }
 
 class TimerStoppedEvent extends TimerEvent {
-  TimerStoppedEvent(super.timeStamp);
+  TimerStoppedEvent(super.timeStamp, super.milliSeconds);
 }
 
 class TimerTickedEvent extends TimerEvent {
-  TimerTickedEvent(super.timeStamp);
+  TimerTickedEvent(super.timeStamp, super.milliSeconds);
 }
