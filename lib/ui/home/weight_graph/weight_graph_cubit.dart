@@ -62,14 +62,14 @@ class WeightGraphCubit extends Cubit<WeightGraphState> {
   WeightGraphCubit() : super(WeightGraphInitial()) {
     emit(WeightGraphInitial());
 
-    _timerService.timerUpdates.stream.listen((event) {
+    _timerService.stream.listen((event) {
       if (event is TimerStartedEvent) {
         // reset scale notifications
         _scaleNotifications = [];
 
         // subscribe to scalenotifications
         _scaleNotificationSubscription =
-            _scaleService.scaleNotificationController.listen((scaleEvent) {
+            _scaleService.stream.listen((scaleEvent) {
           _scaleNotifications.add(scaleEvent);
         });
 

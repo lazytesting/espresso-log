@@ -1,8 +1,7 @@
 import 'dart:async';
 
 abstract class AbstractTimerService {
-  final timerUpdates = StreamController<TimerEvent>();
-
+  Stream<TimerEvent> stream = const Stream.empty();
   bool get isRunning;
   Future<void> start() async {}
 

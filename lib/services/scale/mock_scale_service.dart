@@ -6,10 +6,15 @@ import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MockScaleService implements AbstractScaleService {
-  @override
-  final scaleNotificationController = BehaviorSubject<ScaleNotification>();
+  final _scaleNotificationController = BehaviorSubject<ScaleNotification>();
   Timer? _timer;
   int _count = 0;
+  @override
+  Stream<ScaleNotification> stream = const Stream.empty();
+
+  MockScaleService() {
+    stream = _scaleNotificationController.stream.asBroadcastStream();
+  }
 
   @override
   Future<void> init() async {
@@ -19,7 +24,7 @@ class MockScaleService implements AbstractScaleService {
         weight = 52;
       }
 
-      scaleNotificationController
+      _scaleNotificationController
           .add(WeightNotification(weight: weight, timeStamp: DateTime.now()));
       _count++;
     });
@@ -27,7 +32,7 @@ class MockScaleService implements AbstractScaleService {
 
   @override
   Future<void> tareCommand() async {
-    scaleNotificationController
+    _scaleNotificationController
         .add(TareNotification(timeStamp: DateTime.now()));
     _count = 0;
   }

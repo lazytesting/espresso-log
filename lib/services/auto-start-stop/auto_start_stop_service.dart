@@ -9,8 +9,7 @@ class AutoStartStopService {
 
   AutoStartStopService(AbstractPressureService pressureService,
       AbstractTimerService timerService) {
-    enable();
-    pressureService.pressureNotificationController.listen((notification) {
+    pressureService.stream.listen((notification) {
       if (!_enabled) {
         return;
       }
@@ -37,6 +36,7 @@ class AutoStartStopService {
   }
 
   void enable() {
+    //temp
     _enabled = true;
   }
 

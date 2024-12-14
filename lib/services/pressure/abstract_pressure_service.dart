@@ -1,9 +1,7 @@
 import 'package:espresso_log/services/pressure/pressure_notification.dart';
-import 'package:rxdart/rxdart.dart';
 
 abstract class AbstractPressureService {
-  final pressureNotificationController =
-      BehaviorSubject<PressureNotification>();
+  Stream<PressureNotification> stream = const Stream.empty();
   Future<void> init() async {}
 
   void dispose();

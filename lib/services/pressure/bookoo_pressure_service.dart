@@ -9,10 +9,14 @@ import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BookooPressureService implements AbstractPressureService {
-  @override
-  final pressureNotificationController =
-      BehaviorSubject<PressureNotification>();
+  BookooPressureService() {
+    stream = _pressureNotificationController.stream.asBroadcastStream();
+  }
 
+  final _pressureNotificationController =
+      BehaviorSubject<PressureNotification>();
+  @override
+  Stream<PressureNotification> stream = const Stream.empty();
   final pressureStatusController = BehaviorSubject<String>();
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
@@ -138,7 +142,7 @@ class BookooPressureService implements AbstractPressureService {
       var notification = PressureNotification(pressure, DateTime.now());
       // ignore: avoid_print
       print("reading ${notification.pressure}");
-      pressureNotificationController.add(notification);
+      _pressureNotificationController.add(notification);
     });
 
     // cleanup: cancel subscription when disconnected

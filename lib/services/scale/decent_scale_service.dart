@@ -14,11 +14,16 @@ class DecentScaleService implements AbstractScaleService {
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   Logger logger = Logger();
-
   @override
-  final scaleNotificationController = BehaviorSubject<ScaleNotification>();
+  Stream<ScaleNotification> stream = const Stream.empty();
+
+  final _scaleNotificationController = BehaviorSubject<ScaleNotification>();
   final scaleStatusController = BehaviorSubject<String>();
 
+  DecentScaleService() {
+    stream = _scaleNotificationController.stream.asBroadcastStream();
+  }
+  
   @override
   Future<void> init() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -130,7 +135,7 @@ class DecentScaleService implements AbstractScaleService {
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
     List<int> signedCommand = _signWithXor(command);
     await _sendCommand(signedCommand);
-    scaleNotificationController
+    _scaleNotificationController
         .add(TareNotification(timeStamp: DateTime.now()));
   }
 
@@ -146,7 +151,7 @@ class DecentScaleService implements AbstractScaleService {
           WeightNotification(weight: grams, timeStamp: DateTime.now());
       // ignore: avoid_print
       print("reading ${notification.weight}");
-      scaleNotificationController.add(notification);
+      _scaleNotificationController.add(notification);
     });
 
     // cleanup: cancel subscription when disconnected

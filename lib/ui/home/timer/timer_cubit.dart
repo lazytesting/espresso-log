@@ -11,7 +11,7 @@ class TimerCubit extends Cubit<TimerState> {
   final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
 
   TimerCubit() : super(TimerInitial()) {
-    _timerService.timerUpdates.stream.listen((event) {
+    _timerService.stream.listen((event) {
       var seconds = (event.milliSeconds / 1000).floor();
       var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
       if (event is TimerStartedEvent || event is TimerTickedEvent) {

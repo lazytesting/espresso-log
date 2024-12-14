@@ -18,7 +18,7 @@ class AutoTare implements AbstractAutoTare {
 
   @override
   void start() {
-    scaleSubscription = scaleService.scaleNotificationController.stream
+    scaleSubscription = scaleService.stream
         .where((event) => event is WeightNotification)
         .cast<WeightNotification>()
         .listen((weightNotification) {

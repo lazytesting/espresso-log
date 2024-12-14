@@ -4,37 +4,30 @@ import 'package:espresso_log/services/pressure/pressure_notification.dart';
 import 'package:rxdart/subjects.dart';
 
 class MockPressureService implements AbstractPressureService {
-  @override
-  final pressureNotificationController =
+  MockPressureService() {
+    stream = _pressureNotificationController.stream.asBroadcastStream();
+  }
+  final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();
   Timer? _timer;
+
+  @override
+  Stream<PressureNotification> stream = const Stream.empty();
 
   @override
   Future<void> init() async {
     _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer t) {
       double pressure = 0;
       var seconds = t.tick / 5;
-      if (seconds <= 4) {
-        pressure = seconds * 2;
-      }
-
-      if (seconds > 4 && seconds <= 10) {
-        pressure = 8 - (seconds - 4);
-      }
-
       if (seconds > 10 && seconds <= 15) {
-        pressure = 2 + (seconds - 10);
+        pressure = seconds - 10;
+      } else if (seconds > 15 && seconds <= 20) {
+        pressure = 5 - (seconds - 15);
+      } else if (seconds > 20 && seconds <= 350) {
+        pressure = 8;
       }
-
-      if (seconds > 15 && pressure < 30) {
-        pressure = 7;
-      }
-
-      if (seconds > 30) {
-        pressure = 0;
-      }
-
-      pressureNotificationController
+      _pressureNotificationController.asBroadcastStream();
+      _pressureNotificationController
           .add(PressureNotification(pressure, DateTime.now()));
     });
   }

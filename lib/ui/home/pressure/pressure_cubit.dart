@@ -10,7 +10,7 @@ class PressureCubit extends Cubit<PressureState> {
       getIt.get<AbstractPressureService>();
 
   PressureCubit() : super(PressureInitial()) {
-    _pressureService.pressureNotificationController.listen((event) {
+    _pressureService.stream.listen((event) {
       emit(Pressure(event.pressure));
     });
   }
