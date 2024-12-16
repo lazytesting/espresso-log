@@ -1,23 +1,21 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
+import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/pressure_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class BookooPressureService implements AbstractPressureService {
-  BookooPressureService() {
+  BookooPressureService(this._bluetoothService) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
-
+  final BluetoothDevicesService _bluetoothService;
   final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();
   @override
   Stream<PressureNotification> stream = const Stream.empty();
-  final pressureStatusController = BehaviorSubject<String>();
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   BluetoothDevice? _device;
@@ -25,89 +23,9 @@ class BookooPressureService implements AbstractPressureService {
 
   @override
   Future<void> init() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    pressureStatusController.add("checking Bluetooth");
-    await _ensureBluethooth();
-    final String? storedDeviceId = prefs.getString('pressureId');
-    if (storedDeviceId == null) {
-      pressureStatusController.add("scanning for new device");
-      await _scanForDevice();
-    } else {
-      pressureStatusController.add("user stored device");
-      _device = BluetoothDevice.fromId(storedDeviceId);
-    }
-    pressureStatusController.add("connecting to scale");
-    await _connectDevice();
+    _device = await _bluetoothService.connectToDevice("BOOKOO_EM");
     await _setCharacteristics();
-    pressureStatusController.add("start listening");
     await _subscribeToReadings();
-    pressureStatusController.add("ready");
-    await prefs.setString('scaleId', _device!.remoteId.toString());
-  }
-
-  // TODO make generic
-  Future<void> _ensureBluethooth() async {
-    if (await FlutterBluePlus.isSupported == false) {
-      logger.d("Bluetooth not supported by this device");
-      return;
-    }
-
-    var subscription =
-        FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
-      logger.d(state);
-      if (state == BluetoothAdapterState.on) {
-        // usually start scanning, connecting, etc
-      } else {
-        // show an error to the user, etc
-      }
-    });
-
-    if (Platform.isAndroid) {
-      await FlutterBluePlus.turnOn();
-    }
-
-    subscription.cancel();
-  }
-
-  Future<void> _scanForDevice() async {
-    var subscription = FlutterBluePlus.onScanResults.listen(
-      (results) {
-        if (results.isNotEmpty) {
-          ScanResult r = results.last; // the most recently found device
-          logger.d('${r.device.remoteId}: "${r.device.platformName}" found!');
-          if (r.advertisementData.advName.startsWith("BOOKOO_EM")) {
-            _device = r.device;
-            FlutterBluePlus.stopScan();
-          }
-        }
-      },
-      onError: (e) => logger.e(e),
-    );
-    FlutterBluePlus.cancelWhenScanComplete(subscription);
-
-    await FlutterBluePlus.adapterState
-        .where((val) => val == BluetoothAdapterState.on)
-        .first;
-
-    await FlutterBluePlus.startScan(timeout: const Duration(seconds: 45));
-
-    await FlutterBluePlus.isScanning.where((val) => val == false).first;
-  }
-
-  Future<void> _connectDevice() async {
-    if (_device == null) {
-      return;
-    }
-    var subscription =
-        _device!.connectionState.listen((BluetoothConnectionState state) async {
-      if (state == BluetoothConnectionState.disconnected) {
-        // TODO:retry
-      }
-    });
-
-    _device!.cancelWhenDisconnected(subscription, delayed: true, next: true);
-    await _device!.connect();
   }
 
   Future<void> _setCharacteristics() async {

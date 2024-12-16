@@ -1,5 +1,4 @@
 import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
@@ -20,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import 'services/bluetooth/bluetooth_service.dart';
+
 const useMockScale =
     bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
 const useMockPressure =
@@ -27,13 +28,20 @@ const useMockPressure =
 
 final getIt = GetIt.instance;
 void main() async {
+  getIt.registerSingletonAsync<BluetoothDevicesService>(() async {
+    BluetoothDevicesService bluetoothService = BluetoothDevicesService();
+    await bluetoothService.init();
+    return bluetoothService;
+  });
+
   getIt.registerSingleton<AbstractTimerService>(TimerService());
   getIt.registerSingletonAsync<AbstractScaleService>(() async {
     AbstractScaleService scaleService;
     if (useMockScale) {
       scaleService = MockScaleService();
     } else {
-      scaleService = DecentScaleService();
+      await getIt.isReady<BluetoothDevicesService>();
+      scaleService = DecentScaleService(getIt.get<BluetoothDevicesService>());
     }
     await scaleService.init();
     return scaleService;
@@ -44,7 +52,9 @@ void main() async {
     if (useMockPressure) {
       pressureService = MockPressureService();
     } else {
-      pressureService = BookooPressureService();
+      await getIt.isReady<BluetoothDevicesService>();
+      pressureService =
+          BookooPressureService(getIt.get<BluetoothDevicesService>());
     }
     await pressureService.init();
     return pressureService;
