@@ -13,8 +13,7 @@ void main() {
   test('stable weight increase should trigger tare', () async {
     var fakeScaleService = MockAbstractScaleService();
     var controller = BehaviorSubject<ScaleNotification>();
-    when(fakeScaleService.scaleNotificationController)
-        .thenAnswer((_) => controller);
+    when(fakeScaleService.stream).thenAnswer((_) => controller);
 
     var autoTareService = AutoTare(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
@@ -37,8 +36,7 @@ void main() {
   test('unstable weight should not trigger tare', () async {
     var fakeScaleService = MockAbstractScaleService();
     var controller = BehaviorSubject<ScaleNotification>();
-    when(fakeScaleService.scaleNotificationController)
-        .thenAnswer((_) => controller);
+    when(fakeScaleService.stream).thenAnswer((_) => controller);
 
     var autoTareService = AutoTare(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
@@ -61,8 +59,7 @@ void main() {
   test('stable weight for short period should not trigger tare', () async {
     var fakeScaleService = MockAbstractScaleService();
     var controller = BehaviorSubject<ScaleNotification>();
-    when(fakeScaleService.scaleNotificationController)
-        .thenAnswer((_) => controller);
+    when(fakeScaleService.stream).thenAnswer((_) => controller);
 
     var autoTareService = AutoTare(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
@@ -85,8 +82,7 @@ void main() {
   test('stable low weight increase should not trigger tare', () async {
     var fakeScaleService = MockAbstractScaleService();
     var controller = BehaviorSubject<ScaleNotification>();
-    when(fakeScaleService.scaleNotificationController)
-        .thenAnswer((_) => controller);
+    when(fakeScaleService.stream).thenAnswer((_) => controller);
 
     var autoTareService = AutoTare(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);

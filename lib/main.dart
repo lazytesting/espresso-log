@@ -14,7 +14,6 @@ import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
-import 'package:espresso_log/ui/home/weight_graph/weight_graph_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -72,7 +71,6 @@ void main() async {
     BlocProvider(create: (_) => CurrentWeightCubit()),
     BlocProvider(create: (_) => WeightChangeCubit()),
     BlocProvider(create: (_) => TimerCubit()),
-    BlocProvider(create: (_) => WeightGraphCubit()),
     BlocProvider(create: (_) => AutoTareCubit()),
     BlocProvider(create: (_) => PressureCubit())
   ], child: const MyApp()));

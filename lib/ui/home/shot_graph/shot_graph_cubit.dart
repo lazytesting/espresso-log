@@ -88,6 +88,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void start() {
+    emit(ShotGraphWaiting());
     _autoStartStopService.enable();
   }
 }

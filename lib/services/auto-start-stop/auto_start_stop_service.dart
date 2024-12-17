@@ -30,6 +30,7 @@ class AutoStartStopService {
       if (timerService.isRunning &&
           _treshold2Reached &&
           notification.pressure < _treshold2) {
+        _enabled = false;
         timerService.stop();
       }
     });
@@ -38,9 +39,5 @@ class AutoStartStopService {
   void enable() {
     //temp
     _enabled = true;
-  }
-
-  void disable() {
-    _enabled = false;
   }
 }

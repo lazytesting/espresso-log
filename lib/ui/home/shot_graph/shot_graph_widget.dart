@@ -9,15 +9,37 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BlocListener<ShotGraphCubit, ShotGraphState>(listener: (context, state) {
+      if (state is ShotGraphStopped) {
+        final snackBar = SnackBar(
+          content: const Text('Run finished'),
+          backgroundColor: (Colors.black12),
+          action: SnackBarAction(
+            label: 'restart',
+            onPressed: () {
+              context.read<ShotGraphCubit>().start();
+            },
+          ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    });
+
     return BlocBuilder<ShotGraphCubit, ShotGraphState>(
       builder: (context, state) {
         if (state is ShotGraphInitial) {
           return const ShotGraphInitialWidget();
         }
 
+        if (state is ShotGraphWaiting) {
+          return const Text("waiting for shot...");
+        }
+
         if (state is ShotGraphRun) {
           return _getShotGraph(state);
         }
+
         return const Text('Error! Unexpected state');
       },
     );

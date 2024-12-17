@@ -4,6 +4,8 @@ sealed class ShotGraphState {}
 
 final class ShotGraphInitial extends ShotGraphState {}
 
+final class ShotGraphWaiting extends ShotGraphState {}
+
 final class ShotGraphRun extends ShotGraphState with EquatableMixin {
   final List<ShotGraphData> pressureData;
   final List<ShotGraphData> weightData;
