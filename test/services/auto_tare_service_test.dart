@@ -15,7 +15,7 @@ void main() {
     var controller = BehaviorSubject<ScaleNotification>();
     when(fakeScaleService.stream).thenAnswer((_) => controller);
 
-    var autoTareService = AutoTare(fakeScaleService);
+    var autoTareService = AutoTareService(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
@@ -38,7 +38,7 @@ void main() {
     var controller = BehaviorSubject<ScaleNotification>();
     when(fakeScaleService.stream).thenAnswer((_) => controller);
 
-    var autoTareService = AutoTare(fakeScaleService);
+    var autoTareService = AutoTareService(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
@@ -61,7 +61,7 @@ void main() {
     var controller = BehaviorSubject<ScaleNotification>();
     when(fakeScaleService.stream).thenAnswer((_) => controller);
 
-    var autoTareService = AutoTare(fakeScaleService);
+    var autoTareService = AutoTareService(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
@@ -84,7 +84,7 @@ void main() {
     var controller = BehaviorSubject<ScaleNotification>();
     when(fakeScaleService.stream).thenAnswer((_) => controller);
 
-    var autoTareService = AutoTare(fakeScaleService);
+    var autoTareService = AutoTareService(fakeScaleService);
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when

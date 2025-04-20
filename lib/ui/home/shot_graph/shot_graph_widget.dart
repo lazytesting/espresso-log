@@ -9,24 +9,22 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BlocListener<ShotGraphCubit, ShotGraphState>(listener: (context, state) {
-      if (state is ShotGraphStopped) {
-        final snackBar = SnackBar(
-          content: const Text('Run finished'),
-          backgroundColor: (Colors.black12),
-          action: SnackBarAction(
-            label: 'restart',
-            onPressed: () {
-              context.read<ShotGraphCubit>().start();
-            },
-          ),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    });
-
-    return BlocBuilder<ShotGraphCubit, ShotGraphState>(
+    return BlocConsumer<ShotGraphCubit, ShotGraphState>(
+      listener: (context, state) {
+        if (state is ShotGraphStopped) {
+          final snackBar = SnackBar(
+            content: const Text('Run finished'),
+            backgroundColor: (Colors.black12),
+            action: SnackBarAction(
+              label: 'restart',
+              onPressed: () {
+                context.read<ShotGraphCubit>().start();
+              },
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      },
       builder: (context, state) {
         if (state is ShotGraphInitial) {
           return const ShotGraphInitialWidget();
@@ -46,43 +44,81 @@ class ShotGraphWidget extends StatelessWidget {
   }
 
   Widget _getShotGraph(ShotGraphRun shotGraphRun) {
+    var maxWeight = shotGraphRun.weightData.fold(
+        0.0, (value, element) => value > element.value ? value : element.value);
+    if (maxWeight < 40) {
+      maxWeight = 40;
+    }
+
+    var maxPressure = shotGraphRun.pressureData.fold(
+        0.0, (value, element) => value > element.value ? value : element.value);
+    if (maxPressure < 10) {
+      maxPressure = 10;
+    }
+
+    var maxMillisPressure = shotGraphRun.pressureData.fold(
+        0,
+        (value, element) =>
+            value > element.millisecond ? value : element.millisecond);
+
+    var maxMillisGrams = shotGraphRun.weightData.fold(
+        0,
+        (value, element) =>
+            value > element.millisecond ? value : element.millisecond);
+
+    var maxMillis =
+        maxMillisPressure > maxMillisGrams ? maxMillisPressure : maxMillisGrams;
+
+    double maxSeconds = 40;
+    if (maxMillis > 40000) {
+      maxSeconds = ((maxMillis / 10000).ceil()) * 10;
+    }
+
     return Card(
         clipBehavior: Clip.hardEdge,
         child: SfCartesianChart(
             legend: const Legend(isVisible: true),
-            primaryXAxis: const NumericAxis(
-              title: AxisTitle(text: 'Seconds'),
+            primaryXAxis: NumericAxis(
+              title: const AxisTitle(text: 'Seconds'),
               minimum: 0,
-              maximum: 40,
+              maximum: maxSeconds,
             ),
-            primaryYAxis: const NumericAxis(
+            primaryYAxis: NumericAxis(
               name: 'Grams',
               minimum: 0,
-              maximum: 40,
+              maximum: maxWeight,
             ),
-            axes: const <ChartAxis>[
+            axes: <ChartAxis>[
               NumericAxis(
                 name: 'bar',
                 opposedPosition: true,
                 interval: 1,
                 minimum: 0,
-                maximum: 10,
+                maximum: maxPressure,
               )
             ],
             series: <CartesianSeries>[
-              LineSeries<ShotGraphData, double>(
+              SplineSeries<ShotGraphData, double>(
                   name: 'Grams',
                   dataSource: shotGraphRun.weightData,
                   animationDuration: 0,
-                  isVisibleInLegend: false,
+                  splineType: SplineType.natural,
+                  isVisibleInLegend: true,
+                  emptyPointSettings: const EmptyPointSettings(
+                    mode: EmptyPointMode.average,
+                  ),
                   xValueMapper: (ShotGraphData sgd, _) =>
                       (sgd.millisecond / 1000).roundToDouble(),
                   yValueMapper: (ShotGraphData sgd, _) => sgd.value),
-              LineSeries<ShotGraphData, double>(
+              SplineSeries<ShotGraphData, double>(
                   name: 'Bar',
                   dataSource: shotGraphRun.pressureData,
                   animationDuration: 0,
-                  isVisibleInLegend: false,
+                  isVisibleInLegend: true,
+                  splineType: SplineType.natural,
+                  emptyPointSettings: const EmptyPointSettings(
+                    mode: EmptyPointMode.average,
+                  ),
                   xValueMapper: (ShotGraphData sgd, _) =>
                       (sgd.millisecond / 1000).roundToDouble(),
                   yValueMapper: (ShotGraphData sgd, _) => sgd.value,

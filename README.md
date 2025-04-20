@@ -3,15 +3,14 @@
 A new Flutter project.
 
 ## TODO
-- clean-up bookoo pressure service
-- extract bluetooth part
-- redo ui: smaller elements for measurements
-- add pressure to graph
-- better graph
+- disconnect pressure device
+- always on
+- improve tare logic in graph 
+- smooth graph
+- error handling
 - settings screen
   - forget scale
 - save and history
-- fix negative values being off a bit
 
 
 

@@ -16,9 +16,4 @@ class CurrentWeightCubit extends Cubit<CurrentWeightState> {
       }
     });
   }
-
-  Future<void> tareScale() async {
-    await _scaleService.tareCommand();
-    emit(CurrentWeightInitial());
-  }
 }

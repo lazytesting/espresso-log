@@ -1,4 +1,5 @@
 import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
+import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
@@ -8,7 +9,6 @@ import 'package:espresso_log/services/scale/decent_scale_service.dart';
 import 'package:espresso_log/services/scale/mock_scale_service.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:espresso_log/services/timer/timer_service.dart';
-import 'package:espresso_log/ui/home/auto-tare/auto_tare_cubit.dart';
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/shot_graph/shot_graph_cubit.dart';
@@ -59,6 +59,12 @@ void main() async {
     return pressureService;
   });
 
+  getIt.registerSingletonAsync<AbstractAutoTareService>(() async {
+    await getIt.isReady<AbstractScaleService>();
+    var scaleService = getIt.get<AbstractScaleService>();
+    return AutoTareService(scaleService);
+  });
+
   getIt.registerSingletonAsync<AutoStartStopService>(() async {
     await getIt.isReady<AbstractPressureService>();
     var timerService = getIt.get<AbstractTimerService>();
@@ -71,7 +77,6 @@ void main() async {
     BlocProvider(create: (_) => CurrentWeightCubit()),
     BlocProvider(create: (_) => WeightChangeCubit()),
     BlocProvider(create: (_) => TimerCubit()),
-    BlocProvider(create: (_) => AutoTareCubit()),
     BlocProvider(create: (_) => PressureCubit())
   ], child: const MyApp()));
 }
