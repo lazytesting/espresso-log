@@ -1,0 +1,14 @@
+workflows:
+  ios-release:
+    name: iOS Release Build
+    environment:
+      flutter: fvm
+      xcode: latest
+      vars:
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Build ipa
+        script: Flutter build ios --release --export-options-plist=distribution.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
