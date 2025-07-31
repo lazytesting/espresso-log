@@ -4,10 +4,13 @@ workflows:
     environment:
       flutter: fvm
       xcode: latest
+      ios_signing:
+        distribution_type: app_store 
+        bundle_identifier: SSAQ6R5838.tg.unitgqq8164.tool5
     scripts:
       - name: Flutter pub get
         script: flutter pub get
       - name: Build ipa
-        script: Flutter build ios --release --export-options-plist=distribution.plist
+        script: Flutter build ios --release
     artifacts:
       - build/ios/ipa/*.ipa
