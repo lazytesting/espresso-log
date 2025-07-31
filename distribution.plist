@@ -4,8 +4,8 @@
 <dict>
     <key>provisioningProfiles</key>
     <dict>
-        <key>todo</key>
-        <string>todo</string>
+        <key>SSAQ6R5838.tg.unitgqq8164.tool5</key>
+        <string>2e179e4f-0ec9-4f9e-8e7c-95d10b48930d</string>
     </dict>
     <key>signingCertificate</key>
     <string>iOS Distribution</string>
@@ -14,6 +14,6 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>todo</string>
+    <string>SSAQ6R5838</string>
 </dict>
 </plist>
