@@ -4,7 +4,6 @@ workflows:
     environment:
       flutter: fvm
       xcode: latest
-      vars:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
