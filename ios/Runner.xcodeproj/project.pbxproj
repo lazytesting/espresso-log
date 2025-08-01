@@ -573,8 +573,8 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				CODE_SIGN_STYLE = Manual;
-    			DEVELOPMENT_TEAM = SSAQ6R5838;
-    			PROVISIONING_PROFILE_SPECIFIER = match AppStore SSAQ6R5838.tg.unitgqq8164.tool5;
+    			DEVELOPMENT_TEAM = "SSAQ6R5838";
+    			PROVISIONING_PROFILE_SPECIFIER = "match AppStore SSAQ6R5838.tg.unitgqq8164.tool5";
 			};
 			name = Release;
 		};
