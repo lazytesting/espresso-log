@@ -406,6 +406,9 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+				CODE_SIGN_STYLE = Manual;
++   			EVELOPMENT_TEAM = ABC1SSAQ6R583823XYZ;
++   			PROVISIONING_PROFILE_SPECIFIER = match AppStore SSAQ6R5838.tg.unitgqq8164.tool5;
 			};
 			name = Release;
 		};
