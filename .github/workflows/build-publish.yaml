@@ -47,4 +47,5 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - run: ls ~/Library/MobileDevice/Provisioning\ Profiles/
+      - run: security cms -D -i build_pp.mobileprovision | plutil -extract Name xml1 -o - -
       - run: flutter build ipa --release --export-options-plist=distribution.plist
