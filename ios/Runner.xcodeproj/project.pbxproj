@@ -576,6 +576,7 @@
 				CODE_SIGN_STYLE = Manual;
     			DEVELOPMENT_TEAM = "SSAQ6R5838";
     			PROVISIONING_PROFILE_SPECIFIER = "00008120-000438CA1480C01E49";
+				CODE_SIGN_IDENTITY = "Apple Distribution";
 			};
 			name = Release;
 		};
