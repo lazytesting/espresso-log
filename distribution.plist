@@ -5,7 +5,7 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>SSAQ6R5838.tg.unitgqq8164.tool5</key>
-        <string>2e179e4f-0ec9-4f9e-8e7c-95d10b48930d</string>
+        <string>match AppStore SSAQ6R5838.tg.unitgqq8164.tool5</string>
     </dict>
     <key>signingCertificate</key>
     <string>iOS Distribution</string>
