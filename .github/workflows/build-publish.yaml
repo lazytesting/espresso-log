@@ -46,4 +46,5 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+      - run: ls ~/Library/MobileDevice/Provisioning\ Profiles/
       - run: flutter build ipa --release --export-options-plist=distribution.plist
