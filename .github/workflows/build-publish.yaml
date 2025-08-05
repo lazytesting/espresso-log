@@ -52,7 +52,7 @@ jobs:
           FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
           FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
           FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
-          FLUTTER_XCODE_CODE_SIGN_IDENTITY="iOS Distribution"
+          FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
       - run: security find-identity -v -p codesigning
       - run: chmod +x ./check.sh
       - run: ./check.sh  ./distribution.plist ./ios
