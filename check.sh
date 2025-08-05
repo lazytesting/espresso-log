@@ -131,4 +131,18 @@ else
     echo "✔️ Entitlements match export method: $EXPORT_METHOD"
 fi
 
+# Dump build settings from archive if available
+ARCHIVE_PATH="build/ios/archive/Runner.xcarchive"
+if [ -d "$ARCHIVE_PATH" ]; then
+    echo "🔎 Dumping build settings from archive..."
+    xcodebuild -exportArchive \
+      -archivePath "$ARCHIVE_PATH" \
+      -exportOptionsPlist "$EXPORT_PLIST" \
+      -exportPath /tmp/export_test \
+      -allowProvisioningUpdates \
+      -showBuildSettings || echo "⚠️ Unable to dump build settings"
+else
+    echo "⚠️ Archive not found at $ARCHIVE_PATH — skipping build settings check"
+fi
+
 echo "✅ All validations passed."
