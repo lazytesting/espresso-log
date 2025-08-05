@@ -8,6 +8,7 @@ set -e
 EXPORT_PLIST="$1"
 IOS_PROJECT_PATH="$2"
 PBXPROJ_PATH="$IOS_PROJECT_PATH/Runner.xcodeproj/project.pbxproj"
+ARCHIVE_APP_PATH="build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
 
 if [ ! -f "$EXPORT_PLIST" ]; then
     echo "❌ exportOptions.plist not found: $EXPORT_PLIST"
@@ -16,6 +17,11 @@ fi
 
 if [ ! -f "$PBXPROJ_PATH" ]; then
     echo "❌ project.pbxproj not found at: $PBXPROJ_PATH"
+    exit 1
+fi
+
+if [ ! -d "$IOS_PROJECT_PATH" ]; then
+    echo "❌ iOS project directory not found: $IOS_PROJECT_PATH"
     exit 1
 fi
 
@@ -129,6 +135,15 @@ if [[ "$EXPORT_METHOD" == "app-store" && "$ENTITLEMENTS" =~ true ]]; then
     exit 1
 else
     echo "✔️ Entitlements match export method: $EXPORT_METHOD"
+fi
+
+# Validate embedded.mobileprovision in archive
+if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
+    echo "✔️ embedded.mobileprovision found in archived Runner.app"
+else
+    echo "❌ embedded.mobileprovision is missing in archived Runner.app"
+    echo "💡 This usually means the provisioning profile was not embedded during 'xcodebuild archive'"
+    exit 1
 fi
 
 # Dump build settings from archive if available
