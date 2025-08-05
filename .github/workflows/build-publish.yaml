@@ -49,10 +49,10 @@ jobs:
       - name: Set env
         shell: bash
         run: |
-          FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
-          FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
-          FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
-          FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
+          export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
+          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
+          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
+          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
       - run: flutter build ipa --release --export-options-plist=distribution.plist
       - run: chmod +x ./check.sh
       - run: ./check.sh  ./distribution.plist ./ios
