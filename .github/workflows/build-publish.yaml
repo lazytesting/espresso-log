@@ -53,6 +53,7 @@ jobs:
           FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
           FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
           FLUTTER_XCODE_CODE_SIGN_IDENTITY="iOS Distribution"
+      - run: security find-identity -v -p codesigning
       - run: chmod +x ./check.sh
       - run: ./check.sh  ./distribution.plist ./ios
       - run: flutter build ipa --release --export-options-plist=distribution.plist
