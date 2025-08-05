@@ -8,7 +8,7 @@
         <string>00008120-000438CA1480C01E49</string>
     </dict>
     <key>signingCertificate</key>
-    <string>iOS Distribution</string>
+    <string>iPhone Distribution</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>method</key>
