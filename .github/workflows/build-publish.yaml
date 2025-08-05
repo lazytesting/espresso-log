@@ -54,5 +54,6 @@ jobs:
           export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
           export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
       - run: flutter build ipa --release --export-options-plist=distribution.plist
+      - run: security cms -D -i build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision | \ /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin
       - run: chmod +x ./check.sh
       - run: ./check.sh  ./distribution.plist ./ios
