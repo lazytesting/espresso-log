@@ -39,6 +39,17 @@ if [ -z "$PROJECT_BUNDLE_ID" ]; then
 fi
 
 PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :provisioningProfiles:$PROJECT_BUNDLE_ID" "$EXPORT_PLIST" 2>/dev/null || echo "")
+
+# Resolve actual path to installed provisioning profile
+PROFILE_PATH=$(find ~/Library/MobileDevice/Provisioning\ Profiles -name '*.mobileprovision' -exec sh -c '
+  for profile; do
+    NAME=$(security cms -D -i "$profile" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin 2>/dev/null || true)
+    if [ "$NAME" = "'$PROFILE_NAME'" ]; then
+      echo "$profile"
+      break
+    fi
+  done
+' _ {} +)
 if [ -z "$PROFILE_NAME" ]; then
     echo "❌ No provisioning profile name found in exportOptions.plist for bundle ID: $PROJECT_BUNDLE_ID"
     exit 1
