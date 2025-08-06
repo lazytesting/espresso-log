@@ -142,7 +142,8 @@ if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
     echo "✔️ embedded.mobileprovision found in archived Runner.app"
 
     # Extract and compare profile name
-    EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" | /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin || echo "")
+    # Extract and compare profile name
+    EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" > "$PLIST_TMP.embedded" && /usr/libexec/PlistBuddy -c "Print :Name" "$PLIST_TMP.embedded" || echo "")
     if [ -n "$EMBEDDED_PROFILE_NAME" ]; then
         echo "✔️ Embedded profile name: $EMBEDDED_PROFILE_NAME"
         if [ "$EMBEDDED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
@@ -162,19 +163,3 @@ else
     echo "💡 This usually means the provisioning profile was not embedded during 'xcodebuild archive'"
     exit 1
 fi
-
-# Dump build settings from archive if available
-ARCHIVE_PATH="build/ios/archive/Runner.xcarchive"
-if [ -d "$ARCHIVE_PATH" ]; then
-    echo "🔎 Dumping build settings from archive..."
-    xcodebuild -exportArchive \
-      -archivePath "$ARCHIVE_PATH" \
-      -exportOptionsPlist "$EXPORT_PLIST" \
-      -exportPath /tmp/export_test \
-      -allowProvisioningUpdates \
-      -showBuildSettings || echo "⚠️ Unable to dump build settings"
-else
-    echo "⚠️ Archive not found at $ARCHIVE_PATH — skipping build settings check"
-fi
-
-echo "✅ All validations passed."
