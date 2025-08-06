@@ -53,7 +53,6 @@ jobs:
           export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
           export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
           export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-      - run: flutter build ipa --release --export-options-plist=distribution.plist
       - run: chmod +x ./check.sh
 
       - name: Validate signing setup (pre-archive)
