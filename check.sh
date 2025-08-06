@@ -140,6 +140,23 @@ fi
 # Validate embedded.mobileprovision in archive
 if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
     echo "✔️ embedded.mobileprovision found in archived Runner.app"
+
+    # Extract and compare profile name
+    EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" | /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin || echo "")
+    if [ -n "$EMBEDDED_PROFILE_NAME" ]; then
+        echo "✔️ Embedded profile name: $EMBEDDED_PROFILE_NAME"
+        if [ "$EMBEDDED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
+            echo "❌ Embedded profile name does not match exportOptions.plist"
+            echo "    → embedded: $EMBEDDED_PROFILE_NAME"
+            echo "    → expected: $PROFILE_NAME"
+            exit 1
+        else
+            echo "✔️ Embedded profile name matches exportOptions.plist"
+        fi
+    else
+        echo "❌ Could not parse embedded profile"
+        exit 1
+    fi
 else
     echo "❌ embedded.mobileprovision is missing in archived Runner.app"
     echo "💡 This usually means the provisioning profile was not embedded during 'xcodebuild archive'"
