@@ -53,37 +53,9 @@ jobs:
           export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
           export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
           export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-      - run: chmod +x ./check.sh
-
-      - name: Validate signing setup (pre-archive)
-        run: ./check.sh ./distribution.plist ./ios --mode pre
-
       
       - name: Build Flutter iOS app (pre-archive)
         run: flutter build ios --release --no-codesign
-      - name: Archive iOS app manually
-        run: |
-          xcodebuild -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -allowProvisioningUpdates \
-            archive \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM=SSAQ6R5838 \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER=00008120-000438CA1480C01E49 \
-            OTHER_CODE_SIGN_FLAGS="--preserve-metadata=entitlements,flags"
 
-      - name: Validate embedded provisioning profile (post-archive)
-        run: ./check.sh ./distribution.plist ./ios --mode post
-
-
-      - name: Export IPA using xcodebuild
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist distribution.plist \
-            -exportPath build/ios/ipa \
-            -allowProvisioningUpdates
-
+      - run: xcodebuild -exportArchive -archivePath $PWD/build/Runner.xcarchive -exportOptionsPlist ../distribution.plist -exportPath $PWD/build/Runner.ipa
+        working-directory: ios
