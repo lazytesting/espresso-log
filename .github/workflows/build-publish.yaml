@@ -60,7 +60,7 @@ jobs:
       - run: chmod +x ./check.sh
       
       - name: Build Flutter iOS app (pre-archive)
-        run: flutter build ios --release
+        run: flutter build ios --release --no-codesign
       - name: Archive iOS app manually
         run: |
           xcodebuild -workspace ios/Runner.xcworkspace \
