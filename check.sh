@@ -137,11 +137,26 @@ else
     echo "✔️ Entitlements match export method: $EXPORT_METHOD"
 fi
 
+# Check if CI device is allowed by the profile (for development profiles)
+PROVISIONED_DEVICES=$(/usr/libexec/PlistBuddy -c "Print :ProvisionedDevices" "$PLIST_TMP" 2>/dev/null || echo "")
+if [ -n "$PROVISIONED_DEVICES" ]; then
+    echo "ℹ️ Provisioned devices are listed in profile (development or ad-hoc profile)"
+    echo "$PROVISIONED_DEVICES"
+    if ! echo "$PROVISIONED_DEVICES" | grep -q "Mac-"; then
+        echo "❌ CI Mac is likely not listed in ProvisionedDevices — signing will fail"
+        echo "💡 Use an App Store or Ad Hoc profile that does not require specific device registration"
+        exit 1
+    else
+        echo "✔️ CI device appears to be included in ProvisionedDevices"
+    fi
+else
+    echo "✔️ No specific devices listed — likely an App Store or enterprise profile"
+fi
+
 # Validate embedded.mobileprovision in archive
 if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
     echo "✔️ embedded.mobileprovision found in archived Runner.app"
 
-    # Extract and compare profile name
     # Extract and compare profile name
     EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" > "$PLIST_TMP.embedded" && /usr/libexec/PlistBuddy -c "Print :Name" "$PLIST_TMP.embedded" || echo "")
     if [ -n "$EMBEDDED_PROFILE_NAME" ]; then
