@@ -46,16 +46,42 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-      - name: Set env
-        shell: bash
-        run: |
-          export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
-          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
-          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
-          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-      - run: flutter build ipa --release --export-options-plist=distribution.plist
+     # - name: Set env
+     #   shell: bash
+     #   run: |
+     #     export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
+     #     export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
+     #     export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
+     #     export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
+      # - run: flutter build ipa --release --export-options-plist=distribution.plist
       # - run: ls -lh build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision 
       # - run: file build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision
       # - run: security cms -D -i build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision
       - run: chmod +x ./check.sh
-      - run: ./check.sh  ./distribution.plist ./ios
+      
+      - name: Build Flutter iOS app (pre-archive)
+        run: flutter build ios --release
+      - name: Archive iOS app manually
+        run: |
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM=SSAQ6R5838 \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER=00008120-000438CA1480C01E49 \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            archive
+
+      - name: Run validation script
+        run: ./check.sh  ./distribution.plist ./ios
+
+      - name: Export IPA using xcodebuild
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist distribution.plist \
+            -exportPath build/ios/ipa \
+            -allowProvisioningUpdates
+
