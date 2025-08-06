@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Usage:
-# ./validate_ios_build_inputs.sh /path/to/exportOptions.plist /path/to/flutter_project/ios
+# ./validate_ios_build_inputs.sh /path/to/exportOptions.plist /path/to/flutter_project/ios [--mode pre|post]
 
 set -e
 
 EXPORT_PLIST="$1"
 IOS_PROJECT_PATH="$2"
+MODE="${3:-all}"
 PBXPROJ_PATH="$IOS_PROJECT_PATH/Runner.xcodeproj/project.pbxproj"
 ARCHIVE_APP_PATH="build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
 
@@ -43,15 +44,38 @@ if [ -z "$PROFILE_NAME" ]; then
     exit 1
 fi
 
-echo "🔍 Searching installed profiles for name: $PROFILE_NAME"
-PROFILE_PATH=$(grep -l "$PROFILE_NAME" ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | head -n1)
+if [[ "$MODE" == "post" ]]; then
+  echo "📦 Post-archive validation..."
 
-if [ -z "$PROFILE_PATH" ]; then
-    echo "❌ Could not find provisioning profile named '$PROFILE_NAME' in ~/Library/MobileDevice/Provisioning Profiles"
-    exit 1
+  if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
+      echo "✔️ embedded.mobileprovision found in archived Runner.app"
+
+      EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" > "$PLIST_TMP.embedded" && /usr/libexec/PlistBuddy -c "Print :Name" "$PLIST_TMP.embedded" || echo "")
+      if [ -n "$EMBEDDED_PROFILE_NAME" ]; then
+          echo "✔️ Embedded profile name: $EMBEDDED_PROFILE_NAME"
+          if [ "$EMBEDDED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
+              echo "❌ Embedded profile name does not match exportOptions.plist"
+              echo "    → embedded: $EMBEDDED_PROFILE_NAME"
+              echo "    → expected: $PROFILE_NAME"
+              exit 1
+          else
+              echo "✔️ Embedded profile name matches exportOptions.plist"
+          fi
+      else
+          echo "❌ Could not parse embedded profile"
+          exit 1
+      fi
+  else
+      echo "❌ embedded.mobileprovision is missing in archived Runner.app"
+      echo "💡 This usually means the provisioning profile was not embedded during 'xcodebuild archive'"
+      exit 1
+  fi
+
+  echo "✅ Post-archive checks passed."
+  exit 0
 fi
 
-echo "✔️ Found installed provisioning profile: $PROFILE_PATH"
+# From here down: pre-archive validation...
 
 PLIST_TMP=$(mktemp -t profile.plist)
 /usr/libexec/PlistBuddy -x -c "Print" /dev/stdin <<< $(security cms -D -i "$PROFILE_PATH") > "$PLIST_TMP"
@@ -87,10 +111,7 @@ fi
 
 if [ -n "$EXPORT_CERT" ]; then
     echo "✔️ signingCertificate present: $EXPORT_CERT"
-
-    echo "🔍 Checking if signing certificate '$EXPORT_CERT' is in keychain..."
     CERT_MATCH=$(security find-identity -v -p codesigning | grep "$EXPORT_CERT" || true)
-
     if [ -z "$CERT_MATCH" ]; then
         echo "❌ Signing certificate '$EXPORT_CERT' not found in keychain"
         echo "💡 Run 'security find-identity -v -p codesigning' to see available certificates"
@@ -102,10 +123,6 @@ else
     echo "ℹ️ No signingCertificate specified (optional)"
 fi
 
-# --- Additional checks ---
-echo "🧪 Extra validations..."
-
-# Check if provisioning profile is expired
 EXPIRATION_DATE=$(/usr/libexec/PlistBuddy -c "Print :ExpirationDate" "$PLIST_TMP" 2>/dev/null)
 if [ -n "$EXPIRATION_DATE" ]; then
     EXPIRY_EPOCH=$(date -j -f "%a %b %d %T %Z %Y" "$EXPIRATION_DATE" "+%s")
@@ -120,7 +137,6 @@ else
     echo "⚠️ Unable to determine profile expiration date"
 fi
 
-# Check if code signing identity is trusted
 if ! security find-certificate -c "$EXPORT_CERT" -p > /dev/null 2>&1; then
     echo "❌ Code signing certificate '$EXPORT_CERT' exists but is not trusted"
     exit 1
@@ -128,7 +144,6 @@ else
     echo "✔️ Code signing certificate '$EXPORT_CERT' is trusted"
 fi
 
-# Check if provisioning profile is usable for distribution method
 ENTITLEMENTS=$(security cms -D -i "$PROFILE_PATH" | plutil -extract Entitlements xml1 -o - - | grep 'get-task-allow' || true)
 if [[ "$EXPORT_METHOD" == "app-store" && "$ENTITLEMENTS" =~ true ]]; then
     echo "❌ 'get-task-allow' is true but method is 'app-store' — this indicates a development profile"
@@ -137,7 +152,6 @@ else
     echo "✔️ Entitlements match export method: $EXPORT_METHOD"
 fi
 
-# Check if CI device is allowed by the profile (for development profiles)
 PROVISIONED_DEVICES=$(/usr/libexec/PlistBuddy -c "Print :ProvisionedDevices" "$PLIST_TMP" 2>/dev/null || echo "")
 if [ -n "$PROVISIONED_DEVICES" ]; then
     echo "ℹ️ Provisioned devices are listed in profile (development or ad-hoc profile)"
@@ -153,28 +167,5 @@ else
     echo "✔️ No specific devices listed — likely an App Store or enterprise profile"
 fi
 
-# Validate embedded.mobileprovision in archive
-if [ -f "$ARCHIVE_APP_PATH/embedded.mobileprovision" ]; then
-    echo "✔️ embedded.mobileprovision found in archived Runner.app"
-
-    # Extract and compare profile name
-    EMBEDDED_PROFILE_NAME=$(security cms -D -i "$ARCHIVE_APP_PATH/embedded.mobileprovision" > "$PLIST_TMP.embedded" && /usr/libexec/PlistBuddy -c "Print :Name" "$PLIST_TMP.embedded" || echo "")
-    if [ -n "$EMBEDDED_PROFILE_NAME" ]; then
-        echo "✔️ Embedded profile name: $EMBEDDED_PROFILE_NAME"
-        if [ "$EMBEDDED_PROFILE_NAME" != "$PROFILE_NAME" ]; then
-            echo "❌ Embedded profile name does not match exportOptions.plist"
-            echo "    → embedded: $EMBEDDED_PROFILE_NAME"
-            echo "    → expected: $PROFILE_NAME"
-            exit 1
-        else
-            echo "✔️ Embedded profile name matches exportOptions.plist"
-        fi
-    else
-        echo "❌ Could not parse embedded profile"
-        exit 1
-    fi
-else
-    echo "❌ embedded.mobileprovision is missing in archived Runner.app"
-    echo "💡 This usually means the provisioning profile was not embedded during 'xcodebuild archive'"
-    exit 1
-fi
+echo "✅ Pre-archive checks passed."
+exit 0

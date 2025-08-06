@@ -46,18 +46,19 @@ jobs:
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-     # - name: Set env
-     #   shell: bash
-     #   run: |
-     #     export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
-     #     export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
-     #     export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
-     #     export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-      # - run: flutter build ipa --release --export-options-plist=distribution.plist
-      # - run: ls -lh build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision 
-      # - run: file build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision
-      # - run: security cms -D -i build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision
+      - name: Set env
+        shell: bash
+        run: |
+          export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
+          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
+          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
+          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
+      - run: flutter build ipa --release --export-options-plist=distribution.plist
       - run: chmod +x ./check.sh
+
+      - name: Validate signing setup (pre-archive)
+        run: ./validate_ios_build_inputs.sh ./distribution.plist ./ios --mode pre
+
       
       - name: Build Flutter iOS app (pre-archive)
         run: flutter build ios --release --no-codesign
@@ -75,8 +76,9 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER=00008120-000438CA1480C01E49 \
             OTHER_CODE_SIGN_FLAGS="--preserve-metadata=entitlements,flags"
 
-      - name: Run validation script
-        run: ./check.sh  ./distribution.plist ./ios
+      - name: Validate embedded provisioning profile (post-archive)
+        run: ./validate_ios_build_inputs.sh ./distribution.plist ./ios --mode post
+
 
       - name: Export IPA using xcodebuild
         run: |
