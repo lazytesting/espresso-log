@@ -50,7 +50,11 @@ PROFILE_PATH=$(find ~/Library/MobileDevice/Provisioning\ Profiles -name '*.mobil
     fi
   done
 ' _ {} +)
-if [ -z "$PROFILE_NAME" ]; then
+
+if [ -z "$PROFILE_NAME" ] || [ -z "$PROFILE_PATH" ]; then
+    echo "❌ Could not resolve provisioning profile path for name: $PROFILE_NAME"
+    exit 1
+fi
     echo "❌ No provisioning profile name found in exportOptions.plist for bundle ID: $PROJECT_BUNDLE_ID"
     exit 1
 fi
