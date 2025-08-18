@@ -1,59 +1,47 @@
-name: Build & Distribute iOS App
+name: Build unsigned IPA (Flutter)
 
 on:
+  workflow_dispatch:
   push:
-    branches: [master] # or your desired branch
+    branches: [ main ]
 
 jobs:
-  build_ios:
-    runs-on: macos-latest
-
+  ios-ipa:
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@v4
-      - uses: kuhnroyal/flutter-fvm-config-action/config@v3
-        id: fvm-config-action
-      - uses: subosito/flutter-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Flutter version from FVM config
+        id: fvm
+        uses: kuhnroyal/flutter-fvm-config-action/config@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
-          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
-      - run: flutter --version
-      - name: Install the Apple certificate and provisioning profile
-        env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          flutter-version: ${{ steps.fvm.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm.outputs.FLUTTER_CHANNEL }}
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build iOS app (no codesign)
         run: |
-          # create variables
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          flutter build ios --release --no-codesign
+          test -d build/ios/iphoneos/Runner.app
 
-          # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # apply provisioning profile
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-      - name: Set env
-        shell: bash
+      - name: Package .ipa (unsigned)
         run: |
-          export FLUTTER_XCODE_DEVELOPMENT_TEAM="SSAQ6R5838"
-          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
-          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="00008120-000438CA1480C01E49"
-          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-      - run: flutter build ipa --release --export-options-plist=distribution.plist
-      - run: security cms -D -i build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app/embedded.mobileprovision | \ /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin
-      - run: chmod +x ./check.sh
-      - run: ./check.sh  ./distribution.plist ./ios
+          rm -rf Payload
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          /usr/bin/zip -r -y app-unsigned.zip Payload
+          mv app-unsigned.zip app-unsigned.ipa
+          rm -rf Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-ipa
+          path: app-unsigned.ipa
+          if-no-files-found: error
