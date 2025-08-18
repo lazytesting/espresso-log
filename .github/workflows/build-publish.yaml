@@ -1,4 +1,3 @@
-# .github/workflows/build-unsigned-ipa.yml
 name: Build unsigned IPA (Flutter)
 
 on:

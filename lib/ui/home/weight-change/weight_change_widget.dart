@@ -14,8 +14,7 @@ class WeightChangeWidget extends StatelessWidget {
           weight = state.weightChangeRate.toStringAsFixed(1);
         }
 
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -28,11 +27,11 @@ class WeightChangeWidget extends StatelessWidget {
                     style: const TextStyle(fontSize: 25),
                   )
                 ]),
-                const Row(children: [Text('Grams/second')]),
+                const Row(children: [Text('g/s')]),
               ],
             ),
           ),
-        ));
+        );
       },
     );
   }

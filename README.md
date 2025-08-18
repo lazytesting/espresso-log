@@ -3,10 +3,15 @@
 A new Flutter project.
 
 ## TODO
+- disconnect pressure device
+- always on
+- improve tare logic in graph 
+- smooth graph
+- error handling
 - settings screen
   - forget scale
 - save and history
-- fix negative values being off a bit
+
 
 
 ## Development

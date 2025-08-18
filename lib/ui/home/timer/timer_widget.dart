@@ -9,58 +9,32 @@ class TimerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TimerCubit, TimerState>(
       builder: (context, state) {
-        var timer = '--.-';
-        var button = FilledButton(
-          child: const Text('Start'),
-          onPressed: () {
-            context.read<TimerCubit>().start();
-          },
-        );
+        String timer = "";
+        if (state is TimerInitial) {
+          timer = '--.-';
+        }
 
         if (state is TimerRunning) {
-          timer = "${state.seconds}.${state.deciSeconds}";
-          button = FilledButton(
-            style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-            ),
-            onPressed: () {
-              context.read<TimerCubit>().stop();
-            },
-            child: const Text('Stop'),
-          );
+          timer = '${state.seconds}.${state.deciSeconds}';
         }
 
         if (state is TimerStopped) {
-          timer = "${state.seconds}.${state.deciSeconds}";
+          timer = '${state.seconds}.${state.deciSeconds}';
         }
 
-        return Center(
-            child: Card(
+        return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(children: [
-                  Text(
-                    timer,
-                    style: const TextStyle(fontSize: 25),
-                  )
-                ]),
-                const Row(children: [Text('Seconds')]),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    const SizedBox(width: 8),
-                    button,
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ],
-            ),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(
+                timer,
+                style: const TextStyle(fontSize: 25),
+              ),
+              const Text('Seconds')
+            ]),
           ),
-        ));
+        );
       },
     );
   }

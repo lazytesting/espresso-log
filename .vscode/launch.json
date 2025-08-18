@@ -13,6 +13,23 @@
 			]
         },
         {
+            "name": "espresso_log mock pressure",
+            "request": "launch",
+            "type": "dart",
+            "args":[
+                "--dart-define", "USE_MOCK_PRESSURE=true",
+			]
+        },
+        {
+            "name": "espresso_log mock all",
+            "request": "launch",
+            "type": "dart",
+            "args":[
+                "--dart-define", "USE_MOCK_PRESSURE=true", 
+                "--dart-define", "USE_MOCK_SCALE=true",
+			]
+        },
+        {
             "name": "espresso_log",
             "request": "launch",
             "type": "dart",

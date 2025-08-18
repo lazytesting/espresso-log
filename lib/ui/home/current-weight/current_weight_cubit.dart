@@ -10,15 +10,10 @@ part 'current_weight_state.dart';
 class CurrentWeightCubit extends Cubit<CurrentWeightState> {
   final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   CurrentWeightCubit() : super(CurrentWeightInitial()) {
-    _scaleService.scaleNotificationController.stream.listen((event) {
+    _scaleService.stream.listen((event) {
       if (event is WeightNotification) {
         emit(CurrentWeightMeasured(event.weight));
       }
     });
-  }
-
-  Future<void> tareScale() async {
-    await _scaleService.tareCommand();
-    emit(CurrentWeightInitial());
   }
 }

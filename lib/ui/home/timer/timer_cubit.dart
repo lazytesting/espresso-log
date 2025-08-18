@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:equatable/equatable.dart';
 import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/timer/abstract_timer_service.dart';
@@ -9,35 +7,18 @@ part 'timer_state.dart';
 
 class TimerCubit extends Cubit<TimerState> {
   final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
-  DateTime? _startmoment;
-  late StreamSubscription<TimerEvent> _timerSubscription;
 
-  TimerCubit() : super(TimerInitial());
-
-  (int, int) _getDuration(DateTime currentMoment) {
-    var start = _startmoment ?? currentMoment;
-    var diff = currentMoment.difference(start).inMilliseconds;
-    var seconds = diff ~/ 1000;
-    var deciSeconds = ((diff / 1000 - seconds) * 10).toInt();
-    return (seconds, deciSeconds);
-  }
-
-  void start() {
-    _timerService.start();
-    _timerSubscription = _timerService.timerUpdates.stream.listen((event) {
-      if (event is TimerTickedEvent) {
-        _startmoment ??= event.timeStamp;
-        var (seconds, deciSeconds) = _getDuration(event.timeStamp);
+  TimerCubit() : super(TimerInitial()) {
+    _timerService.stream.listen((event) {
+      var seconds = (event.milliSeconds / 1000).floor();
+      var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
+      if (event is TimerStartedEvent || event is TimerTickedEvent) {
         emit(TimerRunning(seconds, deciSeconds));
       }
-    });
-  }
 
-  void stop() {
-    _timerService.stop();
-    _timerSubscription.cancel();
-    var (seconds, deciSeconds) = _getDuration(DateTime.now());
-    emit(TimerStopped(seconds, deciSeconds));
-    _startmoment = null;
+      if (event is TimerStoppedEvent) {
+        emit(TimerStopped(seconds, deciSeconds));
+      }
+    });
   }
 }

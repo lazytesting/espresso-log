@@ -10,7 +10,7 @@ class WeightChangeCubit extends Cubit<WeightChangeState> {
   final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   final List<WeightNotification> _history = [];
   WeightChangeCubit() : super(WeightChangeInitial()) {
-    _scaleService.scaleNotificationController.stream.listen((event) {
+    _scaleService.stream.listen((event) {
       // remove event occured before taring
       if (event is TareNotification) {
         _history.removeWhere(

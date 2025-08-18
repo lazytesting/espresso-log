@@ -3,12 +3,11 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i3;
 
-import 'package:espresso_log/services/scale/abstract_scale_service.dart' as _i3;
+import 'package:espresso_log/services/scale/abstract_scale_service.dart' as _i2;
 import 'package:espresso_log/services/scale/weight_notification.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:rxdart/rxdart.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -23,54 +22,44 @@ import 'package:rxdart/rxdart.dart' as _i2;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeBehaviorSubject_0<T> extends _i1.SmartFake
-    implements _i2.BehaviorSubject<T> {
-  _FakeBehaviorSubject_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [AbstractScaleService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAbstractScaleService extends _i1.Mock
-    implements _i3.AbstractScaleService {
+    implements _i2.AbstractScaleService {
   @override
-  _i2.BehaviorSubject<_i4.ScaleNotification> get scaleNotificationController =>
-      (super.noSuchMethod(
-        Invocation.getter(#scaleNotificationController),
-        returnValue: _FakeBehaviorSubject_0<_i4.ScaleNotification>(
-          this,
-          Invocation.getter(#scaleNotificationController),
-        ),
-        returnValueForMissingStub:
-            _FakeBehaviorSubject_0<_i4.ScaleNotification>(
-          this,
-          Invocation.getter(#scaleNotificationController),
-        ),
-      ) as _i2.BehaviorSubject<_i4.ScaleNotification>);
+  _i3.Stream<_i4.ScaleNotification> get stream => (super.noSuchMethod(
+        Invocation.getter(#stream),
+        returnValue: _i3.Stream<_i4.ScaleNotification>.empty(),
+        returnValueForMissingStub: _i3.Stream<_i4.ScaleNotification>.empty(),
+      ) as _i3.Stream<_i4.ScaleNotification>);
 
   @override
-  _i5.Future<void> init() => (super.noSuchMethod(
+  set stream(_i3.Stream<_i4.ScaleNotification>? _stream) => super.noSuchMethod(
+        Invocation.setter(
+          #stream,
+          _stream,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i3.Future<void> init() => (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 
   @override
-  _i5.Future<void> tareCommand() => (super.noSuchMethod(
+  _i3.Future<void> tareCommand() => (super.noSuchMethod(
         Invocation.method(
           #tareCommand,
           [],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i3.Future<void>.value(),
+        returnValueForMissingStub: _i3.Future<void>.value(),
+      ) as _i3.Future<void>);
 }

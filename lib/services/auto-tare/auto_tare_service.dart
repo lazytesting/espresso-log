@@ -3,22 +3,22 @@ import 'dart:async';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 
-abstract class AbstractAutoTare {
+abstract class AbstractAutoTareService {
   void start();
   void stop();
 }
 
-class AutoTare implements AbstractAutoTare {
+class AutoTareService implements AbstractAutoTareService {
   final AbstractScaleService scaleService;
   StreamSubscription? scaleSubscription;
   List<WeightNotification> _history = [];
   double? _startWeight;
 
-  AutoTare(this.scaleService);
+  AutoTareService(this.scaleService);
 
   @override
   void start() {
-    scaleSubscription = scaleService.scaleNotificationController.stream
+    scaleSubscription = scaleService.stream
         .where((event) => event is WeightNotification)
         .cast<WeightNotification>()
         .listen((weightNotification) {
