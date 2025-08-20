@@ -41,7 +41,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   equatable: ^2.0.5
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.5.3
   syncfusion_flutter_charts: ^28.1.33
   wakelock_plus: ^1.3.0
 
