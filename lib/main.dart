@@ -17,8 +17,8 @@ import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:talker/talker.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import 'services/bluetooth/bluetooth_service.dart';
 
@@ -32,7 +32,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WakelockPlus.enable();
 
-  getIt.registerSingleton<Talker>(Talker());
+  getIt.registerSingleton<Talker>(TalkerFlutter.init());
 
   getIt.registerSingletonAsync<BluetoothDevicesService>(() async {
     BluetoothDevicesService bluetoothService = BluetoothDevicesService();
