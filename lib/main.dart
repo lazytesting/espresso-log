@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import 'services/bluetooth/bluetooth_service.dart';
 
@@ -30,6 +31,8 @@ final getIt = GetIt.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WakelockPlus.enable();
+
+  getIt.registerSingleton<Talker>(TalkerFlutter.init());
 
   getIt.registerSingletonAsync<BluetoothDevicesService>(() async {
     BluetoothDevicesService bluetoothService = BluetoothDevicesService();

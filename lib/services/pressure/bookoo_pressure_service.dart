@@ -4,7 +4,6 @@ import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/pressure_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:logger/logger.dart';
 import 'package:rxdart/subjects.dart';
 
 class BookooPressureService implements AbstractPressureService {
@@ -19,7 +18,6 @@ class BookooPressureService implements AbstractPressureService {
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   BluetoothDevice? _device;
-  Logger logger = Logger();
 
   @override
   Future<void> init() async {

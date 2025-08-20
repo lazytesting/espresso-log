@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:espresso_log/main.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:talker/talker.dart';
 
 class BluetoothDevicesService {
-  Logger logger = Logger();
+  Talker talker = getIt.get<Talker>();
 
   Future<void> init() async {
     await _ensureBluethooth();
@@ -35,9 +36,9 @@ class BluetoothDevicesService {
     }
 
     // wait for the first scanResult with a match
-    var scanResults2 = await FlutterBluePlus.scanResults.firstWhere(
-        (result) => result.isNotEmpty &&
-            result.last.advertisementData.advName.startsWith(searchName));
+    var scanResults2 = await FlutterBluePlus.scanResults.firstWhere((result) =>
+        result.isNotEmpty &&
+        result.last.advertisementData.advName.startsWith(searchName));
     var scanResult2 = scanResults2.firstWhere(
         (sr) => sr.advertisementData.advName.startsWith(searchName));
     await _connect(scanResult2.device);
@@ -46,13 +47,13 @@ class BluetoothDevicesService {
 
   Future<void> _ensureBluethooth() async {
     if (await FlutterBluePlus.isSupported == false) {
-      logger.d("Bluetooth not supported by this device");
+      talker.debug("Bluetooth not supported by this device");
       return;
     }
 
     var subscription =
         FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
-      logger.d(state);
+      talker.debug(state);
       if (state == BluetoothAdapterState.on) {
         // usually start scanning, connecting, etc
       } else {

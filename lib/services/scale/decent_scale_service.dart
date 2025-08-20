@@ -4,14 +4,12 @@ import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 class DecentScaleService implements AbstractScaleService {
   BluetoothDevice? _device; // TODO get this out of class, move to init
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
-  Logger logger = Logger();
   @override
   Stream<ScaleNotification> stream = const Stream.empty();
 
