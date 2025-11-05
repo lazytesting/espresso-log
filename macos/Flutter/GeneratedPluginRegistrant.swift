@@ -5,7 +5,7 @@
 import FlutterMacOS
 import Foundation
 
-import flutter_blue_plus
+import flutter_blue_plus_darwin
 import package_info_plus
 import path_provider_foundation
 import share_plus
