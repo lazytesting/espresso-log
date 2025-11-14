@@ -1,16 +1,17 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:espresso_log/services/notification.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MockScaleService implements AbstractScaleService {
-  final _scaleNotificationController = BehaviorSubject<ScaleNotification>();
+  final _scaleNotificationController = BehaviorSubject<Notification>();
   Timer? _timer;
   int _count = 0;
   @override
-  Stream<ScaleNotification> stream = const Stream.empty();
+  Stream<Notification> stream = const Stream.empty();
 
   MockScaleService() {
     stream = _scaleNotificationController.stream.asBroadcastStream();

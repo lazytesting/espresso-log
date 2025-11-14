@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
+import 'package:espresso_log/services/notification.dart';
 import 'package:espresso_log/services/scale/abstract_scale_service.dart';
 import 'package:espresso_log/services/scale/weight_notification.dart';
 import 'package:flutter/foundation.dart';
@@ -11,9 +12,9 @@ class DecentScaleService implements AbstractScaleService {
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   @override
-  Stream<ScaleNotification> stream = const Stream.empty();
+  Stream<Notification> stream = const Stream.empty();
 
-  final _scaleNotificationController = BehaviorSubject<ScaleNotification>();
+  final _scaleNotificationController = BehaviorSubject<Notification>();
   final scaleStatusController = BehaviorSubject<String>();
 
   DecentScaleService(this._bluetoothService) {
