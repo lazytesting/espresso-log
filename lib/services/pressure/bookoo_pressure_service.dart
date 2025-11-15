@@ -13,7 +13,7 @@ class BookooPressureService implements AbstractPressureService {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
 
-  Talker _talker = getIt.get<Talker>();
+  final Talker _talker = getIt.get<Talker>();
   final BluetoothDevicesService _bluetoothService;
   final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();
