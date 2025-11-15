@@ -22,12 +22,19 @@ void main() {
     // when
     autoTareService.start();
     controller.add(WeightNotification(weight: 10, timeStamp: startTime));
-    controller.add(WeightNotification(
-        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
-
-    controller.add(WeightNotification(
+    controller.add(
+      WeightNotification(
         weight: 62,
-        timeStamp: startTime.add(const Duration(milliseconds: 1002))));
+        timeStamp: startTime.add(const Duration(milliseconds: 1)),
+      ),
+    );
+
+    controller.add(
+      WeightNotification(
+        weight: 62,
+        timeStamp: startTime.add(const Duration(milliseconds: 1002)),
+      ),
+    );
 
     // then
     await untilCalled(fakeScaleService.tareCommand());
@@ -45,12 +52,19 @@ void main() {
     // when
     autoTareService.start();
     controller.add(WeightNotification(weight: 10, timeStamp: startTime));
-    controller.add(WeightNotification(
-        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
+    controller.add(
+      WeightNotification(
+        weight: 62,
+        timeStamp: startTime.add(const Duration(milliseconds: 1)),
+      ),
+    );
 
-    controller.add(WeightNotification(
+    controller.add(
+      WeightNotification(
         weight: 62.3,
-        timeStamp: startTime.add(const Duration(milliseconds: 1002))));
+        timeStamp: startTime.add(const Duration(milliseconds: 1002)),
+      ),
+    );
 
     // then
     await pumpEventQueue();
@@ -68,15 +82,23 @@ void main() {
     // when
     autoTareService.start();
     controller.add(WeightNotification(weight: 10, timeStamp: startTime));
-    controller.add(WeightNotification(
-        weight: 62, timeStamp: startTime.add(const Duration(milliseconds: 1))));
-
-    controller.add(WeightNotification(
+    controller.add(
+      WeightNotification(
         weight: 62,
-        timeStamp: startTime.add(const Duration(milliseconds: 101))));
+        timeStamp: startTime.add(const Duration(milliseconds: 1)),
+      ),
+    );
+
+    controller.add(
+      WeightNotification(
+        weight: 62,
+        timeStamp: startTime.add(const Duration(milliseconds: 101)),
+      ),
+    );
 
     // then
     await pumpEventQueue();
+    var bla;
     verifyNever(fakeScaleService.tareCommand());
   });
 
@@ -91,12 +113,19 @@ void main() {
     // when
     autoTareService.start();
     controller.add(WeightNotification(weight: 10, timeStamp: startTime));
-    controller.add(WeightNotification(
-        weight: 20, timeStamp: startTime.add(const Duration(milliseconds: 1))));
-
-    controller.add(WeightNotification(
+    controller.add(
+      WeightNotification(
         weight: 20,
-        timeStamp: startTime.add(const Duration(milliseconds: 2001))));
+        timeStamp: startTime.add(const Duration(milliseconds: 1)),
+      ),
+    );
+
+    controller.add(
+      WeightNotification(
+        weight: 20,
+        timeStamp: startTime.add(const Duration(milliseconds: 2001)),
+      ),
+    );
 
     // then
     await pumpEventQueue();
