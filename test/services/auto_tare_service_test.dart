@@ -98,7 +98,6 @@ void main() {
 
     // then
     await pumpEventQueue();
-    var bla;
     verifyNever(fakeScaleService.tareCommand());
   });
 
