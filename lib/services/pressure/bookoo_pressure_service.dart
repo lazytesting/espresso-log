@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/pressure_notification.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class BookooPressureService implements AbstractPressureService {
   BookooPressureService(this._bluetoothService) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
+
+  final Talker _talker = getIt.get<Talker>();
   final BluetoothDevicesService _bluetoothService;
   final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();
@@ -36,11 +40,13 @@ class BookooPressureService implements AbstractPressureService {
       chars.addAll(s.characteristics);
     }
 
-    // TODO debug and find correct guids
-    _writeCharacteristic =
-        chars.firstWhere((c) => c.characteristicUuid == Guid("FF01"));
-    _readCharacteristic =
-        chars.firstWhere((c) => c.characteristicUuid == Guid("FF02"));
+    _writeCharacteristic = chars.firstWhere(
+      (c) => c.characteristicUuid == Guid("FF01"),
+    );
+    _readCharacteristic = chars.firstWhere(
+      (c) => c.characteristicUuid == Guid("FF02"),
+    );
+    _talker.debug("Pressure characteristics set");
   }
 
   Future<void> _sendCommand(List<int> value) async {
@@ -48,16 +54,17 @@ class BookooPressureService implements AbstractPressureService {
   }
 
   Future<void> _subscribeToReadings() async {
+    _talker.debug("Subscribing to pressure readings");
     _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
+      _talker.debug("Pressure data received $value");
       var d = ByteData(2);
       d.setInt8(0, value[4]);
       d.setInt8(1, value[5]);
       var pressure = d.getInt16(0) / 100;
 
       var notification = PressureNotification(pressure, DateTime.now());
-      // ignore: avoid_print
-      print("reading ${notification.pressure}");
+      _talker.debug("Emit pressure event: ${notification.pressure}");
       _pressureNotificationController.add(notification);
     });
 

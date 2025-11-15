@@ -2,6 +2,7 @@ import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
+import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,6 +21,7 @@ class AppRouter {
   static const historyPath = '/history';
   static const settingsPath = '/settings';
   static const settingsLogPath = '/settings/log';
+  static const settingsRecorderPath = '/settings/recorder';
 
   AppRouter() {
     router = GoRouter(
@@ -50,10 +52,7 @@ class AppRouter {
                 GoRoute(
                   path: historyPath,
                   pageBuilder: (context, state) {
-                    return getPage(
-                      child: const HistoryScreen(),
-                      state: state,
-                    );
+                    return getPage(child: const HistoryScreen(), state: state);
                   },
                 ),
               ],
@@ -64,10 +63,7 @@ class AppRouter {
                 GoRoute(
                   path: settingsPath,
                   pageBuilder: (context, state) {
-                    return getPage(
-                      child: SettingsScreen(),
-                      state: state,
-                    );
+                    return getPage(child: SettingsScreen(), state: state);
                   },
                 ),
                 GoRoute(
@@ -79,33 +75,32 @@ class AppRouter {
                     );
                   },
                 ),
+                GoRoute(
+                  path: settingsRecorderPath,
+                  pageBuilder: (context, state) {
+                    return getPage(child: const RecorderScreen(), state: state);
+                  },
+                ),
               ],
             ),
           ],
-          pageBuilder: (
-            BuildContext context,
-            GoRouterState state,
-            StatefulNavigationShell navigationShell,
-          ) {
-            return getPage(
-              child: BottomNavigationPage(
-                child: navigationShell,
-              ),
-              state: state,
-            );
-          },
+          pageBuilder:
+              (
+                BuildContext context,
+                GoRouterState state,
+                StatefulNavigationShell navigationShell,
+              ) {
+                return getPage(
+                  child: BottomNavigationPage(child: navigationShell),
+                  state: state,
+                );
+              },
         ),
       ],
     );
   }
 
-  Page getPage({
-    required Widget child,
-    required GoRouterState state,
-  }) {
-    return MaterialPage(
-      key: state.pageKey,
-      child: child,
-    );
+  Page getPage({required Widget child, required GoRouterState state}) {
+    return MaterialPage(key: state.pageKey, child: child);
   }
 }

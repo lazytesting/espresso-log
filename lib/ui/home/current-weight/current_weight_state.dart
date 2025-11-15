@@ -21,6 +21,5 @@ final class CurrentWeightMeasured extends CurrentWeightState
   CurrentWeightMeasured(this.weight);
 
   @override
-  // TODO: implement props
   List<Object?> get props => [weight];
 }

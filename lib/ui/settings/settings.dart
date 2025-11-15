@@ -7,15 +7,12 @@ import 'package:go_router/go_router.dart';
 
 class SettingsScreen extends StatelessWidget {
   SettingsScreen({super.key});
-  late final AbstractScaleService _scaleService =
-      getIt.get<DecentScaleService>();
+  late final AbstractScaleService _scaleService = getIt
+      .get<DecentScaleService>();
 
   @override
   Widget build(BuildContext context) {
-    return ScreenContainer(
-      title: 'Bla',
-      child: _getScreen(context),
-    );
+    return ScreenContainer(title: 'Bla', child: _getScreen(context));
   }
 
   Widget _getScreen(BuildContext context) {
@@ -30,10 +27,17 @@ class SettingsScreen extends StatelessWidget {
             child: const Text("Logs"),
           ),
           FilledButton(
-              onPressed: () => _scaleService.init(), child: const Text("init")),
+            onPressed: () => context.push('/settings/recorder'),
+            child: const Text("Recorder"),
+          ),
           FilledButton(
-              onPressed: () => _scaleService.tareCommand(),
-              child: const Text("tare")),
+            onPressed: () => _scaleService.init(),
+            child: const Text("init"),
+          ),
+          FilledButton(
+            onPressed: () => _scaleService.tareCommand(),
+            child: const Text("tare"),
+          ),
         ],
       ),
     );

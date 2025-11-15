@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:espresso_log/main.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talker/talker.dart';
+import 'package:talker_flutter/talker_flutter.dart' show Talker;
 
 class BluetoothDevicesService {
   Talker talker = getIt.get<Talker>();
@@ -22,8 +22,9 @@ class BluetoothDevicesService {
     }
 
     // use existing scanResults if possible
-    var scanResults = FlutterBluePlus.lastScanResults
-        .where((sr) => sr.advertisementData.advName.startsWith(searchName));
+    var scanResults = FlutterBluePlus.lastScanResults.where(
+      (sr) => sr.advertisementData.advName.startsWith(searchName),
+    );
 
     if (scanResults.isNotEmpty) {
       await _connect(scanResults.first.device);
@@ -36,11 +37,14 @@ class BluetoothDevicesService {
     }
 
     // wait for the first scanResult with a match
-    var scanResults2 = await FlutterBluePlus.scanResults.firstWhere((result) =>
-        result.isNotEmpty &&
-        result.last.advertisementData.advName.startsWith(searchName));
+    var scanResults2 = await FlutterBluePlus.scanResults.firstWhere(
+      (result) =>
+          result.isNotEmpty &&
+          result.last.advertisementData.advName.startsWith(searchName),
+    );
     var scanResult2 = scanResults2.firstWhere(
-        (sr) => sr.advertisementData.advName.startsWith(searchName));
+      (sr) => sr.advertisementData.advName.startsWith(searchName),
+    );
     await _connect(scanResult2.device);
     return scanResult2.device;
   }
@@ -51,8 +55,9 @@ class BluetoothDevicesService {
       return;
     }
 
-    var subscription =
-        FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
+    var subscription = FlutterBluePlus.adapterState.listen((
+      BluetoothAdapterState state,
+    ) {
       talker.debug(state);
       if (state == BluetoothAdapterState.on) {
         // usually start scanning, connecting, etc
@@ -79,14 +84,15 @@ class BluetoothDevicesService {
   }
 
   Future<void> _connect(BluetoothDevice device) async {
-    var subscription =
-        device.connectionState.listen((BluetoothConnectionState state) async {
+    var subscription = device.connectionState.listen((
+      BluetoothConnectionState state,
+    ) async {
       if (state == BluetoothConnectionState.disconnected) {
         // TODO:retry
       }
     });
 
     device.cancelWhenDisconnected(subscription, delayed: true, next: true);
-    await device.connect();
+    await device.connect(license: License.free);
   }
 }
