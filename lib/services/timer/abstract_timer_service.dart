@@ -24,17 +24,20 @@ abstract class TimerEvent implements Notification {
 @JsonSerializable()
 class TimerStartedEvent extends TimerEvent {
   TimerStartedEvent(super.timeStamp, super.milliSeconds);
+  @override
   Map<String, dynamic> toJson() => _$TimerStartedEventToJson(this);
 }
 
 @JsonSerializable()
 class TimerStoppedEvent extends TimerEvent {
   TimerStoppedEvent(super.timeStamp, super.milliSeconds);
+  @override
   Map<String, dynamic> toJson() => _$TimerStoppedEventToJson(this);
 }
 
 @JsonSerializable()
 class TimerTickedEvent extends TimerEvent {
   TimerTickedEvent(super.timeStamp, super.milliSeconds);
+  @override
   Map<String, dynamic> toJson() => _$TimerTickedEventToJson(this);
 }

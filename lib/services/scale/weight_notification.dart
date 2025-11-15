@@ -11,6 +11,7 @@ class WeightNotification implements Notification {
 
   WeightNotification({required this.weight, required this.timeStamp});
 
+  @override
   Map<String, dynamic> toJson() => _$WeightNotificationToJson(this);
 }
 
@@ -19,5 +20,6 @@ class TareNotification implements Notification {
   @override
   final DateTime timeStamp;
   TareNotification({required this.timeStamp});
+  @override
   Map<String, dynamic> toJson() => _$TareNotificationToJson(this);
 }

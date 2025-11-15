@@ -10,5 +10,6 @@ class PressureNotification implements Notification {
   final double pressure;
 
   PressureNotification(this.pressure, this.timeStamp);
+  @override
   Map<String, dynamic> toJson() => _$PressureNotificationToJson(this);
 }
