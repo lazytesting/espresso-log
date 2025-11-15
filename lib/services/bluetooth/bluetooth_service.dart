@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:espresso_log/main.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:talker/talker.dart';
+import 'package:talker_flutter/talker_flutter.dart' show Talker;
+
 
 class BluetoothDevicesService {
   Talker talker = getIt.get<Talker>();
