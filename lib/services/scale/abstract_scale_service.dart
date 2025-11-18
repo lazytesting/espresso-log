@@ -1,7 +1,7 @@
-import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:espresso_log/services/notification.dart';
 
 abstract class AbstractScaleService {
-  Stream<ScaleNotification> stream = const Stream.empty();
+  Stream<Notification> stream = const Stream.empty();
   Future<void> init() async {}
 
   Future<void> tareCommand() async {}

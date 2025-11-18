@@ -1,15 +1,25 @@
-abstract class ScaleNotification {
+import 'package:espresso_log/services/notification.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'weight_notification.g.dart';
+
+@JsonSerializable()
+class WeightNotification implements Notification {
+  final double weight;
+  @override
   final DateTime timeStamp;
 
-  ScaleNotification({required this.timeStamp});
+  WeightNotification({required this.weight, required this.timeStamp});
+
+  @override
+  Map<String, dynamic> toJson() => _$WeightNotificationToJson(this);
 }
 
-class WeightNotification extends ScaleNotification {
-  final double weight;
-
-  WeightNotification({required this.weight, required super.timeStamp});
-}
-
-class TareNotification extends ScaleNotification {
-  TareNotification({required super.timeStamp});
+@JsonSerializable()
+class TareNotification implements Notification {
+  @override
+  final DateTime timeStamp;
+  TareNotification({required this.timeStamp});
+  @override
+  Map<String, dynamic> toJson() => _$TareNotificationToJson(this);
 }

@@ -23,7 +23,7 @@ class TimerService implements AbstractTimerService {
         const Duration(milliseconds: 100), (Timer t) => _emitTickEvent());
   }
 
-  _emitTickEvent() {
+  void _emitTickEvent() {
     _streamController.add(TimerTickedEvent(DateTime.now(),
         DateTime.now().difference(_startMoment!).inMilliseconds));
   }
