@@ -16,14 +16,14 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   // apply some damping logic
   // on every new item emit an event (let bloc limit this)... or on every timer event
 
-  final AutoStartStopService _autoStartStopService =
-      getIt.get<AutoStartStopService>();
+  final AutoStartStopService _autoStartStopService = getIt
+      .get<AutoStartStopService>();
   final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
   final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
-  final AbstractAutoTareService _autoTareService =
-      getIt.get<AbstractAutoTareService>();
-  final AbstractPressureService _pressureService =
-      getIt.get<AbstractPressureService>();
+  final AbstractAutoTareService _autoTareService = getIt
+      .get<AbstractAutoTareService>();
+  final AbstractPressureService _pressureService = getIt
+      .get<AbstractPressureService>();
 
   DateTime? _startDateTime;
   DateTime? _tareDateTime;
@@ -77,26 +77,22 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _emitEvent([bool isStopped = false]) {
     var pressureData = _pressureNotifications.map((pn) {
       return ShotGraphData(
-          pn.timeStamp.difference(_startDateTime!).inMilliseconds, pn.pressure);
+        pn.timeStamp.difference(_startDateTime!).inMilliseconds,
+        pn.pressure,
+      );
     }).toList();
 
-    // retrospectively tare anything before the first 0 weight event after the tare command
-    var tareAllBefore = _weightNotifications
-        .firstWhere(
-            (element) =>
-                element.timeStamp.isAfter(_tareDateTime!) &&
-                element.weight == 0,
-            orElse: () => _weightNotifications.first)
-        .timeStamp;
-
     var weightData = _weightNotifications.map((ele) {
-      if (ele.timeStamp.isBefore(tareAllBefore)) {
+      if (_tareDateTime == null || ele.timeStamp.isBefore(_tareDateTime!)) {
         return ShotGraphData(
-            ele.timeStamp.difference(_startDateTime!).inMilliseconds, 0);
+          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
+          0,
+        );
       } else {
         return ShotGraphData(
-            ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-            ele.weight);
+          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
+          ele.weight,
+        );
       }
     }).toList();
 

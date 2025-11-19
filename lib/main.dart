@@ -22,10 +22,14 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 import 'services/bluetooth/bluetooth_service.dart';
 
-const useMockScale =
-    bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
-const useMockPressure =
-    bool.fromEnvironment('USE_MOCK_PRESSURE', defaultValue: false);
+const useMockScale = bool.fromEnvironment(
+  'USE_MOCK_SCALE',
+  defaultValue: false,
+);
+const useMockPressure = bool.fromEnvironment(
+  'USE_MOCK_PRESSURE',
+  defaultValue: false,
+);
 
 final getIt = GetIt.instance;
 void main() async {
@@ -47,7 +51,10 @@ void main() async {
       scaleService = MockScaleService();
     } else {
       await getIt.isReady<BluetoothDevicesService>();
-      scaleService = DecentScaleService(getIt.get<BluetoothDevicesService>());
+      scaleService = DecentScaleService(
+        getIt.get<BluetoothDevicesService>(),
+        getIt.get<Talker>(),
+      );
     }
     await scaleService.init();
     return scaleService;
@@ -59,8 +66,9 @@ void main() async {
       pressureService = MockPressureService();
     } else {
       await getIt.isReady<BluetoothDevicesService>();
-      pressureService =
-          BookooPressureService(getIt.get<BluetoothDevicesService>());
+      pressureService = BookooPressureService(
+        getIt.get<BluetoothDevicesService>(),
+      );
     }
     await pressureService.init();
     return pressureService;
@@ -79,13 +87,18 @@ void main() async {
     return AutoStartStopService(pressureService, timerService);
   });
 
-  runApp(MultiBlocProvider(providers: [
-    BlocProvider(create: (_) => ShotGraphCubit()),
-    BlocProvider(create: (_) => CurrentWeightCubit()),
-    BlocProvider(create: (_) => WeightChangeCubit()),
-    BlocProvider(create: (_) => TimerCubit()),
-    BlocProvider(create: (_) => PressureCubit())
-  ], child: const MyApp()));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ShotGraphCubit()),
+        BlocProvider(create: (_) => CurrentWeightCubit()),
+        BlocProvider(create: (_) => WeightChangeCubit()),
+        BlocProvider(create: (_) => TimerCubit()),
+        BlocProvider(create: (_) => PressureCubit()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -93,8 +106,10 @@ class MyApp extends StatelessWidget {
 
   ThemeData _getTheme() {
     var baseTheme = ThemeData.from(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 84, 48, 134)));
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color.fromARGB(255, 84, 48, 134),
+      ),
+    );
 
     return baseTheme;
   }
@@ -103,16 +118,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getIt.allReady(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            return MaterialApp.router(
-              theme: _getTheme(),
-              routerConfig: AppRouter().router,
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        });
+      future: getIt.allReady(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          return MaterialApp.router(
+            theme: _getTheme(),
+            routerConfig: AppRouter().router,
+          );
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 }
