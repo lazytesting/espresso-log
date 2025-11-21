@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:espresso_log/main.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talker_flutter/talker_flutter.dart' show Talker;
 
 class BluetoothDevicesService {
-  Talker talker = getIt.get<Talker>();
+  final Talker _talker;
+
+  BluetoothDevicesService({required Talker talker}) : _talker = talker;
 
   Future<void> init() async {
     await _ensureBluethooth();
@@ -51,14 +52,14 @@ class BluetoothDevicesService {
 
   Future<void> _ensureBluethooth() async {
     if (await FlutterBluePlus.isSupported == false) {
-      talker.debug("Bluetooth not supported by this device");
+      _talker.debug("Bluetooth not supported by this device");
       return;
     }
 
     var subscription = FlutterBluePlus.adapterState.listen((
       BluetoothAdapterState state,
     ) {
-      talker.debug(state);
+      _talker.debug(state);
       if (state == BluetoothAdapterState.on) {
         // usually start scanning, connecting, etc
       } else {

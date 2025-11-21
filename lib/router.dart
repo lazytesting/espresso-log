@@ -5,7 +5,6 @@ import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -15,7 +14,6 @@ class AppRouter {
   final _homeTabNavigatorKey = GlobalKey<NavigatorState>();
   final _historyTabNavigatorKey = GlobalKey<NavigatorState>();
   final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
-  final Talker talker = GetIt.instance<Talker>();
 
   static const homePath = '/home';
   static const historyPath = '/history';
@@ -23,7 +21,7 @@ class AppRouter {
   static const settingsLogPath = '/settings/log';
   static const settingsRecorderPath = '/settings/recorder';
 
-  AppRouter() {
+  AppRouter(Talker talker) {
     router = GoRouter(
       observers: [TalkerRouteObserver(talker)],
       initialLocation: '/home',
