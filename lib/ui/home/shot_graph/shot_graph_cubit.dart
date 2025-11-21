@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
 import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
@@ -16,22 +15,24 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   // apply some damping logic
   // on every new item emit an event (let bloc limit this)... or on every timer event
 
-  final AutoStartStopService _autoStartStopService =
-      getIt.get<AutoStartStopService>();
-  final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
-  final AbstractTimerService _timerService = getIt.get<AbstractTimerService>();
-  final AbstractAutoTareService _autoTareService =
-      getIt.get<AbstractAutoTareService>();
-  final AbstractPressureService _pressureService =
-      getIt.get<AbstractPressureService>();
-
+  final AbstractAutoStartStopService _autoStartStopService;
+  final AbstractScaleService _scaleService;
+  final AbstractTimerService _timerService;
+  final AbstractAutoTareService _autoTareService;
+  final AbstractPressureService _pressureService;
   DateTime? _startDateTime;
   DateTime? _tareDateTime;
   bool _isRunning = false;
   List<WeightNotification> _weightNotifications = [];
   List<PressureNotification> _pressureNotifications = [];
 
-  ShotGraphCubit() : super(ShotGraphInitial()) {
+  ShotGraphCubit(
+    this._autoStartStopService,
+    this._scaleService,
+    this._timerService,
+    this._autoTareService,
+    this._pressureService,
+  ) : super(ShotGraphInitial()) {
     _handleTimerUpdates();
     _handleScaleUpdates();
     _handlePressureUpdates();
@@ -77,26 +78,31 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _emitEvent([bool isStopped = false]) {
     var pressureData = _pressureNotifications.map((pn) {
       return ShotGraphData(
-          pn.timeStamp.difference(_startDateTime!).inMilliseconds, pn.pressure);
+        pn.timeStamp.difference(_startDateTime!).inMilliseconds,
+        pn.pressure,
+      );
     }).toList();
 
     // retrospectively tare anything before the first 0 weight event after the tare command
     var tareAllBefore = _weightNotifications
         .firstWhere(
-            (element) =>
-                element.timeStamp.isAfter(_tareDateTime!) &&
-                element.weight == 0,
-            orElse: () => _weightNotifications.first)
+          (element) =>
+              element.timeStamp.isAfter(_tareDateTime!) && element.weight == 0,
+          orElse: () => _weightNotifications.first,
+        )
         .timeStamp;
 
     var weightData = _weightNotifications.map((ele) {
       if (ele.timeStamp.isBefore(tareAllBefore)) {
         return ShotGraphData(
-            ele.timeStamp.difference(_startDateTime!).inMilliseconds, 0);
+          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
+          0,
+        );
       } else {
         return ShotGraphData(
-            ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-            ele.weight);
+          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
+          ele.weight,
+        );
       }
     }).toList();
 
