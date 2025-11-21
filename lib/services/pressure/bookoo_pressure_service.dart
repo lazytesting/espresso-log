@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:espresso_log/main.dart';
 import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
 import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
 import 'package:espresso_log/services/pressure/pressure_notification.dart';
@@ -9,11 +8,11 @@ import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class BookooPressureService implements AbstractPressureService {
-  BookooPressureService(this._bluetoothService) {
+  BookooPressureService(this._bluetoothService, this._talker) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
 
-  final Talker _talker = getIt.get<Talker>();
+  final Talker _talker;
   final BluetoothDevicesService _bluetoothService;
   final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();
