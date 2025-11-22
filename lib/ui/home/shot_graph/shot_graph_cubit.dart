@@ -83,17 +83,8 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
       );
     }).toList();
 
-    // retrospectively tare anything before the first 0 weight event after the tare command
-    var tareAllBefore = _weightNotifications
-        .firstWhere(
-          (element) =>
-              element.timeStamp.isAfter(_tareDateTime!) && element.weight == 0,
-          orElse: () => _weightNotifications.first,
-        )
-        .timeStamp;
-
     var weightData = _weightNotifications.map((ele) {
-      if (ele.timeStamp.isBefore(tareAllBefore)) {
+      if (_tareDateTime == null || ele.timeStamp.isBefore(_tareDateTime!)) {
         return ShotGraphData(
           ele.timeStamp.difference(_startDateTime!).inMilliseconds,
           0,

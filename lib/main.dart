@@ -47,7 +47,7 @@ void main() async {
 
   final scaleService = useMockScale
       ? MockScaleService()
-      : DecentScaleService(bluetoothService);
+      : DecentScaleService(bluetoothService, talker);
   await scaleService.init();
 
   final pressureService = useMockPressure
