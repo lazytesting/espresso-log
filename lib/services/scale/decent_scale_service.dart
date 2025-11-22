@@ -68,7 +68,7 @@ class DecentScaleService implements AbstractScaleService {
   Future<void> _subscribeToReadings() async {
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       // weight notifications
-      if (value[2] == 0xCE || value[2] == 0xCA) {
+      if (value[1] == 0xCE || value[1] == 0xCA) {
         var d = ByteData(2);
         d.setInt8(0, value[2]);
         d.setInt8(1, value[3]);
@@ -84,7 +84,7 @@ class DecentScaleService implements AbstractScaleService {
       }
 
       // tare confirmation
-      if (value[2] == 0x0F) {
+      if (value[1] == 0x0F) {
         _talker.debug("Received tare confirmation");
         var notifcation = TareNotification(timeStamp: DateTime.now());
         return _scaleNotificationController.add(notifcation);
