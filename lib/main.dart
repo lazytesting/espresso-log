@@ -48,13 +48,10 @@ void main() async {
   final scaleService = useMockScale
       ? MockScaleService()
       : DecentScaleService(bluetoothService, talker);
-  await scaleService.init();
 
   final pressureService = useMockPressure
       ? MockPressureService()
       : BookooPressureService(bluetoothService, talker);
-
-  await pressureService.init();
 
   final AbstractAutoTareService autoTareService = AutoTareService(scaleService);
   final AbstractAutoStartStopService autoStartStopService =
