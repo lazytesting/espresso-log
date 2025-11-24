@@ -84,15 +84,15 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     }).toList();
 
     var weightData = _weightNotifications.map((ele) {
-      if (_tareDateTime == null || ele.timeStamp.isBefore(_tareDateTime!)) {
+      if (_tareDateTime == null || ele.timeStamp.isAfter(_tareDateTime!)) {
         return ShotGraphData(
           ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          0,
+          ele.weight,
         );
       } else {
         return ShotGraphData(
           ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          ele.weight,
+          0,
         );
       }
     }).toList();
