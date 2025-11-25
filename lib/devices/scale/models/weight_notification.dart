@@ -1,9 +1,5 @@
 import 'package:espresso_log/devices/models/notification.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'weight_notification.g.dart';
-
-@JsonSerializable()
 class WeightNotification implements Notification {
   final double weight;
   @override
@@ -12,14 +8,20 @@ class WeightNotification implements Notification {
   WeightNotification({required this.weight, required this.timeStamp});
 
   @override
-  Map<String, dynamic> toJson() => _$WeightNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'WeightNotification',
+    'weight': weight,
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }
 
-@JsonSerializable()
 class TareNotification implements Notification {
   @override
   final DateTime timeStamp;
   TareNotification({required this.timeStamp});
   @override
-  Map<String, dynamic> toJson() => _$TareNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'TareNotification',
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }
