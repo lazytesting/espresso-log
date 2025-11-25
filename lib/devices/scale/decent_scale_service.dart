@@ -63,12 +63,6 @@ class DecentScaleService implements AbstractScaleService {
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
     List<int> signedCommand = _signWithXor(command);
     await _sendCommand(signedCommand);
-<<<<<<< HEAD:lib/devices/scale/decent_scale_service.dart
-    _scaleNotificationController.add(
-      TareNotification(timeStamp: DateTime.now()),
-    );
-=======
->>>>>>> master:lib/services/scale/decent_scale_service.dart
   }
 
   Future<void> _subscribeToReadings() async {
@@ -80,16 +74,6 @@ class DecentScaleService implements AbstractScaleService {
         d.setInt8(1, value[3]);
         var grams = d.getInt16(0) / 10;
 
-<<<<<<< HEAD:lib/devices/scale/decent_scale_service.dart
-      // TODO: check received time vs message time
-      var notification = WeightNotification(
-        weight: grams,
-        timeStamp: DateTime.now(),
-      );
-      // ignore: avoid_print
-      print("reading ${notification.weight}");
-      _scaleNotificationController.add(notification);
-=======
         var notification = WeightNotification(
           weight: grams,
           timeStamp: DateTime.now(),
@@ -105,7 +89,6 @@ class DecentScaleService implements AbstractScaleService {
         var notifcation = TareNotification(timeStamp: DateTime.now());
         return _scaleNotificationController.add(notifcation);
       }
->>>>>>> master:lib/services/scale/decent_scale_service.dart
     });
 
     // cleanup: cancel subscription when disconnected

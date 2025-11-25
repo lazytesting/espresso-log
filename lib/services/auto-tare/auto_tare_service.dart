@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 
 abstract class AbstractAutoTareService {
   void start();
