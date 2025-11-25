@@ -1,14 +1,16 @@
-import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
-import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
+import 'package:espresso_log/devices/pressure/bookoo_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/mock_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/scale/decent_scale_service.dart';
+import 'package:espresso_log/devices/scale/mock_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/timer/timer_service.dart';
+import 'package:espresso_log/services/auto_start_stop_service.dart';
+import 'package:espresso_log/services/auto_tare_service.dart';
+
 import 'package:espresso_log/router.dart';
-import 'package:espresso_log/services/scale/decent_scale_service.dart';
-import 'package:espresso_log/services/scale/mock_scale_service.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
-import 'package:espresso_log/services/timer/timer_service.dart';
+
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/shot_graph/shot_graph_cubit.dart';
@@ -20,12 +22,16 @@ import 'package:get_it/get_it.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import 'services/bluetooth/bluetooth_service.dart';
+import 'devices/bluetooth/bluetooth_service.dart';
 
-const useMockScale =
-    bool.fromEnvironment('USE_MOCK_SCALE', defaultValue: false);
-const useMockPressure =
-    bool.fromEnvironment('USE_MOCK_PRESSURE', defaultValue: false);
+const useMockScale = bool.fromEnvironment(
+  'USE_MOCK_SCALE',
+  defaultValue: false,
+);
+const useMockPressure = bool.fromEnvironment(
+  'USE_MOCK_PRESSURE',
+  defaultValue: false,
+);
 
 final getIt = GetIt.instance;
 void main() async {
@@ -59,8 +65,9 @@ void main() async {
       pressureService = MockPressureService();
     } else {
       await getIt.isReady<BluetoothDevicesService>();
-      pressureService =
-          BookooPressureService(getIt.get<BluetoothDevicesService>());
+      pressureService = BookooPressureService(
+        getIt.get<BluetoothDevicesService>(),
+      );
     }
     await pressureService.init();
     return pressureService;
@@ -79,13 +86,18 @@ void main() async {
     return AutoStartStopService(pressureService, timerService);
   });
 
-  runApp(MultiBlocProvider(providers: [
-    BlocProvider(create: (_) => ShotGraphCubit()),
-    BlocProvider(create: (_) => CurrentWeightCubit()),
-    BlocProvider(create: (_) => WeightChangeCubit()),
-    BlocProvider(create: (_) => TimerCubit()),
-    BlocProvider(create: (_) => PressureCubit())
-  ], child: const MyApp()));
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => ShotGraphCubit()),
+        BlocProvider(create: (_) => CurrentWeightCubit()),
+        BlocProvider(create: (_) => WeightChangeCubit()),
+        BlocProvider(create: (_) => TimerCubit()),
+        BlocProvider(create: (_) => PressureCubit()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -93,8 +105,10 @@ class MyApp extends StatelessWidget {
 
   ThemeData _getTheme() {
     var baseTheme = ThemeData.from(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 84, 48, 134)));
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color.fromARGB(255, 84, 48, 134),
+      ),
+    );
 
     return baseTheme;
   }
@@ -103,16 +117,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getIt.allReady(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            return MaterialApp.router(
-              theme: _getTheme(),
-              routerConfig: AppRouter().router,
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        });
+      future: getIt.allReady(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          return MaterialApp.router(
+            theme: _getTheme(),
+            routerConfig: AppRouter().router,
+          );
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
   }
 }

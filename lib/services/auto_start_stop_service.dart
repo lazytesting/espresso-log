@@ -1,5 +1,5 @@
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
 
 class AutoStartStopService {
   bool _enabled = false;
@@ -7,8 +7,10 @@ class AutoStartStopService {
   final double _treshold2 = 0.5;
   bool _treshold2Reached = false;
 
-  AutoStartStopService(AbstractPressureService pressureService,
-      AbstractTimerService timerService) {
+  AutoStartStopService(
+    AbstractPressureService pressureService,
+    AbstractTimerService timerService,
+  ) {
     pressureService.stream.listen((notification) {
       if (!_enabled) {
         return;

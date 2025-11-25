@@ -1,4 +1,4 @@
-import '../notification.dart';
+import 'package:espresso_log/devices/models/notification.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'pressure_notification.g.dart';

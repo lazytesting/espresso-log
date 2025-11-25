@@ -1,4 +1,4 @@
-import 'package:espresso_log/services/notification.dart';
+import 'package:espresso_log/devices/models/notification.dart';
 
 abstract class AbstractScaleService {
   Stream<Notification> stream = const Stream.empty();

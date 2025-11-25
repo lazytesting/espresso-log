@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/timer/models/timer_notification.dart';
 import 'package:espresso_log/main.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'timer_state.dart';
@@ -12,11 +13,12 @@ class TimerCubit extends Cubit<TimerState> {
     _timerService.stream.listen((event) {
       var seconds = (event.milliSeconds / 1000).floor();
       var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
-      if (event is TimerStartedEvent || event is TimerTickedEvent) {
+      if (event is TimerStartedNotification ||
+          event is TimerTickedNotification) {
         emit(TimerRunning(seconds, deciSeconds));
       }
 
-      if (event is TimerStoppedEvent) {
+      if (event is TimerStoppedNotification) {
         emit(TimerStopped(seconds, deciSeconds));
       }
     });

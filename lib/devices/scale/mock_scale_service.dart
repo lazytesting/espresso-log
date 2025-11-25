@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:espresso_log/services/notification.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:espresso_log/devices/models/notification.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MockScaleService implements AbstractScaleService {
@@ -25,16 +25,18 @@ class MockScaleService implements AbstractScaleService {
         weight = 52;
       }
 
-      _scaleNotificationController
-          .add(WeightNotification(weight: weight, timeStamp: DateTime.now()));
+      _scaleNotificationController.add(
+        WeightNotification(weight: weight, timeStamp: DateTime.now()),
+      );
       _count++;
     });
   }
 
   @override
   Future<void> tareCommand() async {
-    _scaleNotificationController
-        .add(TareNotification(timeStamp: DateTime.now()));
+    _scaleNotificationController.add(
+      TareNotification(timeStamp: DateTime.now()),
+    );
     _count = 0;
   }
 

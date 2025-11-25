@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/pressure/pressure_notification.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:rxdart/subjects.dart';
 
 class MockPressureService implements AbstractPressureService {
@@ -27,8 +27,9 @@ class MockPressureService implements AbstractPressureService {
         pressure = 8;
       }
       _pressureNotificationController.asBroadcastStream();
-      _pressureNotificationController
-          .add(PressureNotification(pressure, DateTime.now()));
+      _pressureNotificationController.add(
+        PressureNotification(pressure, DateTime.now()),
+      );
     });
   }
 

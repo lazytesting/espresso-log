@@ -1,8 +1,8 @@
 import 'dart:typed_data';
-import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
-import 'package:espresso_log/services/notification.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
+import 'package:espresso_log/devices/models/notification.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/rxdart.dart';
@@ -41,10 +41,14 @@ class DecentScaleService implements AbstractScaleService {
       chars.addAll(s.characteristics);
     }
 
-    _writeCharacteristic = chars.firstWhere((c) =>
-        c.characteristicUuid == Guid("000036F5-0000-1000-8000-00805F9B34FB"));
-    _readCharacteristic = chars.firstWhere((c) =>
-        c.characteristicUuid == Guid("0000FFF4-0000-1000-8000-00805F9B34FB"));
+    _writeCharacteristic = chars.firstWhere(
+      (c) =>
+          c.characteristicUuid == Guid("000036F5-0000-1000-8000-00805F9B34FB"),
+    );
+    _readCharacteristic = chars.firstWhere(
+      (c) =>
+          c.characteristicUuid == Guid("0000FFF4-0000-1000-8000-00805F9B34FB"),
+    );
   }
 
   Future<void> _sendCommand(List<int> value) async {
@@ -57,8 +61,9 @@ class DecentScaleService implements AbstractScaleService {
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
     List<int> signedCommand = _signWithXor(command);
     await _sendCommand(signedCommand);
-    _scaleNotificationController
-        .add(TareNotification(timeStamp: DateTime.now()));
+    _scaleNotificationController.add(
+      TareNotification(timeStamp: DateTime.now()),
+    );
   }
 
   Future<void> _subscribeToReadings() async {
@@ -69,8 +74,10 @@ class DecentScaleService implements AbstractScaleService {
       var grams = d.getInt16(0) / 10;
 
       // TODO: check received time vs message time
-      var notification =
-          WeightNotification(weight: grams, timeStamp: DateTime.now());
+      var notification = WeightNotification(
+        weight: grams,
+        timeStamp: DateTime.now(),
+      );
       // ignore: avoid_print
       print("reading ${notification.weight}");
       _scaleNotificationController.add(notification);
