@@ -1,5 +1,5 @@
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
 
 abstract class AbstractAutoStartStopService {
   void enable();

@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/pressure/pressure_notification.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/weight_notification.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/weight_notification.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/timer/models/timer_notification.dart';
+import 'package:espresso_log/services/auto_start_stop_service.dart';
+import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'shot_graph_state.dart';
@@ -40,12 +41,12 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
 
   void _handleTimerUpdates() {
     _timerService.stream.listen((timerEvent) {
-      if (timerEvent is TimerStartedEvent) {
+      if (timerEvent is TimerStartedNotification) {
         _isRunning = true;
         _startDateTime = timerEvent.timeStamp;
         _pressureNotifications = [];
         _weightNotifications = [];
-      } else if (timerEvent is TimerStoppedEvent) {
+      } else if (timerEvent is TimerStoppedNotification) {
         // TODO stop listening
         _isRunning = false;
         _autoTareService.stop();

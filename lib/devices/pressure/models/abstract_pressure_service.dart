@@ -1,4 +1,4 @@
-import 'package:espresso_log/services/pressure/pressure_notification.dart';
+import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 
 abstract class AbstractPressureService {
   Stream<PressureNotification> stream = const Stream.empty();

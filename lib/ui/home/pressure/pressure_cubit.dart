@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'pressure_state.dart';

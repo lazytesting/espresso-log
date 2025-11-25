@@ -1,4 +1,4 @@
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

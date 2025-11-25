@@ -1,4 +1,4 @@
-import 'package:espresso_log/services/notification.dart';
+import 'package:espresso_log/devices/models/notification.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'weight_notification.g.dart';

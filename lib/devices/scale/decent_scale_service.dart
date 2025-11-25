@@ -1,8 +1,8 @@
 import 'dart:typed_data';
-import 'package:espresso_log/services/bluetooth/bluetooth_service.dart';
-import 'package:espresso_log/services/notification.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
-import 'package:espresso_log/services/scale/weight_notification.dart';
+import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
+import 'package:espresso_log/devices/models/notification.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/rxdart.dart';

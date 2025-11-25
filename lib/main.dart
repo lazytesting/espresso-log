@@ -1,14 +1,16 @@
-import 'package:espresso_log/services/auto-start-stop/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto-tare/auto_tare_service.dart';
-import 'package:espresso_log/services/pressure/abstract_pressure_service.dart';
-import 'package:espresso_log/services/pressure/bookoo_pressure_service.dart';
-import 'package:espresso_log/services/pressure/mock_pressure_service.dart';
-import 'package:espresso_log/services/scale/abstract_scale_service.dart';
+import 'package:espresso_log/devices/pressure/bookoo_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/mock_pressure_service.dart';
+import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
+import 'package:espresso_log/devices/scale/decent_scale_service.dart';
+import 'package:espresso_log/devices/scale/mock_scale_service.dart';
+import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
+import 'package:espresso_log/devices/timer/timer_service.dart';
+import 'package:espresso_log/services/auto_start_stop_service.dart';
+import 'package:espresso_log/services/auto_tare_service.dart';
+
 import 'package:espresso_log/router.dart';
-import 'package:espresso_log/services/scale/decent_scale_service.dart';
-import 'package:espresso_log/services/scale/mock_scale_service.dart';
-import 'package:espresso_log/services/timer/abstract_timer_service.dart';
-import 'package:espresso_log/services/timer/timer_service.dart';
+
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/loader/loader_cubit.dart';
 import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
@@ -21,7 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import 'services/bluetooth/bluetooth_service.dart';
+import 'devices/bluetooth/bluetooth_service.dart';
 
 const useMockScale = bool.fromEnvironment(
   'USE_MOCK_SCALE',
