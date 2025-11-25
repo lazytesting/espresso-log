@@ -12,13 +12,14 @@ import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:espresso_log/router.dart';
 
 import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/home/loader/loader_cubit.dart';
 import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -33,69 +34,60 @@ const useMockPressure = bool.fromEnvironment(
   defaultValue: false,
 );
 
-final getIt = GetIt.instance;
+//final getIt = GetIt.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WakelockPlus.enable();
 
-  getIt.registerSingleton<Talker>(TalkerFlutter.init());
+  final Talker talker = TalkerFlutter.init();
+  final BluetoothDevicesService bluetoothService = BluetoothDevicesService(
+    talker: talker,
+  );
+  await bluetoothService.init();
 
-  getIt.registerSingletonAsync<BluetoothDevicesService>(() async {
-    BluetoothDevicesService bluetoothService = BluetoothDevicesService();
-    await bluetoothService.init();
-    return bluetoothService;
-  });
+  final AbstractTimerService timerService = TimerService();
 
-  getIt.registerSingleton<AbstractTimerService>(TimerService());
-  getIt.registerSingletonAsync<AbstractScaleService>(() async {
-    AbstractScaleService scaleService;
-    if (useMockScale) {
-      scaleService = MockScaleService();
-    } else {
-      await getIt.isReady<BluetoothDevicesService>();
-      scaleService = DecentScaleService(getIt.get<BluetoothDevicesService>());
-    }
-    await scaleService.init();
-    return scaleService;
-  });
+  final scaleService = useMockScale
+      ? MockScaleService()
+      : DecentScaleService(bluetoothService, talker);
 
-  getIt.registerSingletonAsync<AbstractPressureService>(() async {
-    AbstractPressureService pressureService;
-    if (useMockPressure) {
-      pressureService = MockPressureService();
-    } else {
-      await getIt.isReady<BluetoothDevicesService>();
-      pressureService = BookooPressureService(
-        getIt.get<BluetoothDevicesService>(),
-      );
-    }
-    await pressureService.init();
-    return pressureService;
-  });
+  final pressureService = useMockPressure
+      ? MockPressureService()
+      : BookooPressureService(bluetoothService, talker);
 
-  getIt.registerSingletonAsync<AbstractAutoTareService>(() async {
-    await getIt.isReady<AbstractScaleService>();
-    var scaleService = getIt.get<AbstractScaleService>();
-    return AutoTareService(scaleService);
-  });
-
-  getIt.registerSingletonAsync<AutoStartStopService>(() async {
-    await getIt.isReady<AbstractPressureService>();
-    var timerService = getIt.get<AbstractTimerService>();
-    var pressureService = getIt.get<AbstractPressureService>();
-    return AutoStartStopService(pressureService, timerService);
-  });
+  final AbstractAutoTareService autoTareService = AutoTareService(scaleService);
+  final AbstractAutoStartStopService autoStartStopService =
+      AutoStartStopService(pressureService, timerService);
 
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => ShotGraphCubit()),
-        BlocProvider(create: (_) => CurrentWeightCubit()),
-        BlocProvider(create: (_) => WeightChangeCubit()),
-        BlocProvider(create: (_) => TimerCubit()),
-        BlocProvider(create: (_) => PressureCubit()),
+        BlocProvider(
+          create: (_) => ShotGraphCubit(
+            autoStartStopService,
+            scaleService,
+            timerService,
+            autoTareService,
+            pressureService,
+          ),
+        ),
+        BlocProvider(create: (_) => CurrentWeightCubit(scaleService)),
+        BlocProvider(create: (_) => WeightChangeCubit(scaleService)),
+        BlocProvider(create: (_) => TimerCubit(timerService)),
+        BlocProvider(create: (_) => PressureCubit(pressureService)),
+        BlocProvider(
+          create: (_) => LoaderCubit(scaleService, pressureService)..load(),
+        ),
       ],
-      child: const MyApp(),
+      child: MultiProvider(
+        providers: [
+          Provider<Talker>.value(value: talker),
+          Provider<AbstractScaleService>.value(value: scaleService),
+          Provider<AbstractPressureService>.value(value: pressureService),
+          Provider<AbstractTimerService>.value(value: timerService),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }
@@ -103,26 +95,19 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  ThemeData _getTheme() {
-    var baseTheme = ThemeData.from(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 84, 48, 134),
-      ),
-    );
-
-    return baseTheme;
-  }
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getIt.allReady(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.hasData) {
+    return BlocBuilder<LoaderCubit, LoaderState>(
+      builder: (context, state) {
+        if (state is LoaderCompleted) {
           return MaterialApp.router(
-            theme: _getTheme(),
-            routerConfig: AppRouter().router,
+            theme: ThemeData.from(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color.fromARGB(255, 84, 48, 134),
+              ),
+            ),
+            routerConfig: AppRouter(context.read<Talker>()).router,
           );
         } else {
           return const CircularProgressIndicator();

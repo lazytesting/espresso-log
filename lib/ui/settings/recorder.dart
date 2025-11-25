@@ -5,11 +5,10 @@ import 'dart:io';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-
-import 'package:espresso_log/main.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 // make all events json serializable
@@ -24,12 +23,12 @@ class RecorderScreen extends StatefulWidget {
 }
 
 class _RecorderScreenState extends State<RecorderScreen> {
-  late final AbstractScaleService _scaleService = getIt
-      .get<AbstractScaleService>();
-  late final AbstractTimerService _timerService = getIt
-      .get<AbstractTimerService>();
-  late final AbstractPressureService _pressureService = getIt
-      .get<AbstractPressureService>();
+  late final AbstractScaleService _scaleService = context
+      .read<AbstractScaleService>();
+  late final AbstractTimerService _timerService = context
+      .read<AbstractTimerService>();
+  late final AbstractPressureService _pressureService = context
+      .read<AbstractPressureService>();
 
   StreamSubscription? scaleSubscription;
   StreamSubscription? timerSubscription;

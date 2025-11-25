@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
-import 'package:espresso_log/main.dart';
 import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class BookooPressureService implements AbstractPressureService {
-  BookooPressureService(this._bluetoothService) {
+  BookooPressureService(this._bluetoothService, this._talker) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
 
-  final Talker _talker = getIt.get<Talker>();
+  final Talker _talker;
   final BluetoothDevicesService _bluetoothService;
   final _pressureNotificationController =
       BehaviorSubject<PressureNotification>();

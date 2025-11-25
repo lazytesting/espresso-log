@@ -1,7 +1,11 @@
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
 
-class AutoStartStopService {
+abstract class AbstractAutoStartStopService {
+  void enable();
+}
+
+class AutoStartStopService implements AbstractAutoStartStopService {
   bool _enabled = false;
   final double _treshold1 = 0.1;
   final double _treshold2 = 0.5;
@@ -38,6 +42,7 @@ class AutoStartStopService {
     });
   }
 
+  @override
   void enable() {
     //temp
     _enabled = true;

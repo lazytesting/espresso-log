@@ -1,14 +1,11 @@
-import 'package:espresso_log/devices/scale/decent_scale_service.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/main.dart';
 import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
-  SettingsScreen({super.key});
-  late final AbstractScaleService _scaleService = getIt
-      .get<DecentScaleService>();
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +28,11 @@ class SettingsScreen extends StatelessWidget {
             child: const Text("Recorder"),
           ),
           FilledButton(
-            onPressed: () => _scaleService.init(),
+            onPressed: () => context.read<AbstractScaleService>().init(),
             child: const Text("init"),
           ),
           FilledButton(
-            onPressed: () => _scaleService.tareCommand(),
+            onPressed: () => context.read<AbstractScaleService>().tareCommand(),
             child: const Text("tare"),
           ),
         ],

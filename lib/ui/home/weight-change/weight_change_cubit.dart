@@ -1,15 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/devices/scale/models/weight_notification.dart';
-import 'package:espresso_log/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'weight_change_state.dart';
 
 class WeightChangeCubit extends Cubit<WeightChangeState> {
-  final AbstractScaleService _scaleService = getIt.get<AbstractScaleService>();
+  final AbstractScaleService _scaleService;
   final List<WeightNotification> _history = [];
-  WeightChangeCubit() : super(WeightChangeInitial()) {
+  WeightChangeCubit(this._scaleService) : super(WeightChangeInitial()) {
     _scaleService.stream.listen((event) {
       // remove event occured before taring
       if (event is TareNotification) {
