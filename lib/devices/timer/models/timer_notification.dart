@@ -1,6 +1,4 @@
 import 'package:espresso_log/devices/models/notification.dart';
-import 'package:json_annotation/json_annotation.dart';
-part 'timer_notification.g.dart';
 
 abstract class TimerNotification implements Notification {
   @override
@@ -10,23 +8,32 @@ abstract class TimerNotification implements Notification {
   TimerNotification(this.timeStamp, this.milliSeconds);
 }
 
-@JsonSerializable()
 class TimerStartedNotification extends TimerNotification {
   TimerStartedNotification(super.timeStamp, super.milliSeconds);
   @override
-  Map<String, dynamic> toJson() => _$TimerStartedNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'TimerStartedNotification',
+    'milliSeconds': milliSeconds,
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }
 
-@JsonSerializable()
 class TimerStoppedNotification extends TimerNotification {
   TimerStoppedNotification(super.timeStamp, super.milliSeconds);
   @override
-  Map<String, dynamic> toJson() => _$TimerStoppedNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'TimerStoppedNotification',
+    'milliSeconds': milliSeconds,
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }
 
-@JsonSerializable()
 class TimerTickedNotification extends TimerNotification {
   TimerTickedNotification(super.timeStamp, super.milliSeconds);
   @override
-  Map<String, dynamic> toJson() => _$TimerTickedNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'TimerTickedNotification',
+    'milliSeconds': milliSeconds,
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }

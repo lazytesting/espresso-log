@@ -1,9 +1,5 @@
 import 'package:espresso_log/devices/models/notification.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'pressure_notification.g.dart';
-
-@JsonSerializable()
 class PressureNotification implements Notification {
   @override
   final DateTime timeStamp;
@@ -11,5 +7,9 @@ class PressureNotification implements Notification {
 
   PressureNotification(this.pressure, this.timeStamp);
   @override
-  Map<String, dynamic> toJson() => _$PressureNotificationToJson(this);
+  Map<String, dynamic> toJson() => {
+    'type': 'PressureNotification',
+    'pressure': pressure,
+    'timeStamp': timeStamp.toIso8601String(),
+  };
 }
