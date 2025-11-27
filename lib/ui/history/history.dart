@@ -1,4 +1,3 @@
-import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -6,9 +5,6 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ScreenContainer(
-      title: 'History',
-      child: Text('History screen'),
-    );
+    return const Text('History screen');
   }
 }

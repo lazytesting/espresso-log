@@ -11,12 +11,12 @@ import 'package:espresso_log/services/auto_tare_service.dart';
 
 import 'package:espresso_log/router.dart';
 
-import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/loader/loader_cubit.dart';
-import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
-import 'package:espresso_log/ui/home/shot_graph/shot_graph_cubit.dart';
-import 'package:espresso_log/ui/home/timer/timer_cubit.dart';
-import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
+import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
+import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
+import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +34,6 @@ const useMockPressure = bool.fromEnvironment(
   defaultValue: false,
 );
 
-//final getIt = GetIt.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   WakelockPlus.enable();

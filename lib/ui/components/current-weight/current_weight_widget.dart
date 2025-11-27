@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/home/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,13 +18,13 @@ class CurrentWeightWidget extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              Text(
-                weight,
-                style: const TextStyle(fontSize: 25),
-              ),
-              const Row(children: [Text('Grams')]),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(weight, style: const TextStyle(fontSize: 25)),
+                const Text('Grams'),
+              ],
+            ),
           ),
         );
       },

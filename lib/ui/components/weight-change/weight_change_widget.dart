@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/home/weight-change/weight_change_cubit.dart';
+import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,13 +21,8 @@ class WeightChangeWidget extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Row(children: [
-                  Text(
-                    weight,
-                    style: const TextStyle(fontSize: 25),
-                  )
-                ]),
-                const Row(children: [Text('g/s')]),
+                Text(weight, style: const TextStyle(fontSize: 25)),
+                const Text('g/s'),
               ],
             ),
           ),

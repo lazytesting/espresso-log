@@ -4,10 +4,9 @@ import 'package:espresso_log/ui/shot/shot_graph/shot_graph_widget.dart';
 import 'package:espresso_log/ui/shot/timer/timer_widget.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class ShotScreen extends StatelessWidget {
+  const ShotScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,20 +18,10 @@ class HomeScreen extends StatelessWidget {
             Expanded(child: CurrentWeightWidget()),
             Expanded(child: WeightChangeWidget()),
             Expanded(child: PressureWidget()),
+            Expanded(child: TimerWidget()),
           ],
         ),
-        SizedBox(height: 20),
-        ElevatedButton.icon(
-          onPressed: () {
-            context.go('/shot');
-          },
-          icon: Icon(Icons.coffee, size: 32),
-          label: Text('START SHOT', style: TextStyle(fontSize: 18)),
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-            minimumSize: Size(200, 80),
-          ),
-        ),
+        Expanded(child: ShotGraphWidget()),
       ],
     );
   }

@@ -1,5 +1,4 @@
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +8,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenContainer(title: 'Bla', child: _getScreen(context));
-  }
-
-  Widget _getScreen(BuildContext context) {
     return Center(
       // Center is a layout widget. It takes a single child and positions it
       // in the middle of the parent.
