@@ -1,19 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-
-// make all events json serializable
-// listen to all streams and add them to a list
-// flush list to file
 
 class RecorderScreen extends StatefulWidget {
   const RecorderScreen({super.key});
@@ -44,7 +38,29 @@ class _RecorderScreenState extends State<RecorderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenContainer(title: 'Bla', child: _getScreen(context));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          FilledButton(
+            onPressed: () => _listen(),
+            child: const Text("Start recording"),
+          ),
+          FilledButton(
+            onPressed: () => _stopListening(),
+            child: const Text("Stop recording"),
+          ),
+          FilledButton(
+            onPressed: () => _clear(),
+            child: const Text("Flush recordings"),
+          ),
+          FilledButton(
+            onPressed: () => _export(),
+            child: const Text("Export recordings"),
+          ),
+        ],
+      ),
+    );
   }
 
   void _listen() {
@@ -93,32 +109,6 @@ class _RecorderScreenState extends State<RecorderScreen> {
         text: "Espresso recordings",
         files: [XFile(file.path)],
         subject: "Espresso Log Recordings",
-      ),
-    );
-  }
-
-  Widget _getScreen(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          FilledButton(
-            onPressed: () => _listen(),
-            child: const Text("Start recording"),
-          ),
-          FilledButton(
-            onPressed: () => _stopListening(),
-            child: const Text("Stop recording"),
-          ),
-          FilledButton(
-            onPressed: () => _clear(),
-            child: const Text("Flush recordings"),
-          ),
-          FilledButton(
-            onPressed: () => _export(),
-            child: const Text("Export recordings"),
-          ),
-        ],
       ),
     );
   }

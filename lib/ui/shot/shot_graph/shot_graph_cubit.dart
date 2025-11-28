@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
+import 'package:espresso_log/devices/models/notification.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
@@ -26,6 +29,9 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   bool _isRunning = false;
   List<WeightNotification> _weightNotifications = [];
   List<PressureNotification> _pressureNotifications = [];
+  StreamSubscription<Notification>? _timerStreamSubscription;
+  StreamSubscription<Notification>? _scaleStreamSubscription;
+  StreamSubscription<Notification>? _pressureStreamSubscription;
 
   ShotGraphCubit(
     this._autoStartStopService,
@@ -33,14 +39,10 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     this._timerService,
     this._autoTareService,
     this._pressureService,
-  ) : super(ShotGraphInitial()) {
-    _handleTimerUpdates();
-    _handleScaleUpdates();
-    _handlePressureUpdates();
-  }
+  ) : super(ShotGraphInitial());
 
   void _handleTimerUpdates() {
-    _timerService.stream.listen((timerEvent) {
+    _timerStreamSubscription = _timerService.stream.listen((timerEvent) {
       if (timerEvent is TimerStartedNotification) {
         _isRunning = true;
         _startDateTime = timerEvent.timeStamp;
@@ -57,7 +59,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void _handleScaleUpdates() {
-    _scaleService.stream.listen((scaleEvent) {
+    _scaleStreamSubscription = _scaleService.stream.listen((scaleEvent) {
       if (_startDateTime == null || !_isRunning) return;
       if (scaleEvent is TareNotification) {
         _tareDateTime = scaleEvent.timeStamp;
@@ -69,7 +71,9 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void _handlePressureUpdates() {
-    _pressureService.stream.listen((pressureEvent) {
+    _pressureStreamSubscription = _pressureService.stream.listen((
+      pressureEvent,
+    ) {
       if (_startDateTime == null || !_isRunning) return;
       _pressureNotifications.add(pressureEvent);
       _emitEvent();
@@ -107,7 +111,38 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
 
   void start() {
     emit(ShotGraphWaiting());
+    _startDateTime = null;
+    _tareDateTime = null;
+    _isRunning = false;
+    _weightNotifications = [];
+    _pressureNotifications = [];
+
+    _handleTimerUpdates();
+    _handleScaleUpdates();
+    _handlePressureUpdates();
     _autoTareService.start();
     _autoStartStopService.enable();
+  }
+
+  void restart() {
+    emit(ShotGraphWaiting());
+    _startDateTime = null;
+    _tareDateTime = null;
+    _isRunning = false;
+    _weightNotifications = [];
+    _pressureNotifications = [];
+    _autoTareService.start();
+    _autoStartStopService.enable();
+  }
+
+  @override
+  Future<void> close() {
+    _autoStartStopService.disable();
+    _autoTareService.stop();
+    _timerStreamSubscription?.cancel();
+    _scaleStreamSubscription?.cancel();
+    _pressureStreamSubscription?.cancel();
+
+    return super.close();
   }
 }

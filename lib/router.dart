@@ -1,9 +1,9 @@
-import 'package:espresso_log/ui/scaffold/bottom_navigation.dart';
+import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
-import 'package:espresso_log/ui/scaffold/screen_container.dart';
 import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
+import 'package:espresso_log/ui/shot/shot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -15,7 +15,7 @@ class AppRouter {
   final _historyTabNavigatorKey = GlobalKey<NavigatorState>();
   final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
 
-  static const homePath = '/home';
+  static const homePath = '/';
   static const historyPath = '/history';
   static const settingsPath = '/settings';
   static const settingsLogPath = '/settings/log';
@@ -24,7 +24,7 @@ class AppRouter {
   AppRouter(Talker talker) {
     router = GoRouter(
       observers: [TalkerRouteObserver(talker)],
-      initialLocation: '/home',
+      initialLocation: '/',
       navigatorKey: _rootNavigatorKey,
       routes: [
         StatefulShellRoute.indexedStack(
@@ -36,10 +36,7 @@ class AppRouter {
                 GoRoute(
                   path: homePath,
                   builder: (context, state) {
-                    return ScreenContainer(
-                      key: state.pageKey,
-                      child: const HomeScreen(),
-                    );
+                    return const HomeScreen();
                   },
                 ),
               ],
@@ -49,8 +46,8 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: historyPath,
-                  pageBuilder: (context, state) {
-                    return getPage(child: const HistoryScreen(), state: state);
+                  builder: (context, state) {
+                    return const HistoryScreen();
                   },
                 ),
               ],
@@ -60,45 +57,42 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: settingsPath,
-                  pageBuilder: (context, state) {
-                    return getPage(child: SettingsScreen(), state: state);
+                  builder: (context, state) {
+                    return const SettingsScreen();
                   },
                 ),
                 GoRoute(
                   path: settingsLogPath,
-                  pageBuilder: (context, state) {
-                    return getPage(
-                      child: TalkerScreen(talker: talker),
-                      state: state,
-                    );
+                  builder: (context, state) {
+                    return TalkerScreen(talker: talker);
                   },
                 ),
                 GoRoute(
                   path: settingsRecorderPath,
-                  pageBuilder: (context, state) {
-                    return getPage(child: const RecorderScreen(), state: state);
+                  builder: (context, state) {
+                    return const RecorderScreen();
                   },
                 ),
               ],
             ),
           ],
-          pageBuilder:
+          builder:
               (
                 BuildContext context,
                 GoRouterState state,
                 StatefulNavigationShell navigationShell,
               ) {
-                return getPage(
-                  child: BottomNavigationPage(child: navigationShell),
-                  state: state,
-                );
+                return RootScaffold(child: navigationShell);
               },
+        ),
+        GoRoute(
+          path: '/shot',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) {
+            return ShotScreen();
+          },
         ),
       ],
     );
-  }
-
-  Page getPage({required Widget child, required GoRouterState state}) {
-    return MaterialPage(key: state.pageKey, child: child);
   }
 }

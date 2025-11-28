@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/home/pressure/pressure_cubit.dart';
+import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,11 +20,8 @@ class PressureWidget extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  pressureText,
-                  style: const TextStyle(fontSize: 25),
-                ),
-                const Text("Bar")
+                Text(pressureText, style: const TextStyle(fontSize: 25)),
+                const Text("Bar"),
               ],
             ),
           ),

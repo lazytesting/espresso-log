@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:espresso_log/devices/models/notification.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
 
 abstract class AbstractAutoStartStopService {
   void enable();
+  void disable();
 }
 
 class AutoStartStopService implements AbstractAutoStartStopService {
@@ -10,12 +14,13 @@ class AutoStartStopService implements AbstractAutoStartStopService {
   final double _treshold1 = 0.1;
   final double _treshold2 = 0.5;
   bool _treshold2Reached = false;
+  StreamSubscription<Notification>? _pressureSubscription;
 
   AutoStartStopService(
     AbstractPressureService pressureService,
     AbstractTimerService timerService,
   ) {
-    pressureService.stream.listen((notification) {
+    _pressureSubscription = pressureService.stream.listen((notification) {
       if (!_enabled) {
         return;
       }
@@ -44,7 +49,18 @@ class AutoStartStopService implements AbstractAutoStartStopService {
 
   @override
   void enable() {
-    //temp
+    if (_pressureSubscription != null && _pressureSubscription!.isPaused) {
+      _pressureSubscription!.resume();
+    }
     _enabled = true;
+  }
+
+  @override
+  void disable() {
+    if (_pressureSubscription != null) {
+      _pressureSubscription!.pause();
+    }
+    _treshold2Reached = false;
+    _enabled = false;
   }
 }
