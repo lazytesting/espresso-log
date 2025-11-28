@@ -98,14 +98,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoaderCubit, LoaderState>(
+      // TODO: move to main page
       builder: (context, state) {
         if (state is LoaderCompleted) {
           return MaterialApp.router(
-            theme: ThemeData.from(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color.fromARGB(255, 84, 48, 134),
-              ),
-            ),
+            theme:
+                ThemeData.from(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: const Color.fromARGB(255, 84, 48, 134),
+                  ),
+                ).copyWith(
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Color.fromARGB(255, 88, 77, 105),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
             routerConfig: AppRouter(context.read<Talker>()).router,
           );
         } else {

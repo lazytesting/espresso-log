@@ -1,7 +1,5 @@
 import 'package:espresso_log/ui/components/current-weight/current_weight_widget.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_widget.dart';
-import 'package:espresso_log/ui/shot/timer/timer_widget.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +22,7 @@ class HomeScreen extends StatelessWidget {
         SizedBox(height: 20),
         ElevatedButton.icon(
           onPressed: () {
-            context.go('/shot');
+            context.push('/shot');
           },
           icon: Icon(Icons.coffee, size: 32),
           label: Text('START SHOT', style: TextStyle(fontSize: 18)),

@@ -1,5 +1,4 @@
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_initial_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -9,29 +8,24 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ShotGraphCubit, ShotGraphState>(
-      listener: (context, state) {
-        if (state is ShotGraphStopped) {
-          final snackBar = SnackBar(
-            content: const Text('Run finished'),
-            backgroundColor: (Colors.black12),
-            action: SnackBarAction(
-              label: 'restart',
-              onPressed: () {
-                context.read<ShotGraphCubit>().start();
-              },
+    // Call start() after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ShotGraphCubit>().start();
+    });
+
+    return BlocBuilder<ShotGraphCubit, ShotGraphState>(
+      builder: (context, state) {
+        if (state is ShotGraphInitial || state is ShotGraphWaiting) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text("Waiting for shot to start..."),
+              ],
             ),
           );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        }
-      },
-      builder: (context, state) {
-        if (state is ShotGraphInitial) {
-          return const ShotGraphInitialWidget();
-        }
-
-        if (state is ShotGraphWaiting) {
-          return const Text("waiting for shot...");
         }
 
         if (state is ShotGraphRun) {
