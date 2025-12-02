@@ -14,7 +14,7 @@ import 'package:espresso_log/router.dart';
 import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/home/loader/loader_cubit.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/ui/shot/shot_graph/shot_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +62,7 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => ShotGraphCubit(
+          create: (_) => ShotCubit(
             autoStartStopService,
             scaleService,
             timerService,

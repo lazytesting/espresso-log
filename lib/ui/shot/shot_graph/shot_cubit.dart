@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:espresso_log/devices/models/notification.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
@@ -12,48 +11,47 @@ import 'package:espresso_log/services/auto_start_stop_service.dart';
 import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'shot_graph_state.dart';
+part 'shot_state.dart';
 
-class ShotGraphCubit extends Cubit<ShotGraphState> {
-  // keep 3 lists with data
-  // apply some damping logic
-  // on every new item emit an event (let bloc limit this)... or on every timer event
-
+class ShotCubit extends Cubit<ShotState> {
   final AbstractAutoStartStopService _autoStartStopService;
   final AbstractScaleService _scaleService;
   final AbstractTimerService _timerService;
   final AbstractAutoTareService _autoTareService;
   final AbstractPressureService _pressureService;
   DateTime? _startDateTime;
-  DateTime? _tareDateTime;
+  int? _lastReceivedTimeInmillis;
   bool _isRunning = false;
-  List<WeightNotification> _weightNotifications = [];
-  List<PressureNotification> _pressureNotifications = [];
+  List<ShotGraphData> _weightGraphData = [];
+  List<ShotGraphData> _pressureGraphData = [];
   StreamSubscription<Notification>? _timerStreamSubscription;
   StreamSubscription<Notification>? _scaleStreamSubscription;
   StreamSubscription<Notification>? _pressureStreamSubscription;
 
-  ShotGraphCubit(
+  ShotCubit(
     this._autoStartStopService,
     this._scaleService,
     this._timerService,
     this._autoTareService,
     this._pressureService,
-  ) : super(ShotGraphInitial());
+  ) : super(ShotStateInitial());
 
   void _handleTimerUpdates() {
     _timerStreamSubscription = _timerService.stream.listen((timerEvent) {
+      _lastReceivedTimeInmillis = timerEvent.milliSeconds;
       if (timerEvent is TimerStartedNotification) {
         _isRunning = true;
         _startDateTime = timerEvent.timeStamp;
-        _pressureNotifications = [];
-        _weightNotifications = [];
+        _pressureGraphData = [];
+        _weightGraphData = [];
       } else if (timerEvent is TimerStoppedNotification) {
-        // TODO stop listening
+        _pressureStreamSubscription?.pause();
+        _scaleStreamSubscription?.pause();
         _isRunning = false;
         _autoTareService.stop();
         _emitEvent(true);
-        _startDateTime = null;
+      } else {
+        _emitEvent(false);
       }
     });
   }
@@ -61,10 +59,18 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _handleScaleUpdates() {
     _scaleStreamSubscription = _scaleService.stream.listen((scaleEvent) {
       if (_startDateTime == null || !_isRunning) return;
+      var millisecond = scaleEvent.timeStamp
+          .difference(_startDateTime!)
+          .inMilliseconds;
       if (scaleEvent is TareNotification) {
-        _tareDateTime = scaleEvent.timeStamp;
+        _weightGraphData = _weightGraphData.map((gd) {
+          if (gd.millisecond <= millisecond) {
+            return ShotGraphData(gd.millisecond, 0);
+          }
+          return gd;
+        }).toList();
       } else if (scaleEvent is WeightNotification) {
-        _weightNotifications.add(scaleEvent);
+        _weightGraphData.add(ShotGraphData(millisecond, scaleEvent.weight));
       }
       _emitEvent();
     });
@@ -75,47 +81,58 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
       pressureEvent,
     ) {
       if (_startDateTime == null || !_isRunning) return;
-      _pressureNotifications.add(pressureEvent);
+      var millisecond = pressureEvent.timeStamp
+          .difference(_startDateTime!)
+          .inMilliseconds;
+      _pressureGraphData.add(
+        ShotGraphData(millisecond, pressureEvent.pressure),
+      );
       _emitEvent();
     });
   }
 
   void _emitEvent([bool isStopped = false]) {
-    var pressureData = _pressureNotifications.map((pn) {
-      return ShotGraphData(
-        pn.timeStamp.difference(_startDateTime!).inMilliseconds,
-        pn.pressure,
-      );
-    }).toList();
+    var maxWeightAxis = 0;
+    var maxPressureAxis = 0;
 
-    var weightData = _weightNotifications.map((ele) {
-      if (_tareDateTime == null || ele.timeStamp.isAfter(_tareDateTime!)) {
-        return ShotGraphData(
-          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          ele.weight,
-        );
-      } else {
-        return ShotGraphData(
-          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          0,
-        );
-      }
-    }).toList();
+    emit(
+      ShotStateUpdating(
+        _pressureGraphData,
+        _weightGraphData,
+        maxWeightAxis,
+        maxPressureAxis,
+        (_lastReceivedTimeInmillis ?? 0) / 1000,
+        _pressureGraphData.last.value,
+        _weightGraphData.last.value,
+        _getWeightChange(),
+        isStopped,
+      ),
+    );
+  }
 
-    if (isStopped) {
-      emit(ShotGraphStopped(pressureData, weightData));
-    } else {
-      emit(ShotGraphUpdating(pressureData, weightData));
+  double? _getWeightChange() {
+    if (_lastReceivedTimeInmillis == null) {
+      // TODO log
+      return null; //silent handle error
     }
+
+    var relevantPressureData = _weightGraphData.where(
+      (pgd) => pgd.millisecond > _lastReceivedTimeInmillis! - 500,
+    );
+
+    if (relevantPressureData.length < 2) {
+      return null;
+    }
+
+    var first = relevantPressureData.first;
+    var last = relevantPressureData.last;
+
+    return (last.value - first.value) / (last.millisecond - first.millisecond);
   }
 
   void start() {
-    emit(ShotGraphWaiting());
     _startDateTime = null;
-    _tareDateTime = null;
     _isRunning = false;
-    _weightNotifications = [];
-    _pressureNotifications = [];
 
     _handleTimerUpdates();
     _handleScaleUpdates();
@@ -125,12 +142,9 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void restart() {
-    emit(ShotGraphWaiting());
+    emit(ShotStateInitial());
     _startDateTime = null;
-    _tareDateTime = null;
     _isRunning = false;
-    _weightNotifications = [];
-    _pressureNotifications = [];
     _autoTareService.start();
     _autoStartStopService.enable();
   }

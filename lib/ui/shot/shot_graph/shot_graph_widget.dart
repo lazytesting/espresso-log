@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/ui/shot/shot_graph/shot_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -10,12 +10,12 @@ class ShotGraphWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Call start() after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShotGraphCubit>().start();
+      context.read<ShotCubit>().start();
     });
 
-    return BlocBuilder<ShotGraphCubit, ShotGraphState>(
+    return BlocBuilder<ShotCubit, ShotState>(
       builder: (context, state) {
-        if (state is ShotGraphInitial || state is ShotGraphWaiting) {
+        if (state is ShotStateInitial) {
           return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -28,7 +28,7 @@ class ShotGraphWidget extends StatelessWidget {
           );
         }
 
-        if (state is ShotGraphRun) {
+        if (state is ShotStateUpdating) {
           return _getShotGraph(state);
         }
 
@@ -37,7 +37,7 @@ class ShotGraphWidget extends StatelessWidget {
     );
   }
 
-  Widget _getShotGraph(ShotGraphRun shotGraphRun) {
+  Widget _getShotGraph(ShotStateUpdating shotGraphRun) {
     var maxWeight = shotGraphRun.weightData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,
