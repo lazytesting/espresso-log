@@ -46,6 +46,7 @@ dependencies:
   share_plus: ^11.1.0
   path_provider: ^2.1.5
   provider: ^6.0.5
+  idle_detector_wrapper: ^1.2.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:espresso_log/devices/models/batter_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
@@ -7,7 +8,9 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-class BookooPressureService implements AbstractPressureService {
+class BookooPressureService
+    with BatteryDeviceMixin
+    implements AbstractPressureService {
   BookooPressureService(this._bluetoothService, this._talker) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
@@ -79,5 +82,23 @@ class BookooPressureService implements AbstractPressureService {
   @override
   void dispose() {
     //
+  }
+
+  @override
+  Future<void> reconnect() async {
+    if (_device == null) {
+      return init();
+    }
+
+    if (!_device!.isConnected) {
+      return _device!.connect(license: License.free);
+    }
+  }
+
+  @override
+  Future<void> disconnect() async {
+    if (_device != null && _device!.isConnected) {
+      await _device!.disconnect();
+    }
   }
 }

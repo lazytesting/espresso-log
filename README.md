@@ -27,7 +27,6 @@ Other features:
 
 Stabilize:
 - Disconnect pressure device after inactivity
-- Keep app always on
 - Fix tare logic in graph 
 - Smooth graph
 - Improve error handling

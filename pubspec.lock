@@ -456,6 +456,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  idle_detector_wrapper:
+    dependency: "direct main"
+    description:
+      name: idle_detector_wrapper
+      sha256: e84a3dbcbc77fb684bb8bae0d1bdd5f7ecad740cd15e3920465089f156cd5564
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   intl:
     dependency: transitive
     description:
