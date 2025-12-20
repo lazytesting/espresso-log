@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IdleDetector(
-      idleTime: const Duration(seconds: 20),
+      idleTime: const Duration(minutes: 5),
       onIdle: () {
         unawaited(context.read<LoadingManager>().disconnect());
       },
