@@ -40,7 +40,7 @@ class AppRouter {
         if (loadingStateListenable.value == LoadingState.connecting) {
           return '/loading?state=connecting';
         }
-        return '/';
+        return null;
       },
       routes: [
         StatefulShellRoute.indexedStack(
