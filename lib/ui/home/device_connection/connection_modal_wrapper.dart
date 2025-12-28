@@ -36,7 +36,7 @@ class ConnectionModalWrapper extends StatelessWidget {
             barrierDismissible: false,
             useRootNavigator: true,
             routeSettings: RouteSettings(name: 'connection_dialog'),
-            builder: (_) => AlertDialog(title: Text('Connecting')),
+            builder: (_) => AlertDialog(title: Text('Connecting...')),
           );
         } else {
           await showDialog<void>(
