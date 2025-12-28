@@ -81,7 +81,8 @@ void main() async {
         BlocProvider(create: (_) => TimerCubit(timerService)),
         BlocProvider(create: (_) => PressureCubit(pressureService)),
         BlocProvider(
-          create: (_) => ConnectionCubit(scaleService, pressureService),
+          create: (_) =>
+              ConnectionCubit(scaleService, pressureService)..connect(),
         ),
       ],
       child: MultiProvider(
