@@ -1,19 +1,15 @@
-import 'package:espresso_log/ui/home/device_connection/loading_manager.dart';
-import 'package:espresso_log/ui/home/device_connection/loading_screen.dart';
 import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
 import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class AppRouter {
   GoRouter? router;
-  final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _homeTabNavigatorKey = GlobalKey<NavigatorState>();
   final _historyTabNavigatorKey = GlobalKey<NavigatorState>();
   final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
@@ -24,27 +20,14 @@ class AppRouter {
   static const settingsLogPath = '/settings/log';
   static const settingsRecorderPath = '/settings/recorder';
 
-  AppRouter(
-    Talker talker,
-    ValueListenable<LoadingState> loadingStateListenable,
-  ) {
+  AppRouter(Talker talker, GlobalKey<NavigatorState> rootNavigatorKey) {
     router = GoRouter(
       observers: [TalkerRouteObserver(talker)],
       initialLocation: '/',
-      navigatorKey: _rootNavigatorKey,
-      refreshListenable: loadingStateListenable,
-      redirect: (context, state) {
-        if (loadingStateListenable.value == LoadingState.paused) {
-          return '/loading?state=paused';
-        }
-        if (loadingStateListenable.value == LoadingState.connecting) {
-          return '/loading?state=connecting';
-        }
-        return null;
-      },
+      navigatorKey: rootNavigatorKey,
       routes: [
         StatefulShellRoute.indexedStack(
-          parentNavigatorKey: _rootNavigatorKey,
+          parentNavigatorKey: rootNavigatorKey,
           branches: [
             StatefulShellBranch(
               navigatorKey: _homeTabNavigatorKey,
@@ -103,17 +86,9 @@ class AppRouter {
         ),
         GoRoute(
           path: '/shot',
-          parentNavigatorKey: _rootNavigatorKey,
+          parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             return ShotScreen();
-          },
-        ),
-        GoRoute(
-          path: '/loading',
-          parentNavigatorKey: _rootNavigatorKey,
-          builder: (context, state) {
-            var stateParam = state.uri.queryParameters['state'] ?? 'connecting';
-            return LoadingScreen(state: stateParam);
           },
         ),
       ],

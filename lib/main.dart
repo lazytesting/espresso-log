@@ -15,7 +15,8 @@ import 'package:espresso_log/router.dart';
 
 import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
-import 'package:espresso_log/ui/home/device_connection/loading_manager.dart';
+import 'package:espresso_log/ui/home/device_connection/connection_cubit.dart';
+import 'package:espresso_log/ui/home/device_connection/connection_modal_wrapper.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
@@ -36,6 +37,9 @@ const useMockPressure = bool.fromEnvironment(
   'USE_MOCK_PRESSURE',
   defaultValue: false,
 );
+
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,10 +64,6 @@ void main() async {
   final AbstractAutoTareService autoTareService = AutoTareService(scaleService);
   final AbstractAutoStartStopService autoStartStopService =
       AutoStartStopService(pressureService, timerService);
-
-  final loadingManager = LoadingManager(scaleService, pressureService);
-  unawaited(loadingManager.connect());
-
   runApp(
     MultiBlocProvider(
       providers: [
@@ -80,6 +80,9 @@ void main() async {
         BlocProvider(create: (_) => WeightChangeCubit(scaleService)),
         BlocProvider(create: (_) => TimerCubit(timerService)),
         BlocProvider(create: (_) => PressureCubit(pressureService)),
+        BlocProvider(
+          create: (_) => ConnectionCubit(scaleService, pressureService),
+        ),
       ],
       child: MultiProvider(
         providers: [
@@ -87,7 +90,6 @@ void main() async {
           Provider<AbstractScaleService>.value(value: scaleService),
           Provider<AbstractPressureService>.value(value: pressureService),
           Provider<AbstractTimerService>.value(value: timerService),
-          Provider<LoadingManager>.value(value: loadingManager),
         ],
         child: const MyApp(),
       ),
@@ -102,29 +104,32 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IdleDetector(
-      idleTime: const Duration(minutes: 5),
+      idleTime: const Duration(seconds: 20),
       onIdle: () {
-        unawaited(context.read<LoadingManager>().disconnect());
+        unawaited(context.read<ConnectionCubit>().disconnect());
       },
       onActive: () {
-        unawaited(context.read<LoadingManager>().reconnect());
+        unawaited(context.read<ConnectionCubit>().reconnect());
       },
-      child: MaterialApp.router(
-        theme:
-            ThemeData.from(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: const Color.fromARGB(255, 84, 48, 134),
+      child: ConnectionModalWrapper(
+        navigatorKey: globalNavigatorKey,
+        child: MaterialApp.router(
+          theme:
+              ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color.fromARGB(255, 84, 48, 134),
+                ),
+              ).copyWith(
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: Color.fromARGB(255, 88, 77, 105),
+                  foregroundColor: Colors.white,
+                ),
               ),
-            ).copyWith(
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Color.fromARGB(255, 88, 77, 105),
-                foregroundColor: Colors.white,
-              ),
-            ),
-        routerConfig: AppRouter(
-          context.read<Talker>(),
-          context.read<LoadingManager>().valueListenable,
-        ).router,
+          routerConfig: AppRouter(
+            context.read<Talker>(),
+            globalNavigatorKey,
+          ).router,
+        ),
       ),
     );
   }

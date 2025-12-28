@@ -1,50 +1,46 @@
-import 'dart:async';
-
 import 'package:espresso_log/devices/models/batter_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoadingManager {
-  final ValueNotifier<LoadingState> valueListenable =
-      ValueNotifier<LoadingState>(LoadingState.connecting);
+part 'connection_state.dart';
+
+class ConnectionCubit extends Cubit<ConnectionState> {
+  ConnectionCubit(this._scaleService, this._pressureService)
+    : super(ConnectionConnecting());
+
   final AbstractScaleService _scaleService;
   final AbstractPressureService _pressureService;
 
-  LoadingManager(this._scaleService, this._pressureService);
-
   Future<void> reconnect() async {
-    valueListenable.value = LoadingState.connecting;
+    emit(ConnectionConnecting());
     if (_scaleService is BatteryDeviceMixin) {
-      (_scaleService as BatteryDeviceMixin).reconnect();
+      await (_scaleService as BatteryDeviceMixin).reconnect();
     }
     if (_pressureService is BatteryDeviceMixin) {
-      (_pressureService as BatteryDeviceMixin).reconnect();
+      await (_pressureService as BatteryDeviceMixin).reconnect();
     }
-    valueListenable.value = LoadingState.connected;
+    emit(ConnectionEstablished());
   }
 
   Future<void> disconnect() async {
     if (_scaleService is BatteryDeviceMixin ||
         _pressureService is BatteryDeviceMixin) {
-      valueListenable.value = LoadingState.paused;
+      emit(ConnectionPaused());
     }
 
     if (_scaleService is BatteryDeviceMixin) {
-      (_scaleService as BatteryDeviceMixin).disconnect();
+      await (_scaleService as BatteryDeviceMixin).disconnect();
     }
     if (_pressureService is BatteryDeviceMixin) {
-      (_pressureService as BatteryDeviceMixin).disconnect();
+      await (_pressureService as BatteryDeviceMixin).disconnect();
     }
   }
 
   Future<void> connect() async {
-    valueListenable.value = LoadingState.connected;
+    emit(ConnectionConnecting());
     Future.wait([_scaleService.init(), _pressureService.init()]).then((_) {
-      valueListenable.value = LoadingState.connected;
+      emit(ConnectionEstablished());
     });
   }
 }
-
-enum LoadingState { connecting, paused, connected }
