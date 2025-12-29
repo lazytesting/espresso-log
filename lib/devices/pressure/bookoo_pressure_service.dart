@@ -91,7 +91,8 @@ class BookooPressureService
     }
 
     if (!_device!.isConnected) {
-      return _device!.connect(license: License.free);
+      await _device!.connect(license: License.free);
+      await _subscribeToReadings();
     }
   }
 
