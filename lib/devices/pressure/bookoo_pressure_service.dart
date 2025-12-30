@@ -71,7 +71,7 @@ class BookooPressureService
     });
 
     // cleanup: cancel subscription when disconnected
-    _device!.cancelWhenDisconnected(subscription);
+    //_device!.cancelWhenDisconnected(subscription);
 
     // subscribe
     // Note: If a characteristic supports both **notifications** and **indications**,
@@ -92,7 +92,6 @@ class BookooPressureService
 
     if (!_device!.isConnected) {
       await _device!.connect(license: License.free);
-      await _subscribeToReadings();
     }
   }
 
