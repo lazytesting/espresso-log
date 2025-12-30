@@ -58,7 +58,7 @@ class BookooPressureService
   Future<void> _subscribeToReadings() async {
     _talker.debug("Subscribing to pressure readings");
     _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
-    final subscription = _readCharacteristic!.onValueReceived.listen((value) {
+    _readCharacteristic!.onValueReceived.listen((value) {
       _talker.debug("Pressure data received $value");
       var d = ByteData(2);
       d.setInt8(0, value[4]);
