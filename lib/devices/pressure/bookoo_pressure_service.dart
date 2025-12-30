@@ -58,7 +58,7 @@ class BookooPressureService
   Future<void> _subscribeToReadings() async {
     _talker.debug("Subscribing to pressure readings");
     _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
-    _readCharacteristic!.onValueReceived.listen((value) {
+    final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       _talker.debug("Pressure data received $value");
       var d = ByteData(2);
       d.setInt8(0, value[4]);
@@ -71,7 +71,7 @@ class BookooPressureService
     });
 
     // cleanup: cancel subscription when disconnected
-    //_device!.cancelWhenDisconnected(subscription);
+    _device!.cancelWhenDisconnected(subscription);
 
     // subscribe
     // Note: If a characteristic supports both **notifications** and **indications**,
@@ -86,13 +86,7 @@ class BookooPressureService
 
   @override
   Future<void> reconnect() async {
-    if (_device == null) {
-      return init();
-    }
-
-    if (!_device!.isConnected) {
-      await _device!.connect(license: License.free);
-    }
+    await init();
   }
 
   @override
