@@ -52,12 +52,12 @@ class BookooPressureService
   }
 
   Future<void> _sendCommand(List<int> value) async {
-    _writeCharacteristic!.write(value);
+    await _writeCharacteristic!.write(value);
   }
 
   Future<void> _subscribeToReadings() async {
     _talker.debug("Subscribing to pressure readings");
-    _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
+    await _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       _talker.debug("Pressure data received $value");
       var d = ByteData(2);

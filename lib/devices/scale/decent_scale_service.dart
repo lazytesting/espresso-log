@@ -53,7 +53,7 @@ class DecentScaleService implements AbstractScaleService {
   }
 
   Future<void> _sendCommand(List<int> value) async {
-    _writeCharacteristic!.write(value);
+    await _writeCharacteristic!.write(value);
   }
 
   @override
