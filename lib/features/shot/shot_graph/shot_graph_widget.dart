@@ -1,21 +1,14 @@
 import 'package:espresso_log/features/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class ShotGraphWidget extends StatelessWidget {
-  const ShotGraphWidget({super.key});
+  const ShotGraphWidget({super.key, required state}) : _state = state;
+  final ShotGraphState _state;
 
   @override
   Widget build(BuildContext context) {
-    // Call start() after the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShotGraphCubit>().start();
-    });
-
-    return BlocBuilder<ShotGraphCubit, ShotGraphState>(
-      builder: (context, state) {
-        if (state is ShotGraphInitial || state is ShotGraphWaiting) {
+        if (_state is ShotGraphInitial ) {
           return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -28,16 +21,15 @@ class ShotGraphWidget extends StatelessWidget {
           );
         }
 
-        if (state is ShotGraphRun) {
-          return _getShotGraph(state);
+        if (_state is ShotGraphRun) {
+          return _getShotGraph();
         }
 
         return const Text('Error! Unexpected state');
-      },
-    );
   }
 
-  Widget _getShotGraph(ShotGraphRun shotGraphRun) {
+  Widget _getShotGraph() {
+    final shotGraphRun = _state as ShotGraphRun;
     var maxWeight = shotGraphRun.weightData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,

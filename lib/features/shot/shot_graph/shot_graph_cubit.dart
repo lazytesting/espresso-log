@@ -105,14 +105,14 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     final timer =   DateTime.now().difference(_startDateTime!).inMilliseconds /1000;
 
     if (isStopped) {
-      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer));
+      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer, currentPressure: pressureData.last.value));
     } else {
-      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer));
+      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer, currentPressure:pressureData.last.value ));
     }
   }
 
   void start() {
-    emit(ShotGraphWaiting());
+    emit(ShotGraphInitial());
     _startDateTime = null;
     _tareDateTime = null;
     _isRunning = false;
@@ -127,7 +127,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void restart() {
-    emit(ShotGraphWaiting());
+    emit(ShotGraphInitial());
     _startDateTime = null;
     _tareDateTime = null;
     _isRunning = false;

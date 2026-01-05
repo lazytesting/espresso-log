@@ -1,9 +1,6 @@
-import 'package:espresso_log/features/components/current-weight/current_weight_widget.dart';
-import 'package:espresso_log/features/components/pressure/pressure_widget.dart';
 import 'package:espresso_log/features/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/features/shot/shot_graph/shot_graph_widget.dart';
-import 'package:espresso_log/features/shot/timer/timer_widget.dart';
-import 'package:espresso_log/features/components/weight-change/weight_change_widget.dart';
+import 'package:espresso_log/ui/metric_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +9,11 @@ class ShotScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Call start() after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ShotGraphCubit>().start();
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shot In Progress'),
@@ -24,19 +26,53 @@ class ShotScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: BlocBuilder<ShotGraphCubit, ShotGraphState>(
+        builder: (context, state) {
+          String? timer;
+          String? weightChange;
+          String? currentWeight;
+          String? currentPressure;
+          if (state is ShotGraphRun) {
+            timer = state.timer.toStringAsFixed(1);
+            weightChange = state.weightChangeRate.toStringAsFixed(1);
+            currentWeight = state.currentWeight.toStringAsFixed(1);
+            currentPressure = state.currentPressure.toStringAsFixed(1);
+          }
+
+          return Column(
             children: [
-              Expanded(child: CurrentWeightWidget()),
-              Expanded(child: WeightChangeWidget()),
-              Expanded(child: PressureWidget()),
-              Expanded(child: TimerWidget()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: MetricsCardWidget(
+                      typeText: "Gram",
+                      value: currentWeight,
+                    ),
+                  ),
+                  Expanded(
+                    child: MetricsCardWidget(
+                      typeText: "g/s",
+                      value: weightChange,
+                    ),
+                  ),
+                  Expanded(
+                    child: MetricsCardWidget(
+                      typeText: "Bar",
+                      value: currentPressure,
+                    ),
+                  ),
+                  Expanded(
+                    child: MetricsCardWidget(typeText: "Sec.", value: timer),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ShotGraphWidget(state: state)
+              ),
             ],
-          ),
-          Expanded(child: ShotGraphWidget()),
-        ],
+          );
+        },
       ),
     );
   }
