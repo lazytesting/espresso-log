@@ -102,10 +102,12 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
       }
     }).toList();
 
+    final timer =   DateTime.now().difference(_startDateTime!).inMilliseconds /1000;
+
     if (isStopped) {
-      emit(ShotGraphStopped(pressureData, weightData));
+      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer));
     } else {
-      emit(ShotGraphUpdating(pressureData, weightData));
+      emit(ShotGraphStopped(pressureData: pressureData,weightData: weightData, currentWeight: weightData.last.value, weightChangeRate: 0, timer: timer));
     }
   }
 
