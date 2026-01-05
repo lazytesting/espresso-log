@@ -1,9 +1,9 @@
-import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
-import 'package:espresso_log/ui/history/history.dart';
-import 'package:espresso_log/ui/home/home.dart';
-import 'package:espresso_log/ui/settings/recorder.dart';
-import 'package:espresso_log/ui/settings/settings.dart';
-import 'package:espresso_log/ui/shot/shot_screen.dart';
+import 'package:espresso_log/features/scaffold/root_scaffold.dart';
+import 'package:espresso_log/features/history/history.dart';
+import 'package:espresso_log/features/home/home.dart';
+import 'package:espresso_log/features/settings/recorder.dart';
+import 'package:espresso_log/features/settings/settings.dart';
+import 'package:espresso_log/features/shot/shot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';

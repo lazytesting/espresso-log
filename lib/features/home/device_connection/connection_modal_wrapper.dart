@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/home/device_connection/connection_cubit.dart';
+import 'package:espresso_log/features/home/device_connection/connection_cubit.dart';
 import 'package:flutter/material.dart' hide ConnectionState;
 import 'package:flutter_bloc/flutter_bloc.dart';
 

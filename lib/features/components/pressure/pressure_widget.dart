@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
+import 'package:espresso_log/features/components/pressure/pressure_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

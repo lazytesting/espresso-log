@@ -1,17 +1,17 @@
-import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
+import 'package:espresso_log/features/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CurrentWeightWidget extends StatelessWidget {
-  const CurrentWeightWidget({super.key});
+class WeightChangeWidget extends StatelessWidget {
+  const WeightChangeWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CurrentWeightCubit, CurrentWeightState>(
+    return BlocBuilder<WeightChangeCubit, WeightChangeState>(
       builder: (context, state) {
         var weight = '--.-';
-        if (state is CurrentWeightMeasured) {
-          weight = state.weight.toStringAsFixed(1);
+        if (state is WeightChangeUpdated) {
+          weight = state.weightChangeRate.toStringAsFixed(1);
         }
 
         return Card(
@@ -22,7 +22,7 @@ class CurrentWeightWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(weight, style: const TextStyle(fontSize: 25)),
-                const Text('Grams'),
+                const Text('g/s'),
               ],
             ),
           ),
