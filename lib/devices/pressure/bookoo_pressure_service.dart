@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:espresso_log/devices/models/batter_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
@@ -7,7 +8,9 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-class BookooPressureService implements AbstractPressureService {
+class BookooPressureService
+    with BatteryDeviceMixin
+    implements AbstractPressureService {
   BookooPressureService(this._bluetoothService, this._talker) {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
@@ -49,12 +52,12 @@ class BookooPressureService implements AbstractPressureService {
   }
 
   Future<void> _sendCommand(List<int> value) async {
-    _writeCharacteristic!.write(value);
+    await _writeCharacteristic!.write(value);
   }
 
   Future<void> _subscribeToReadings() async {
     _talker.debug("Subscribing to pressure readings");
-    _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
+    await _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
       _talker.debug("Pressure data received $value");
       var d = ByteData(2);
@@ -79,5 +82,17 @@ class BookooPressureService implements AbstractPressureService {
   @override
   void dispose() {
     //
+  }
+
+  @override
+  Future<void> reconnect() async {
+    await init();
+  }
+
+  @override
+  Future<void> disconnect() async {
+    if (_device != null && _device!.isConnected) {
+      await _device!.disconnect();
+    }
   }
 }

@@ -10,7 +10,6 @@ import 'package:talker_flutter/talker_flutter.dart';
 
 class AppRouter {
   GoRouter? router;
-  final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _homeTabNavigatorKey = GlobalKey<NavigatorState>();
   final _historyTabNavigatorKey = GlobalKey<NavigatorState>();
   final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
@@ -21,14 +20,14 @@ class AppRouter {
   static const settingsLogPath = '/settings/log';
   static const settingsRecorderPath = '/settings/recorder';
 
-  AppRouter(Talker talker) {
+  AppRouter(Talker talker, GlobalKey<NavigatorState> rootNavigatorKey) {
     router = GoRouter(
       observers: [TalkerRouteObserver(talker)],
       initialLocation: '/',
-      navigatorKey: _rootNavigatorKey,
+      navigatorKey: rootNavigatorKey,
       routes: [
         StatefulShellRoute.indexedStack(
-          parentNavigatorKey: _rootNavigatorKey,
+          parentNavigatorKey: rootNavigatorKey,
           branches: [
             StatefulShellBranch(
               navigatorKey: _homeTabNavigatorKey,
@@ -87,7 +86,7 @@ class AppRouter {
         ),
         GoRoute(
           path: '/shot',
-          parentNavigatorKey: _rootNavigatorKey,
+          parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             return ShotScreen();
           },

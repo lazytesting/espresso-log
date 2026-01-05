@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:espresso_log/devices/models/batter_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:rxdart/subjects.dart';
 
-class MockPressureService implements AbstractPressureService {
+class MockPressureService
+    with BatteryDeviceMixin
+    implements AbstractPressureService {
   MockPressureService() {
     stream = _pressureNotificationController.stream.asBroadcastStream();
   }
@@ -16,6 +19,7 @@ class MockPressureService implements AbstractPressureService {
 
   @override
   Future<void> init() async {
+    Future.delayed(Duration(seconds: 3));
     _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer t) {
       double pressure = 0;
       var seconds = t.tick / 5;
@@ -36,5 +40,15 @@ class MockPressureService implements AbstractPressureService {
   @override
   void dispose() {
     _timer?.cancel();
+  }
+
+  @override
+  Future<void> disconnect() {
+    return Future.delayed(Duration(seconds: 1));
+  }
+
+  @override
+  Future<void> reconnect() {
+    return Future.delayed(Duration(seconds: 1));
   }
 }

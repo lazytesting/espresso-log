@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:espresso_log/devices/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
@@ -12,13 +14,15 @@ import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:espresso_log/router.dart';
 
 import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
-import 'package:espresso_log/ui/home/loader/loader_cubit.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
+import 'package:espresso_log/ui/home/device_connection/connection_cubit.dart';
+import 'package:espresso_log/ui/home/device_connection/connection_modal_wrapper.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:idle_detector_wrapper/idle_detector_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
@@ -33,6 +37,9 @@ const useMockPressure = bool.fromEnvironment(
   'USE_MOCK_PRESSURE',
   defaultValue: false,
 );
+
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,14 +57,13 @@ void main() async {
       ? MockScaleService()
       : DecentScaleService(bluetoothService, talker);
 
-  final pressureService = useMockPressure
+  final AbstractPressureService pressureService = useMockPressure
       ? MockPressureService()
       : BookooPressureService(bluetoothService, talker);
 
   final AbstractAutoTareService autoTareService = AutoTareService(scaleService);
   final AbstractAutoStartStopService autoStartStopService =
       AutoStartStopService(pressureService, timerService);
-
   runApp(
     MultiBlocProvider(
       providers: [
@@ -75,7 +81,8 @@ void main() async {
         BlocProvider(create: (_) => TimerCubit(timerService)),
         BlocProvider(create: (_) => PressureCubit(pressureService)),
         BlocProvider(
-          create: (_) => LoaderCubit(scaleService, pressureService)..load(),
+          create: (_) =>
+              ConnectionCubit(scaleService, pressureService)..connect(),
         ),
       ],
       child: MultiProvider(
@@ -97,28 +104,34 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LoaderCubit, LoaderState>(
-      // TODO: move to main page
-      builder: (context, state) {
-        if (state is LoaderCompleted) {
-          return MaterialApp.router(
-            theme:
-                ThemeData.from(
-                  colorScheme: ColorScheme.fromSeed(
-                    seedColor: const Color.fromARGB(255, 84, 48, 134),
-                  ),
-                ).copyWith(
-                  appBarTheme: const AppBarTheme(
-                    backgroundColor: Color.fromARGB(255, 88, 77, 105),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-            routerConfig: AppRouter(context.read<Talker>()).router,
-          );
-        } else {
-          return const CircularProgressIndicator();
-        }
+    return IdleDetector(
+      idleTime: const Duration(minutes: 5),
+      onIdle: () {
+        unawaited(context.read<ConnectionCubit>().disconnect());
       },
+      onActive: () {
+        unawaited(context.read<ConnectionCubit>().reconnect());
+      },
+      child: ConnectionModalWrapper(
+        navigatorKey: globalNavigatorKey,
+        child: MaterialApp.router(
+          theme:
+              ThemeData.from(
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color.fromARGB(255, 84, 48, 134),
+                ),
+              ).copyWith(
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: Color.fromARGB(255, 88, 77, 105),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+          routerConfig: AppRouter(
+            context.read<Talker>(),
+            globalNavigatorKey,
+          ).router,
+        ),
+      ),
     );
   }
 }
