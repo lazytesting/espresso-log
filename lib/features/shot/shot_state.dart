@@ -1,4 +1,4 @@
-part of 'shot_graph_cubit.dart';
+part of 'shot_cubit.dart';
 
 sealed class ShotGraphState {}
 

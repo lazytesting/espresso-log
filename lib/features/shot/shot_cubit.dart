@@ -12,7 +12,7 @@ import 'package:espresso_log/services/auto_start_stop_service.dart';
 import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'shot_graph_state.dart';
+part 'shot_state.dart';
 
 class ShotGraphCubit extends Cubit<ShotGraphState> {
   // keep 3 lists with data

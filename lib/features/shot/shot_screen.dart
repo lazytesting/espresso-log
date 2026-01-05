@@ -1,5 +1,5 @@
-import 'package:espresso_log/features/shot/shot_graph/shot_graph_cubit.dart';
-import 'package:espresso_log/features/shot/shot_graph/shot_graph_widget.dart';
+import 'package:espresso_log/features/shot/shot_cubit.dart';
+import 'package:espresso_log/features/shot/shot_graph_widget.dart';
 import 'package:espresso_log/ui/metric_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

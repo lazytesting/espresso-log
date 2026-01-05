@@ -17,7 +17,7 @@ import 'package:espresso_log/features/components/current-weight/current_weight_c
 import 'package:espresso_log/features/components/pressure/pressure_cubit.dart';
 import 'package:espresso_log/features/home/device_connection/connection_cubit.dart';
 import 'package:espresso_log/features/home/device_connection/connection_modal_wrapper.dart';
-import 'package:espresso_log/features/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/features/shot/shot_cubit.dart';
 import 'package:espresso_log/features/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/features/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
