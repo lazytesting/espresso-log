@@ -17,7 +17,6 @@ import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.d
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/device_connection/connection_cubit.dart';
 import 'package:espresso_log/ui/home/device_connection/connection_modal_wrapper.dart';
-import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -68,7 +67,6 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => CurrentWeightCubit(scaleService)),
         BlocProvider(create: (_) => WeightChangeCubit(scaleService)),
-        BlocProvider(create: (_) => TimerCubit(timerService)),
         BlocProvider(create: (_) => PressureCubit(pressureService)),
         BlocProvider(
           create: (_) =>

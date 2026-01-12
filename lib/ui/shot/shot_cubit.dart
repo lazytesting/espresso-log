@@ -116,9 +116,9 @@ class ShotCubit extends Cubit<ShotState> {
     final shotRun = ShotRun(pressureData: pressureData, weightData: weightData, pressure: pressureData.last.value, weight: weightData.last.value, timer: timer, weightChange: weightChange);
     
     if (isStopped) {
-      emit(ShotRun as ShotUpdating);
+      emit(shotRun as ShotUpdating);
       } else {
-      emit(ShotRun as ShotStopped);
+      emit(shotRun as ShotStopped);
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
+import 'package:espresso_log/ui/shot/shot_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,20 +7,19 @@ class TimerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TimerCubit, TimerState>(
+    return BlocBuilder<ShotCubit, ShotState>(
       builder: (context, state) {
         String timer = "";
-        if (state is TimerInitial) {
+        if (state is ShotInitial || state is ShotWaiting) {
           timer = '--.-';
         }
 
-        if (state is TimerRunning) {
-          timer = '${state.seconds}.${state.deciSeconds}';
+        if (state is ShotRun) {
+          var seconds = (state.timer / 1000).floor();
+          var deciSeconds = ((state.timer - 1000 * seconds) / 100).floor();
+          timer = "$seconds.$deciSeconds";
         }
 
-        if (state is TimerStopped) {
-          timer = '${state.seconds}.${state.deciSeconds}';
-        }
 
         return Card(
           clipBehavior: Clip.hardEdge,
