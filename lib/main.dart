@@ -79,7 +79,9 @@ void main() async {
           Provider<AbstractScaleService>.value(value: scaleService),
           Provider<AbstractPressureService>.value(value: pressureService),
           Provider<AbstractTimerService>.value(value: timerService),
-          Provider<AbstractAutoStartStopService>.value(value: autoStartStopService),
+          Provider<AbstractAutoStartStopService>.value(
+            value: autoStartStopService,
+          ),
           Provider<AbstractAutoTareService>.value(value: autoTareService),
         ],
         child: const MyApp(),

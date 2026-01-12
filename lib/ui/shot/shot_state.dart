@@ -14,18 +14,39 @@ final class ShotRun extends ShotState with EquatableMixin {
   final double weightChange;
   final double pressure;
 
-  ShotRun({required this.pressureData, required this.weightData, required this.timer,required this.weight,required this.weightChange,required this.pressure});
+  ShotRun({
+    required this.pressureData,
+    required this.weightData,
+    required this.timer,
+    required this.weight,
+    required this.weightChange,
+    required this.pressure,
+  });
 
   @override
   List<Object?> get props => [pressureData, weightData];
 }
 
 final class ShotUpdating extends ShotRun {
-  ShotUpdating({required super.pressureData, required super.weightData, required super.timer, required super.weight, required super.weightChange, required super.pressure});
+  ShotUpdating({
+    required super.pressureData,
+    required super.weightData,
+    required super.timer,
+    required super.weight,
+    required super.weightChange,
+    required super.pressure,
+  });
 }
 
 final class ShotStopped extends ShotRun {
-  ShotStopped({required super.pressureData, required super.weightData, required super.timer, required super.weight, required super.weightChange, required super.pressure});
+  ShotStopped({
+    required super.pressureData,
+    required super.weightData,
+    required super.timer,
+    required super.weight,
+    required super.weightChange,
+    required super.pressure,
+  });
 }
 
 class ShotGraphData {

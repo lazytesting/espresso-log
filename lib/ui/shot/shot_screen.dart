@@ -18,42 +18,41 @@ class ShotScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider( 
-          create: (_) => ShotCubit(
-            context.read<AbstractAutoStartStopService>(),
-            context.read<AbstractScaleService>(),
-            context.read<AbstractTimerService>(),
-            context.read<AbstractAutoTareService>(),
-            context.read<AbstractPressureService>(),
-          )..start(),
-        child: 
-     Scaffold(
-      appBar: AppBar(
-        title: const Text('Shot In Progress'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              context.pushReplacement('/shot');
-            },
-          ),
-        ],
+    return BlocProvider(
+      create: (_) => ShotCubit(
+        context.read<AbstractAutoStartStopService>(),
+        context.read<AbstractScaleService>(),
+        context.read<AbstractTimerService>(),
+        context.read<AbstractAutoTareService>(),
+        context.read<AbstractPressureService>(),
+      )..start(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Shot In Progress'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                context.pushReplacement('/shot');
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: CurrentWeightWidget()),
+                Expanded(child: WeightChangeWidget()),
+                Expanded(child: PressureWidget()),
+                Expanded(child: TimerWidget()),
+              ],
+            ),
+            Expanded(child: ShotGraphWidget()),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(child: CurrentWeightWidget()),
-              Expanded(child: WeightChangeWidget()),
-              Expanded(child: PressureWidget()),
-              Expanded(child: TimerWidget()),
-            ],
-          ),
-          Expanded(child: ShotGraphWidget()),
-        ],
-      )
-     )
     );
   }
 }

@@ -20,7 +20,6 @@ class TimerWidget extends StatelessWidget {
           timer = "$seconds.$deciSeconds";
         }
 
-
         return Card(
           clipBehavior: Clip.hardEdge,
           child: Padding(

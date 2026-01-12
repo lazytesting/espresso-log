@@ -103,21 +103,31 @@ class ShotCubit extends Cubit<ShotState> {
       }
     }).toList();
 
-    double weightChange = 0; 
+    double weightChange = 0;
     if (weightData.length > 5) {
-      var weightDiff = weightData.last.value - weightData[weightData.length -5].value;
-      var timeDiff = weightData.last.millisecond - weightData[weightData.length -5].millisecond;
-      weightChange = weightDiff / (timeDiff/1000);
+      var weightDiff =
+          weightData.last.value - weightData[weightData.length - 5].value;
+      var timeDiff =
+          weightData.last.millisecond -
+          weightData[weightData.length - 5].millisecond;
+      weightChange = weightDiff / (timeDiff / 1000);
     }
 
+    final timer =
+        DateTime.now().difference(_startDateTime!).inMilliseconds / 1000;
 
-    final timer =  DateTime.now().difference(_startDateTime!).inMilliseconds / 1000;
+    final shotRun = ShotRun(
+      pressureData: pressureData,
+      weightData: weightData,
+      pressure: pressureData.last.value,
+      weight: weightData.last.value,
+      timer: timer,
+      weightChange: weightChange,
+    );
 
-    final shotRun = ShotRun(pressureData: pressureData, weightData: weightData, pressure: pressureData.last.value, weight: weightData.last.value, timer: timer, weightChange: weightChange);
-    
     if (isStopped) {
       emit(shotRun as ShotUpdating);
-      } else {
+    } else {
       emit(shotRun as ShotStopped);
     }
   }
@@ -136,7 +146,6 @@ class ShotCubit extends Cubit<ShotState> {
     _autoTareService.start();
     _autoStartStopService.enable();
   }
-
 
   @override
   Future<void> close() {
