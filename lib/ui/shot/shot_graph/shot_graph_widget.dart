@@ -8,9 +8,9 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ShotGraphCubit, ShotGraphState>(
+    return BlocBuilder<ShotCubit, ShotState>(
       builder: (context, state) {
-        if (state is ShotGraphInitial || state is ShotGraphWaiting) {
+        if (state is ShotInitial || state is ShotWaiting) {
           return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -23,7 +23,7 @@ class ShotGraphWidget extends StatelessWidget {
           );
         }
 
-        if (state is ShotGraphRun) {
+        if (state is ShotRun) {
           return _getShotGraph(state);
         }
 
@@ -32,7 +32,7 @@ class ShotGraphWidget extends StatelessWidget {
     );
   }
 
-  Widget _getShotGraph(ShotGraphRun shotGraphRun) {
+  Widget _getShotGraph(ShotRun shotGraphRun) {
     var maxWeight = shotGraphRun.weightData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,
