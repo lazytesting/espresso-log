@@ -103,10 +103,22 @@ class ShotCubit extends Cubit<ShotState> {
       }
     }).toList();
 
+    double weightChange = 0; 
+    if (weightData.length > 5) {
+      var weightDiff = weightData.last.value - weightData[weightData.length -5].value;
+      var timeDiff = weightData.last.millisecond - weightData[weightData.length -5].millisecond;
+      weightChange = weightDiff / (timeDiff/1000);
+    }
+
+
+    final timer =  DateTime.now().difference(_startDateTime!).inMilliseconds / 1000;
+
+    final shotRun = ShotRun(pressureData: pressureData, weightData: weightData, pressure: pressureData.last.value, weight: weightData.last.value, timer: timer, weightChange: weightChange);
+    
     if (isStopped) {
-      emit(ShotStopped(pressureData, weightData));
-    } else {
-      emit(ShotUpdating(pressureData, weightData));
+      emit(ShotRun as ShotUpdating);
+      } else {
+      emit(ShotRun as ShotStopped);
     }
   }
 
