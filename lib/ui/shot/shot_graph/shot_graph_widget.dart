@@ -1,4 +1,4 @@
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/ui/shot/shot_graph_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -8,11 +8,6 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Call start() after the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShotGraphCubit>().start();
-    });
-
     return BlocBuilder<ShotGraphCubit, ShotGraphState>(
       builder: (context, state) {
         if (state is ShotGraphInitial || state is ShotGraphWaiting) {

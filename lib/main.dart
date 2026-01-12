@@ -17,7 +17,6 @@ import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.d
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
 import 'package:espresso_log/ui/home/device_connection/connection_cubit.dart';
 import 'package:espresso_log/ui/home/device_connection/connection_modal_wrapper.dart';
-import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_cubit.dart';
 import 'package:flutter/material.dart';
@@ -67,15 +66,6 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => ShotGraphCubit(
-            autoStartStopService,
-            scaleService,
-            timerService,
-            autoTareService,
-            pressureService,
-          ),
-        ),
         BlocProvider(create: (_) => CurrentWeightCubit(scaleService)),
         BlocProvider(create: (_) => WeightChangeCubit(scaleService)),
         BlocProvider(create: (_) => TimerCubit(timerService)),
@@ -91,6 +81,8 @@ void main() async {
           Provider<AbstractScaleService>.value(value: scaleService),
           Provider<AbstractPressureService>.value(value: pressureService),
           Provider<AbstractTimerService>.value(value: timerService),
+          Provider<AbstractAutoStartStopService>.value(value: autoStartStopService),
+          Provider<AbstractAutoTareService>.value(value: autoTareService),
         ],
         child: const MyApp(),
       ),

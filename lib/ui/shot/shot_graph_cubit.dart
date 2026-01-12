@@ -124,16 +124,6 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     _autoStartStopService.enable();
   }
 
-  void restart() {
-    emit(ShotGraphWaiting());
-    _startDateTime = null;
-    _tareDateTime = null;
-    _isRunning = false;
-    _weightNotifications = [];
-    _pressureNotifications = [];
-    _autoTareService.start();
-    _autoStartStopService.enable();
-  }
 
   @override
   Future<void> close() {
