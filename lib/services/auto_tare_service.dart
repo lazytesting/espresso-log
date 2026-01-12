@@ -6,19 +6,17 @@ import 'package:espresso_log/devices/scale/models/weight_notification.dart';
 abstract class AbstractAutoTareService {
   void start();
   void stop();
+  void restart();
 }
 
 class AutoTareService implements AbstractAutoTareService {
   final AbstractScaleService scaleService;
-  StreamSubscription? scaleSubscription;
+  StreamSubscription? _scaleSubscription;
   List<WeightNotification> _history = [];
   double? _startWeight;
 
-  AutoTareService(this.scaleService);
-
-  @override
-  void start() {
-    scaleSubscription = scaleService.stream
+  AutoTareService(this.scaleService) {
+    _scaleSubscription = scaleService.stream
         .where((event) => event is WeightNotification)
         .cast<WeightNotification>()
         .listen((weightNotification) {
@@ -56,12 +54,23 @@ class AutoTareService implements AbstractAutoTareService {
             scaleService.tareCommand();
             stop();
           }
-        });
+        })..pause();
+  }
+
+  @override
+  void start() {
+    _scaleSubscription!.resume();
+  }
+
+  @override
+  void restart() {
+    _startWeight = null;
+    _history = [];
   }
 
   @override
   void stop() {
-    scaleSubscription?.cancel();
+    _scaleSubscription!.pause();
     _startWeight = null;
     _history = [];
   }

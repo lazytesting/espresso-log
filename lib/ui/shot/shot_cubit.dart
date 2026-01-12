@@ -12,9 +12,9 @@ import 'package:espresso_log/services/auto_start_stop_service.dart';
 import 'package:espresso_log/services/auto_tare_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part 'shot_graph_state.dart';
+part 'shot_state.dart';
 
-class ShotGraphCubit extends Cubit<ShotGraphState> {
+class ShotCubit extends Cubit<ShotState> {
   // keep 3 lists with data
   // apply some damping logic
   // on every new item emit an event (let bloc limit this)... or on every timer event
@@ -33,13 +33,13 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   StreamSubscription<Notification>? _scaleStreamSubscription;
   StreamSubscription<Notification>? _pressureStreamSubscription;
 
-  ShotGraphCubit(
+  ShotCubit(
     this._autoStartStopService,
     this._scaleService,
     this._timerService,
     this._autoTareService,
     this._pressureService,
-  ) : super(ShotGraphInitial());
+  ) : super(ShotInitial());
 
   void _handleTimerUpdates() {
     _timerStreamSubscription = _timerService.stream.listen((timerEvent) {
@@ -63,6 +63,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
       if (_startDateTime == null || !_isRunning) return;
       if (scaleEvent is TareNotification) {
         _tareDateTime = scaleEvent.timeStamp;
+        _autoTareService.restart();
       } else if (scaleEvent is WeightNotification) {
         _weightNotifications.add(scaleEvent);
       }
@@ -103,14 +104,14 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     }).toList();
 
     if (isStopped) {
-      emit(ShotGraphStopped(pressureData, weightData));
+      emit(ShotStopped(pressureData, weightData));
     } else {
-      emit(ShotGraphUpdating(pressureData, weightData));
+      emit(ShotUpdating(pressureData, weightData));
     }
   }
 
   void start() {
-    emit(ShotGraphWaiting());
+    emit(ShotWaiting());
     _startDateTime = null;
     _tareDateTime = null;
     _isRunning = false;
