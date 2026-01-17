@@ -14,9 +14,9 @@ class TimerWidget extends StatelessWidget {
           timer = '--.-';
         }
 
-        if (state is ShotRun) {
-          var seconds = (state.timer / 1000).floor();
-          var deciSeconds = ((state.timer - 1000 * seconds) / 100).floor();
+        if (state is ShotUpdating) {
+          var seconds = state.timer.floor();
+          var deciSeconds = ((state.timer - seconds) * 10).floor();
           timer = "$seconds.$deciSeconds";
         }
 

@@ -23,7 +23,7 @@ class ShotGraphWidget extends StatelessWidget {
           );
         }
 
-        if (state is ShotRun) {
+        if (state is ShotUpdating) {
           return _getShotGraph(state);
         }
 
@@ -32,7 +32,7 @@ class ShotGraphWidget extends StatelessWidget {
     );
   }
 
-  Widget _getShotGraph(ShotRun shotGraphRun) {
+  Widget _getShotGraph(ShotUpdating shotGraphRun) {
     var maxWeight = shotGraphRun.weightData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,

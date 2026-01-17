@@ -82,6 +82,10 @@ class ShotCubit extends Cubit<ShotState> {
   }
 
   void _emitEvent([bool isStopped = false]) {
+    if (_pressureNotifications.isEmpty || _weightNotifications.isEmpty) {
+      return;
+    }
+
     var pressureData = _pressureNotifications.map((pn) {
       return ShotGraphData(
         pn.timeStamp.difference(_startDateTime!).inMilliseconds,
@@ -116,20 +120,17 @@ class ShotCubit extends Cubit<ShotState> {
     final timer =
         DateTime.now().difference(_startDateTime!).inMilliseconds / 1000;
 
-    final shotRun = ShotRun(
-      pressureData: pressureData,
-      weightData: weightData,
-      pressure: pressureData.last.value,
-      weight: weightData.last.value,
-      timer: timer,
-      weightChange: weightChange,
+    emit(
+      ShotUpdating(
+        pressureData: pressureData,
+        weightData: weightData,
+        pressure: pressureData.last.value,
+        weight: weightData.last.value,
+        timer: timer,
+        weightChange: weightChange,
+        isFinished: isStopped,
+      ),
     );
-
-    if (isStopped) {
-      emit(shotRun as ShotUpdating);
-    } else {
-      emit(shotRun as ShotStopped);
-    }
   }
 
   void start() {
