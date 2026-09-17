@@ -1,3 +1,4 @@
+// lib/ui/shot/shot_graph/shot_graph_state.dart
 part of 'shot_graph_cubit.dart';
 
 sealed class ShotGraphState {}
@@ -7,8 +8,8 @@ final class ShotGraphInitial extends ShotGraphState {}
 final class ShotGraphWaiting extends ShotGraphState {}
 
 final class ShotGraphRun extends ShotGraphState with EquatableMixin {
-  final List<ShotGraphData> pressureData;
-  final List<ShotGraphData> weightData;
+  final List<ShotGraphPoint> pressureData;
+  final List<ShotGraphPoint> weightData;
   ShotGraphRun(this.pressureData, this.weightData);
 
   @override
@@ -16,15 +17,9 @@ final class ShotGraphRun extends ShotGraphState with EquatableMixin {
 }
 
 final class ShotGraphUpdating extends ShotGraphRun {
-  ShotGraphUpdating(super.pressureData, super.weightDat);
+  ShotGraphUpdating(super.pressureData, super.weightData);
 }
 
 final class ShotGraphStopped extends ShotGraphRun {
   ShotGraphStopped(super.pressureData, super.weightData);
-}
-
-class ShotGraphData {
-  final int millisecond;
-  final double value;
-  ShotGraphData(this.millisecond, this.value);
 }

@@ -1,3 +1,5 @@
+// lib/ui/shot/shot_graph/shot_graph_widget.dart
+import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,7 +101,7 @@ class ShotGraphWidget extends StatelessWidget {
           ),
         ],
         series: <CartesianSeries>[
-          SplineSeries<ShotGraphData, double>(
+          SplineSeries<ShotGraphPoint, double>(
             name: 'Grams',
             dataSource: shotGraphRun.weightData,
             animationDuration: 0,
@@ -108,11 +110,11 @@ class ShotGraphWidget extends StatelessWidget {
             emptyPointSettings: const EmptyPointSettings(
               mode: EmptyPointMode.average,
             ),
-            xValueMapper: (ShotGraphData sgd, _) =>
+            xValueMapper: (ShotGraphPoint sgd, _) =>
                 (sgd.millisecond / 1000).roundToDouble(),
-            yValueMapper: (ShotGraphData sgd, _) => sgd.value,
+            yValueMapper: (ShotGraphPoint sgd, _) => sgd.value,
           ),
-          SplineSeries<ShotGraphData, double>(
+          SplineSeries<ShotGraphPoint, double>(
             name: 'Bar',
             dataSource: shotGraphRun.pressureData,
             animationDuration: 0,
@@ -121,9 +123,9 @@ class ShotGraphWidget extends StatelessWidget {
             emptyPointSettings: const EmptyPointSettings(
               mode: EmptyPointMode.average,
             ),
-            xValueMapper: (ShotGraphData sgd, _) =>
+            xValueMapper: (ShotGraphPoint sgd, _) =>
                 (sgd.millisecond / 1000).roundToDouble(),
-            yValueMapper: (ShotGraphData sgd, _) => sgd.value,
+            yValueMapper: (ShotGraphPoint sgd, _) => sgd.value,
             yAxisName: 'bar',
           ),
         ],

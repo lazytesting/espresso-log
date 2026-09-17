@@ -1,144 +1,106 @@
+// lib/ui/shot/shot_graph/shot_graph_cubit.dart
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/devices/models/notification.dart';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/devices/scale/models/weight_notification.dart';
-import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-import 'package:espresso_log/devices/timer/models/timer_notification.dart';
-import 'package:espresso_log/services/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto_tare_service.dart';
+import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
+import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
+import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
+import 'package:espresso_log/domain/shot/shot_graph_point.dart';
+import 'package:espresso_log/domain/shot/shot_recording_session.dart';
+import 'package:espresso_log/domain/shot/timer_event.dart';
+import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
+import 'package:espresso_log/domain/telemetry/scale_event.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
+import 'package:espresso_log/domain/telemetry/tare_event.dart';
+import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'shot_graph_state.dart';
 
 class ShotGraphCubit extends Cubit<ShotGraphState> {
-  // keep 3 lists with data
-  // apply some damping logic
-  // on every new item emit an event (let bloc limit this)... or on every timer event
-
-  final AbstractAutoStartStopService _autoStartStopService;
-  final AbstractScaleService _scaleService;
-  final AbstractTimerService _timerService;
-  final AbstractAutoTareService _autoTareService;
-  final AbstractPressureService _pressureService;
-  DateTime? _startDateTime;
-  DateTime? _tareDateTime;
+  final AbstractAutoStartStopRule _autoStartStopRule;
+  final ScaleRepository _scaleRepository;
+  final AbstractShotClock _shotClock;
+  final AbstractAutoTareRule _autoTareRule;
+  final PressureRepository _pressureRepository;
+  final ShotRecordingSession _session = ShotRecordingSession();
   bool _isRunning = false;
-  List<WeightNotification> _weightNotifications = [];
-  List<PressureNotification> _pressureNotifications = [];
-  StreamSubscription<Notification>? _timerStreamSubscription;
-  StreamSubscription<Notification>? _scaleStreamSubscription;
-  StreamSubscription<Notification>? _pressureStreamSubscription;
+  StreamSubscription<TimerEvent>? _timerStreamSubscription;
+  StreamSubscription<ScaleEvent>? _scaleStreamSubscription;
+  StreamSubscription<PressureReading>? _pressureStreamSubscription;
 
   ShotGraphCubit(
-    this._autoStartStopService,
-    this._scaleService,
-    this._timerService,
-    this._autoTareService,
-    this._pressureService,
+    this._autoStartStopRule,
+    this._scaleRepository,
+    this._shotClock,
+    this._autoTareRule,
+    this._pressureRepository,
   ) : super(ShotGraphInitial());
 
   void _handleTimerUpdates() {
-    _timerStreamSubscription = _timerService.stream.listen((timerEvent) {
-      if (timerEvent is TimerStartedNotification) {
+    _timerStreamSubscription = _shotClock.stream.listen((timerEvent) {
+      if (timerEvent is TimerStarted) {
         _isRunning = true;
-        _startDateTime = timerEvent.timeStamp;
-        _pressureNotifications = [];
-        _weightNotifications = [];
-      } else if (timerEvent is TimerStoppedNotification) {
-        // TODO stop listening
+        _session.start(timerEvent.timeStamp);
+      } else if (timerEvent is TimerStopped) {
         _isRunning = false;
-        _autoTareService.stop();
-        _emitEvent(true);
-        _startDateTime = null;
+        _autoTareRule.stop();
+        final snapshot = _session.snapshot;
+        emit(ShotGraphStopped(snapshot.pressureData, snapshot.weightData));
+        _session.stop();
       }
     });
   }
 
   void _handleScaleUpdates() {
-    _scaleStreamSubscription = _scaleService.stream.listen((scaleEvent) {
-      if (_startDateTime == null || !_isRunning) return;
-      if (scaleEvent is TareNotification) {
-        _tareDateTime = scaleEvent.timeStamp;
-      } else if (scaleEvent is WeightNotification) {
-        _weightNotifications.add(scaleEvent);
+    _scaleStreamSubscription = _scaleRepository.stream.listen((scaleEvent) {
+      if (!_session.isStarted || !_isRunning) return;
+      if (scaleEvent is TareEvent) {
+        _session.tare(scaleEvent.timeStamp);
+      } else if (scaleEvent is WeightReading) {
+        _session.addWeight(scaleEvent);
       }
-      _emitEvent();
+      final snapshot = _session.snapshot;
+      emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
     });
   }
 
   void _handlePressureUpdates() {
-    _pressureStreamSubscription = _pressureService.stream.listen((
-      pressureEvent,
+    _pressureStreamSubscription = _pressureRepository.stream.listen((
+      pressureReading,
     ) {
-      if (_startDateTime == null || !_isRunning) return;
-      _pressureNotifications.add(pressureEvent);
-      _emitEvent();
+      if (!_session.isStarted || !_isRunning) return;
+      _session.addPressure(pressureReading);
+      final snapshot = _session.snapshot;
+      emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
     });
-  }
-
-  void _emitEvent([bool isStopped = false]) {
-    var pressureData = _pressureNotifications.map((pn) {
-      return ShotGraphData(
-        pn.timeStamp.difference(_startDateTime!).inMilliseconds,
-        pn.pressure,
-      );
-    }).toList();
-
-    var weightData = _weightNotifications.map((ele) {
-      if (_tareDateTime == null || ele.timeStamp.isAfter(_tareDateTime!)) {
-        return ShotGraphData(
-          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          ele.weight,
-        );
-      } else {
-        return ShotGraphData(
-          ele.timeStamp.difference(_startDateTime!).inMilliseconds,
-          0,
-        );
-      }
-    }).toList();
-
-    if (isStopped) {
-      emit(ShotGraphStopped(pressureData, weightData));
-    } else {
-      emit(ShotGraphUpdating(pressureData, weightData));
-    }
   }
 
   void start() {
     emit(ShotGraphWaiting());
-    _startDateTime = null;
-    _tareDateTime = null;
     _isRunning = false;
-    _weightNotifications = [];
-    _pressureNotifications = [];
+    _session.reset();
 
     _handleTimerUpdates();
     _handleScaleUpdates();
     _handlePressureUpdates();
-    _autoTareService.start();
-    _autoStartStopService.enable();
+    _autoTareRule.start();
+    _autoStartStopRule.enable();
   }
 
   void restart() {
     emit(ShotGraphWaiting());
-    _startDateTime = null;
-    _tareDateTime = null;
     _isRunning = false;
-    _weightNotifications = [];
-    _pressureNotifications = [];
-    _autoTareService.start();
-    _autoStartStopService.enable();
+    _session.reset();
+    _autoTareRule.start();
+    _autoStartStopRule.enable();
   }
 
   @override
   Future<void> close() {
-    _autoStartStopService.disable();
-    _autoTareService.stop();
+    _autoStartStopRule.disable();
+    _autoTareRule.stop();
     _timerStreamSubscription?.cancel();
     _scaleStreamSubscription?.cancel();
     _pressureStreamSubscription?.cancel();
