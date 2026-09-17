@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'package:espresso_log/data/models/battery_device_mixin.dart';
+import 'package:espresso_log/domain/telemetry/battery_device_mixin.dart';
 import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:rxdart/subjects.dart';
 
-class MockPressureService with BatteryDeviceMixin implements PressureRepository {
+class MockPressureService
+    with BatteryDeviceMixin
+    implements PressureRepository {
   MockPressureService() {
     stream = _pressureReadingController.stream.asBroadcastStream();
   }

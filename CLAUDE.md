@@ -71,8 +71,9 @@ old `lib/devices/`/`lib/services/` split.
   `ScaleRepository`/`PressureRepository`, built on `BluetoothDevicesService`
   (`lib/data/bluetooth/bluetooth_devices_service.dart`), which handles scanning, connecting, and
   remembering a paired device's ID in `SharedPreferences` so reconnects skip the scan.
-  `BookooPressureService` also mixes in `BatteryDeviceMixin`
-  (`lib/data/models/battery_device_mixin.dart`) for shared battery-level parsing.
+  `BookooPressureService` and `MockPressureService` also mix in `BatteryDeviceMixin`
+  (`lib/domain/telemetry/battery_device_mixin.dart`), which declares the `reconnect()`/
+  `disconnect()` hooks that `ConnectionCubit` probes for via `is BatteryDeviceMixin`.
 - `MockScaleService` (`lib/data/scale/mock_scale_service.dart`) / `MockPressureService`
   (`lib/data/pressure/mock_pressure_service.dart`) — synthetic data generators implementing the
   same interfaces, used when the `USE_MOCK_SCALE`/`USE_MOCK_PRESSURE` dart-defines are set.

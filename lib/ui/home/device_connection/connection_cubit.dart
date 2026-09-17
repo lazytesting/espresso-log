@@ -1,4 +1,4 @@
-import 'package:espresso_log/data/models/battery_device_mixin.dart';
+import 'package:espresso_log/domain/telemetry/battery_device_mixin.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

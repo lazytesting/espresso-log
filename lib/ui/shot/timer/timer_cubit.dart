@@ -12,7 +12,8 @@ class TimerCubit extends Cubit<TimerState> {
     _shotClock.stream.listen((event) {
       var seconds = (event.milliSeconds / 1000).floor();
       var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
-      if (event is timer_events.TimerStarted || event is timer_events.TimerTicked) {
+      if (event is timer_events.TimerStarted ||
+          event is timer_events.TimerTicked) {
         emit(TimerRunning(seconds, deciSeconds));
       }
 
