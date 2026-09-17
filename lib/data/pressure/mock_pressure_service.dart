@@ -1,21 +1,18 @@
 import 'dart:async';
 import 'package:espresso_log/data/models/battery_device_mixin.dart';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
+import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:rxdart/subjects.dart';
 
-class MockPressureService
-    with BatteryDeviceMixin
-    implements AbstractPressureService {
+class MockPressureService with BatteryDeviceMixin implements PressureRepository {
   MockPressureService() {
-    stream = _pressureNotificationController.stream.asBroadcastStream();
+    stream = _pressureReadingController.stream.asBroadcastStream();
   }
-  final _pressureNotificationController =
-      BehaviorSubject<PressureNotification>();
+  final _pressureReadingController = BehaviorSubject<PressureReading>();
   Timer? _timer;
 
   @override
-  Stream<PressureNotification> stream = const Stream.empty();
+  Stream<PressureReading> stream = const Stream.empty();
 
   @override
   Future<void> init() async {
@@ -30,10 +27,8 @@ class MockPressureService
       } else if (seconds > 20 && seconds <= 350) {
         pressure = 8;
       }
-      _pressureNotificationController.asBroadcastStream();
-      _pressureNotificationController.add(
-        PressureNotification(pressure, DateTime.now()),
-      );
+      _pressureReadingController.asBroadcastStream();
+      _pressureReadingController.add(PressureReading(pressure, DateTime.now()));
     });
   }
 

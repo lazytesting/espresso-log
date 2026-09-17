@@ -1,26 +1,23 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:espresso_log/data/models/battery_device_mixin.dart';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:espresso_log/data/bluetooth/bluetooth_devices_service.dart';
+import 'package:espresso_log/data/models/battery_device_mixin.dart';
+import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-class BookooPressureService
-    with BatteryDeviceMixin
-    implements AbstractPressureService {
+class BookooPressureService with BatteryDeviceMixin implements PressureRepository {
   BookooPressureService(this._bluetoothService, this._talker) {
-    stream = _pressureNotificationController.stream.asBroadcastStream();
+    stream = _pressureReadingController.stream.asBroadcastStream();
   }
 
   final Talker _talker;
   final BluetoothDevicesService _bluetoothService;
-  final _pressureNotificationController =
-      BehaviorSubject<PressureNotification>();
+  final _pressureReadingController = BehaviorSubject<PressureReading>();
   @override
-  Stream<PressureNotification> stream = const Stream.empty();
+  Stream<PressureReading> stream = const Stream.empty();
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   BluetoothDevice? _device;
@@ -65,9 +62,9 @@ class BookooPressureService
       d.setInt8(1, value[5]);
       var pressure = d.getInt16(0) / 100;
 
-      var notification = PressureNotification(pressure, DateTime.now());
-      _talker.debug("Emit pressure event: ${notification.pressure}");
-      _pressureNotificationController.add(notification);
+      var reading = PressureReading(pressure, DateTime.now());
+      _talker.debug("Emit pressure event: ${reading.pressure}");
+      _pressureReadingController.add(reading);
     });
 
     // cleanup: cancel subscription when disconnected
