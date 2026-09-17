@@ -26,10 +26,6 @@ Other features:
 ## Future plans
 
 Stabilize:
-- Disconnect pressure device after inactivity
-- Fix tare logic in graph 
-- Smooth graph
-- Improve error handling
 - Increase test coverage and refactor where needed
 
 Storing shot data:

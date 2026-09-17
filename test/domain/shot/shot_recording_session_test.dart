@@ -162,4 +162,89 @@ void main() {
 
     expect(session.snapshot.weightData.single.value, 18);
   });
+
+  test('weight readings after the end time are ignored', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.stop(t0.add(const Duration(milliseconds: 500)));
+
+    session.addWeight(
+      WeightReading(
+        weight: 18,
+        timeStamp: t0.add(const Duration(milliseconds: 501)),
+      ),
+    );
+
+    expect(session.snapshot.weightData, isEmpty);
+  });
+
+  test('pressure readings after the end time are ignored', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.stop(t0.add(const Duration(milliseconds: 500)));
+
+    session.addPressure(
+      PressureReading(6.5, t0.add(const Duration(milliseconds: 501))),
+    );
+
+    expect(session.snapshot.pressureData, isEmpty);
+  });
+
+  test('a tare timestamp after the end time is ignored', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.stop(t0.add(const Duration(milliseconds: 500)));
+
+    session.addWeight(
+      WeightReading(
+        weight: 5,
+        timeStamp: t0.add(const Duration(milliseconds: 100)),
+      ),
+    );
+    session.tare(t0.add(const Duration(milliseconds: 501)));
+
+    // the tare call itself is ignored (timestamp beyond the session), so the
+    // earlier weight reading is never zeroed
+    expect(session.snapshot.weightData.single.value, 5);
+  });
+
+  test('readings up to and including the end time are kept', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.stop(t0.add(const Duration(milliseconds: 500)));
+
+    session.addWeight(
+      WeightReading(
+        weight: 18,
+        timeStamp: t0.add(const Duration(milliseconds: 500)),
+      ),
+    );
+
+    expect(session.snapshot.weightData.single.value, 18);
+  });
+
+  test('calling stop twice keeps the first end time', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.stop(t0.add(const Duration(milliseconds: 500)));
+    session.stop(t0.add(const Duration(milliseconds: 5000)));
+
+    session.addWeight(
+      WeightReading(
+        weight: 18,
+        timeStamp: t0.add(const Duration(milliseconds: 600)),
+      ),
+    );
+
+    expect(session.snapshot.weightData, isEmpty);
+  });
+
+  test('calling start twice keeps the first start time', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.start(t0.add(const Duration(milliseconds: 1000)));
+
+    session.addWeight(
+      WeightReading(
+        weight: 18,
+        timeStamp: t0.add(const Duration(milliseconds: 100)),
+      ),
+    );
+
+    expect(session.snapshot.weightData.single.millisecond, 100);
+  });
 }
