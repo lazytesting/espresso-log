@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-import 'package:flutter/material.dart' hide Notification;
+import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -17,12 +17,10 @@ class RecorderScreen extends StatefulWidget {
 }
 
 class _RecorderScreenState extends State<RecorderScreen> {
-  late final AbstractScaleService _scaleService = context
-      .read<AbstractScaleService>();
-  late final AbstractTimerService _timerService = context
-      .read<AbstractTimerService>();
-  late final AbstractPressureService _pressureService = context
-      .read<AbstractPressureService>();
+  late final ScaleRepository _scaleRepository = context.read<ScaleRepository>();
+  late final AbstractShotClock _shotClock = context.read<AbstractShotClock>();
+  late final PressureRepository _pressureRepository = context
+      .read<PressureRepository>();
 
   StreamSubscription? scaleSubscription;
   StreamSubscription? timerSubscription;
@@ -64,17 +62,17 @@ class _RecorderScreenState extends State<RecorderScreen> {
   }
 
   void _listen() {
-    scaleSubscription = _scaleService.stream.listen((event) {
+    scaleSubscription = _scaleRepository.stream.listen((event) {
       setState(() {
         _events.add(event.toJson());
       });
     });
-    timerSubscription = _timerService.stream.listen((event) {
+    timerSubscription = _shotClock.stream.listen((event) {
       setState(() {
         _events.add(event.toJson());
       });
     });
-    pressureSubscription = _pressureService.stream.listen((event) {
+    pressureSubscription = _pressureRepository.stream.listen((event) {
       setState(() {
         _events.add(event.toJson());
       });

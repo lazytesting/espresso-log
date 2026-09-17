@@ -1,4 +1,4 @@
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -23,11 +23,11 @@ class SettingsScreen extends StatelessWidget {
             child: const Text("Recorder"),
           ),
           FilledButton(
-            onPressed: () => context.read<AbstractScaleService>().init(),
+            onPressed: () => context.read<ScaleRepository>().init(),
             child: const Text("init"),
           ),
           FilledButton(
-            onPressed: () => context.read<AbstractScaleService>().tareCommand(),
+            onPressed: () => context.read<ScaleRepository>().tareCommand(),
             child: const Text("tare"),
           ),
         ],

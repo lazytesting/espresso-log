@@ -1,45 +1,47 @@
 import 'package:espresso_log/data/models/battery_device_mixin.dart';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'connection_state.dart';
 
 class ConnectionCubit extends Cubit<ConnectionState> {
-  ConnectionCubit(this._scaleService, this._pressureService)
+  ConnectionCubit(this._scaleRepository, this._pressureRepository)
     : super(ConnectionConnecting());
 
-  final AbstractScaleService _scaleService;
-  final AbstractPressureService _pressureService;
+  final ScaleRepository _scaleRepository;
+  final PressureRepository _pressureRepository;
 
   Future<void> reconnect() async {
     emit(ConnectionConnecting());
-    if (_scaleService is BatteryDeviceMixin) {
-      await (_scaleService as BatteryDeviceMixin).reconnect();
+    if (_scaleRepository is BatteryDeviceMixin) {
+      await (_scaleRepository as BatteryDeviceMixin).reconnect();
     }
-    if (_pressureService is BatteryDeviceMixin) {
-      await (_pressureService as BatteryDeviceMixin).reconnect();
+    if (_pressureRepository is BatteryDeviceMixin) {
+      await (_pressureRepository as BatteryDeviceMixin).reconnect();
     }
     emit(ConnectionEstablished());
   }
 
   Future<void> disconnect() async {
-    if (_scaleService is BatteryDeviceMixin ||
-        _pressureService is BatteryDeviceMixin) {
+    if (_scaleRepository is BatteryDeviceMixin ||
+        _pressureRepository is BatteryDeviceMixin) {
       emit(ConnectionPaused());
     }
 
-    if (_scaleService is BatteryDeviceMixin) {
-      await (_scaleService as BatteryDeviceMixin).disconnect();
+    if (_scaleRepository is BatteryDeviceMixin) {
+      await (_scaleRepository as BatteryDeviceMixin).disconnect();
     }
-    if (_pressureService is BatteryDeviceMixin) {
-      await (_pressureService as BatteryDeviceMixin).disconnect();
+    if (_pressureRepository is BatteryDeviceMixin) {
+      await (_pressureRepository as BatteryDeviceMixin).disconnect();
     }
   }
 
   Future<void> connect() async {
     emit(ConnectionConnecting());
-    Future.wait([_scaleService.init(), _pressureService.init()]).then((_) {
+    Future.wait([_scaleRepository.init(), _pressureRepository.init()]).then((
+      _,
+    ) {
       emit(ConnectionEstablished());
     });
   }
