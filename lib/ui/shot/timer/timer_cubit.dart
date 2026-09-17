@@ -1,23 +1,22 @@
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-import 'package:espresso_log/devices/timer/models/timer_notification.dart';
+import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
+import 'package:espresso_log/domain/shot/timer_event.dart' as timer_events;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'timer_state.dart';
 
 class TimerCubit extends Cubit<TimerState> {
-  final AbstractTimerService _timerService;
+  final AbstractShotClock _shotClock;
 
-  TimerCubit(this._timerService) : super(TimerInitial()) {
-    _timerService.stream.listen((event) {
+  TimerCubit(this._shotClock) : super(TimerInitial()) {
+    _shotClock.stream.listen((event) {
       var seconds = (event.milliSeconds / 1000).floor();
       var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
-      if (event is TimerStartedNotification ||
-          event is TimerTickedNotification) {
+      if (event is timer_events.TimerStarted || event is timer_events.TimerTicked) {
         emit(TimerRunning(seconds, deciSeconds));
       }
 
-      if (event is TimerStoppedNotification) {
+      if (event is timer_events.TimerStopped) {
         emit(TimerStopped(seconds, deciSeconds));
       }
     });
