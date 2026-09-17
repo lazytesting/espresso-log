@@ -1,24 +1,25 @@
 import 'package:equatable/equatable.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/devices/scale/models/weight_notification.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
+import 'package:espresso_log/domain/telemetry/tare_event.dart';
+import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'weight_change_state.dart';
 
 class WeightChangeCubit extends Cubit<WeightChangeState> {
-  final AbstractScaleService _scaleService;
-  final List<WeightNotification> _history = [];
-  WeightChangeCubit(this._scaleService) : super(WeightChangeInitial()) {
-    _scaleService.stream.listen((event) {
+  final ScaleRepository _scaleRepository;
+  final List<WeightReading> _history = [];
+  WeightChangeCubit(this._scaleRepository) : super(WeightChangeInitial()) {
+    _scaleRepository.stream.listen((event) {
       // remove event occured before taring
-      if (event is TareNotification) {
+      if (event is TareEvent) {
         _history.removeWhere(
           (element) => element.timeStamp.isBefore(event.timeStamp),
         );
         return;
       }
 
-      if (event is WeightNotification == false) return;
+      if (event is WeightReading == false) return;
 
       // cleanup history
       var removeBefore = event.timeStamp.subtract(
@@ -29,7 +30,7 @@ class WeightChangeCubit extends Cubit<WeightChangeState> {
       );
 
       // add to history
-      _history.add(event as WeightNotification);
+      _history.add(event as WeightReading);
 
       // emit average
       if (_history.length > 1) {
