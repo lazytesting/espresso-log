@@ -24,8 +24,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   final AbstractShotClock _shotClock;
   final AbstractAutoTareRule _autoTareRule;
   final PressureRepository _pressureRepository;
-  final ShotRecordingSession _session = ShotRecordingSession();
-  bool _isRunning = false;
+  ShotRecordingSession _session = ShotRecordingSession();
   StreamSubscription<TimerEvent>? _timerStreamSubscription;
   StreamSubscription<ScaleEvent>? _scaleStreamSubscription;
   StreamSubscription<PressureReading>? _pressureStreamSubscription;
@@ -41,28 +40,34 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _handleTimerUpdates() {
     _timerStreamSubscription = _shotClock.stream.listen((timerEvent) {
       if (timerEvent is TimerStarted) {
-        _isRunning = true;
         _session.start(timerEvent.timeStamp);
-      } else if (timerEvent is TimerStopped) {
-        _isRunning = false;
+        emit(
+          ShotGraphUpdating(
+            _session.snapshot.pressureData,
+            _session.snapshot.weightData,
+          ),
+        );
+      }
+      if (timerEvent is TimerStopped) {
         _autoTareRule.stop();
         final snapshot = _session.snapshot;
         emit(ShotGraphStopped(snapshot.pressureData, snapshot.weightData));
-        _session.stop();
+      }
+
+      if (timerEvent is TimerTicked) {
+        final snapshot = _session.snapshot;
+        emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
       }
     });
   }
 
   void _handleScaleUpdates() {
     _scaleStreamSubscription = _scaleRepository.stream.listen((scaleEvent) {
-      if (!_session.isStarted || !_isRunning) return;
       if (scaleEvent is TareEvent) {
         _session.tare(scaleEvent.timeStamp);
       } else if (scaleEvent is WeightReading) {
         _session.addWeight(scaleEvent);
       }
-      final snapshot = _session.snapshot;
-      emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
     });
   }
 
@@ -70,17 +75,13 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     _pressureStreamSubscription = _pressureRepository.stream.listen((
       pressureReading,
     ) {
-      if (!_session.isStarted || !_isRunning) return;
       _session.addPressure(pressureReading);
-      final snapshot = _session.snapshot;
-      emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
     });
   }
 
   void start() {
     emit(ShotGraphWaiting());
-    _isRunning = false;
-    _session.reset();
+    _session = ShotRecordingSession();
 
     _handleTimerUpdates();
     _handleScaleUpdates();
@@ -91,8 +92,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
 
   void restart() {
     emit(ShotGraphWaiting());
-    _isRunning = false;
-    _session.reset();
+    _session = ShotRecordingSession();
     _autoTareRule.start();
     _autoStartStopRule.enable();
   }

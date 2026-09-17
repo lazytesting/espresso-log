@@ -14,6 +14,17 @@ void main() {
     expect(session.snapshot.pressureData, isEmpty);
   });
 
+  test('readings added before start are ignored', () {
+    final session = ShotRecordingSession();
+
+    session.addWeight(WeightReading(weight: 18, timeStamp: t0));
+    session.addPressure(PressureReading(6.5, t0));
+    session.tare(t0);
+
+    expect(session.snapshot.weightData, isEmpty);
+    expect(session.snapshot.pressureData, isEmpty);
+  });
+
   test('weight is offset in milliseconds relative to the start time', () {
     final session = ShotRecordingSession()..start(t0);
 
@@ -90,51 +101,40 @@ void main() {
     expect(session.snapshot.weightData.single.value, 7);
   });
 
-  test('reset clears accumulated data and the tare timestamp', () {
+  test('weight readings before the start time are ignored', () {
     final session = ShotRecordingSession()..start(t0);
-    session.addWeight(WeightReading(weight: 5, timeStamp: t0));
-    session.tare(t0);
 
-    session.reset();
-
-    expect(session.isStarted, isFalse);
-    expect(session.snapshot.weightData, isEmpty);
-
-    // Starting again and adding a weight after the old tare timestamp is
-    // not zeroed. Note this doesn't prove reset() itself cleared the tare
-    // timestamp independently of start() — start() also clears it, so this
-    // assertion would pass either way. It does confirm the combination
-    // behaves correctly.
-    session.start(t0.add(const Duration(seconds: 10)));
     session.addWeight(
-      WeightReading(weight: 30, timeStamp: t0.add(const Duration(seconds: 11))),
+      WeightReading(
+        weight: 99,
+        timeStamp: t0.subtract(const Duration(milliseconds: 1)),
+      ),
     );
-    expect(session.snapshot.weightData.single.value, 30);
+
+    expect(session.snapshot.weightData, isEmpty);
   });
 
-  test(
-    'stop keeps the accumulated data but marks the session as not started',
-    () {
-      final session = ShotRecordingSession()..start(t0);
-      session.addWeight(
-        WeightReading(
-          weight: 12,
-          timeStamp: t0.add(const Duration(milliseconds: 500)),
-        ),
-      );
-      expect(session.snapshot.weightData, hasLength(1));
+  test('pressure readings before the start time are ignored', () {
+    final session = ShotRecordingSession()..start(t0);
 
-      session.stop();
+    session.addPressure(
+      PressureReading(9, t0.subtract(const Duration(milliseconds: 1))),
+    );
 
-      // snapshot becomes empty once the session is stopped, because
-      // isStarted (and thus the `_startDateTime != null` check snapshot
-      // relies on) becomes false — this is by design, not a bug: the
-      // internally retained readings exist so start()/reset() behavior is
-      // well-defined, not so a caller can read them back via snapshot after
-      // stop(). Callers needing the final data must read snapshot before
-      // calling stop().
-      expect(session.isStarted, isFalse);
-      expect(session.snapshot.weightData, isEmpty);
-    },
-  );
+    expect(session.snapshot.pressureData, isEmpty);
+  });
+
+  test('a tare timestamp before the start time is ignored', () {
+    final session = ShotRecordingSession()..start(t0);
+
+    session.tare(t0.subtract(const Duration(milliseconds: 1)));
+    session.addWeight(
+      WeightReading(
+        weight: 18,
+        timeStamp: t0.add(const Duration(milliseconds: 100)),
+      ),
+    );
+
+    expect(session.snapshot.weightData.single.value, 18);
+  });
 }
