@@ -18,10 +18,17 @@ class ShotRecordingSession {
     _pressureReadings.clear();
   }
 
-  /// Marks the session as no longer running, keeping accumulated readings
-  /// intact so a final [snapshot] can still be read afterwards. Mirrors
-  /// legacy ShotGraphCubit, which nulled _startDateTime on stop without
-  /// clearing its notification lists.
+  /// Marks the session as no longer running by nulling the start time. Does
+  /// NOT clear the accumulated readings or the tare timestamp (only [reset]
+  /// does that) — this mirrors the legacy ShotGraphCubit, which never
+  /// cleared its notification lists on stop, only on the next
+  /// start()/restart().
+  ///
+  /// Important: once the start time is null, [snapshot] returns an empty
+  /// result regardless of what's retained internally, so callers must read
+  /// [snapshot] BEFORE calling [stop] if they need the final data — the
+  /// retained state is not re-observable through this class's own API
+  /// afterward.
   void stop() {
     _startDateTime = null;
   }
