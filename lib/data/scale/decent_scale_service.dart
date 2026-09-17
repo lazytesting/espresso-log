@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 import 'package:espresso_log/data/bluetooth/bluetooth_devices_service.dart';
-import 'package:espresso_log/devices/models/notification.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/devices/scale/models/weight_notification.dart';
-import 'package:flutter/foundation.dart';
+import 'package:espresso_log/domain/telemetry/scale_event.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
+import 'package:espresso_log/domain/telemetry/tare_event.dart';
+import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-class DecentScaleService implements AbstractScaleService {
+class DecentScaleService implements ScaleRepository {
   BluetoothDevice? _device; // TODO get this out of class, move to init
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   @override
-  Stream<Notification> stream = const Stream.empty();
+  Stream<ScaleEvent> stream = const Stream.empty();
 
-  final _scaleNotificationController = BehaviorSubject<Notification>();
+  final _scaleEventController = BehaviorSubject<ScaleEvent>();
   final scaleStatusController = BehaviorSubject<String>();
   final Talker _talker;
   DecentScaleService(this._bluetoothService, this._talker) {
-    stream = _scaleNotificationController.stream.asBroadcastStream();
+    stream = _scaleEventController.stream.asBroadcastStream();
   }
 
   final BluetoothDevicesService _bluetoothService;
@@ -74,20 +74,17 @@ class DecentScaleService implements AbstractScaleService {
         d.setInt8(1, value[3]);
         var grams = d.getInt16(0) / 10;
 
-        var notification = WeightNotification(
-          weight: grams,
-          timeStamp: DateTime.now(),
-        );
+        var reading = WeightReading(weight: grams, timeStamp: DateTime.now());
         // ignore: avoid_print
-        _talker.debug("Received weight event: ${notification.weight}");
-        return _scaleNotificationController.add(notification);
+        _talker.debug("Received weight event: ${reading.weight}");
+        return _scaleEventController.add(reading);
       }
 
       // tare confirmation
       if (value[1] == 0x0F) {
         _talker.debug("Received tare confirmation");
-        var notifcation = TareNotification(timeStamp: DateTime.now());
-        return _scaleNotificationController.add(notifcation);
+        var event = TareEvent(timeStamp: DateTime.now());
+        return _scaleEventController.add(event);
       }
     });
 
