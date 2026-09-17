@@ -428,6 +428,7 @@ This is a pure relocation (plus fixing the existing `batter_device_mixin.dart` f
 - Modify: `lib/devices/pressure/mock_pressure_service.dart` (import line only)
 - Modify: `lib/devices/scale/decent_scale_service.dart` (import line only)
 - Modify: `lib/ui/home/device_connection/connection_cubit.dart` (import line only)
+- Modify: `lib/main.dart` (import line only)
 
 **Interfaces:**
 - Produces: `class BluetoothDevicesService` (unchanged API) at its new import path `package:espresso_log/data/bluetooth/bluetooth_devices_service.dart`; `mixin BatteryDeviceMixin` (unchanged API) at `package:espresso_log/data/models/battery_device_mixin.dart`.
@@ -597,6 +598,16 @@ with:
 import 'package:espresso_log/data/models/battery_device_mixin.dart';
 ```
 
+In `lib/main.dart`, replace:
+```dart
+import 'devices/bluetooth/bluetooth_service.dart';
+```
+with:
+```dart
+import 'data/bluetooth/bluetooth_devices_service.dart';
+```
+(This file was missed from the original dependent-files list — it has a 5th reference to the moved file via a relative import plus a `BluetoothDevicesService(...)` constructor call at its existing usage site. Only this import line changes; every other stale reference in `main.dart`, e.g. to `AbstractScaleService`, is out of scope here and is Task 17's job.)
+
 - [ ] **Step 4: Verify the project still analyzes clean**
 
 Run: `fvm flutter analyze`
@@ -605,7 +616,7 @@ Expected: No issues found. (`BluetoothDevicesService` and `BatteryDeviceMixin` a
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/data/bluetooth/bluetooth_devices_service.dart lib/data/models/battery_device_mixin.dart lib/devices/bluetooth/bluetooth_service.dart lib/devices/models/batter_device_mixin.dart lib/devices/pressure/bookoo_pressure_service.dart lib/devices/pressure/mock_pressure_service.dart lib/devices/scale/decent_scale_service.dart lib/ui/home/device_connection/connection_cubit.dart
+git add lib/data/bluetooth/bluetooth_devices_service.dart lib/data/models/battery_device_mixin.dart lib/devices/bluetooth/bluetooth_service.dart lib/devices/models/batter_device_mixin.dart lib/devices/pressure/bookoo_pressure_service.dart lib/devices/pressure/mock_pressure_service.dart lib/devices/scale/decent_scale_service.dart lib/ui/home/device_connection/connection_cubit.dart lib/main.dart
 git commit -m "data: move BluetoothDevicesService and BatteryDeviceMixin under lib/data"
 ```
 
@@ -2209,7 +2220,7 @@ class PressureCubit extends Cubit<PressureState> {
 // lib/ui/shot/timer/timer_cubit.dart
 import 'package:equatable/equatable.dart';
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
-import 'package:espresso_log/domain/shot/timer_event.dart';
+import 'package:espresso_log/domain/shot/timer_event.dart' as timer_events;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'timer_state.dart';
@@ -2221,11 +2232,11 @@ class TimerCubit extends Cubit<TimerState> {
     _shotClock.stream.listen((event) {
       var seconds = (event.milliSeconds / 1000).floor();
       var deciSeconds = ((event.milliSeconds - 1000 * seconds) / 100).floor();
-      if (event is TimerStarted || event is TimerTicked) {
+      if (event is timer_events.TimerStarted || event is timer_events.TimerTicked) {
         emit(TimerRunning(seconds, deciSeconds));
       }
 
-      if (event is TimerStopped) {
+      if (event is timer_events.TimerStopped) {
         emit(TimerStopped(seconds, deciSeconds));
       }
     });
@@ -2233,12 +2244,12 @@ class TimerCubit extends Cubit<TimerState> {
 }
 ```
 
-Note: `TimerStopped` is now the name of both a domain `TimerEvent` subtype (Task 3) and this file's own `TimerState` subtype (defined in `timer_state.dart`, unchanged by this task). They don't collide at compile time because the domain one is only referenced via the `is TimerStopped` type-check against `event` (inferred as `TimerEvent`), and the emitted one is constructed as `TimerStopped(seconds, deciSeconds)` (inferred as `TimerState` from the `emit()` call's generic bound) — but if `flutter analyze` flags ambiguity, disambiguate the domain one with a prefixed import (`import '...timer_event.dart' as domain_timer;` and `domain_timer.TimerStopped`). Try the unprefixed version first since Dart resolves this by context in the overwhelming majority of cases; only add the prefix if Step 3 shows an error.
+Note: `TimerStopped` is the name of both a domain `TimerEvent` subtype (Task 3) and this file's own `TimerState` subtype (declared in `timer_state.dart`, a `part of` this library, unchanged by this task). Declaring both in the same library is a hard compile error in Dart — it is **not** resolved "by context" — so the domain import above **must** use the `as timer_events` prefix; do not import it unprefixed.
 
 - [ ] **Step 3: Verify these compile together**
 
 Run: `fvm flutter analyze lib/ui/components/pressure/pressure_cubit.dart lib/ui/shot/timer/timer_cubit.dart`
-Expected: No issues found. If an ambiguous-name error appears for `TimerStopped`, apply the prefixed-import fix noted in Step 2 and re-run.
+Expected: No issues found.
 
 - [ ] **Step 4: Commit**
 
