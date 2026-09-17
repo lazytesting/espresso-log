@@ -1,7 +1,12 @@
+import 'package:espresso_log/domain/shot/median_filter.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
 import 'package:espresso_log/domain/telemetry/weight_reading.dart';
+
+/// Smooths raw weight readings to remove single-sample spikes, e.g. from
+/// bumping the scale while pressing tare.
+final _weightSmoothingFilter = MedianFilter(windowSize: 5);
 
 /// Accumulates readings for a single shot.
 ///
@@ -70,21 +75,27 @@ class ShotRecordingSession {
         .toList();
 
     final tareDateTime = _tareDateTime;
-    final weightData = _weightReadings
+
+    final weightReadings = _weightReadings
         .where((reading) => _isWithinSession(reading.timeStamp))
-        .map((reading) {
-          if (tareDateTime == null || reading.timeStamp.isAfter(tareDateTime)) {
-            return ShotGraphPoint(
-              reading.timeStamp.difference(startDateTime).inMilliseconds,
-              reading.weight,
-            );
-          }
-          return ShotGraphPoint(
+        .toList();
+    final smoothedWeights = _weightSmoothingFilter.apply(
+      weightReadings.map((reading) => reading.weight).toList(),
+    );
+
+    final weightData = [
+      for (final (i, reading) in weightReadings.indexed)
+        if (tareDateTime == null || reading.timeStamp.isAfter(tareDateTime))
+          ShotGraphPoint(
+            reading.timeStamp.difference(startDateTime).inMilliseconds,
+            smoothedWeights[i],
+          )
+        else
+          ShotGraphPoint(
             reading.timeStamp.difference(startDateTime).inMilliseconds,
             0,
-          );
-        })
-        .toList();
+          ),
+    ];
 
     return ShotSnapshot(weightData: weightData, pressureData: pressureData);
   }

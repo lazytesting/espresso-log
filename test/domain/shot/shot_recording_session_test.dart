@@ -101,6 +101,31 @@ void main() {
     expect(session.snapshot.weightData.single.value, 7);
   });
 
+  test('a single-sample weight spike is smoothed out', () {
+    final session = ShotRecordingSession()..start(t0);
+    session.tare(t0);
+
+    // A brief touch of the scale (e.g. while pressing tare) sends one wild
+    // reading between otherwise-stable ones.
+    for (final (offsetMs, weight) in [
+      (100, 18.0),
+      (200, 18.0),
+      (300, 55.0),
+      (400, 18.0),
+      (500, 18.0),
+    ]) {
+      session.addWeight(
+        WeightReading(
+          weight: weight,
+          timeStamp: t0.add(Duration(milliseconds: offsetMs)),
+        ),
+      );
+    }
+
+    final weightData = session.snapshot.weightData;
+    expect(weightData.map((p) => p.value), everyElement(18.0));
+  });
+
   test('weight readings before the start time are ignored', () {
     final session = ShotRecordingSession()..start(t0);
 
