@@ -27,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import 'devices/bluetooth/bluetooth_service.dart';
+import 'data/bluetooth/bluetooth_devices_service.dart';
 
 const useMockScale = bool.fromEnvironment(
   'USE_MOCK_SCALE',

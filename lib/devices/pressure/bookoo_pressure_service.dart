@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:espresso_log/devices/models/batter_device_mixin.dart';
+import 'package:espresso_log/data/models/battery_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
-import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
+import 'package:espresso_log/data/bluetooth/bluetooth_devices_service.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:talker_flutter/talker_flutter.dart';

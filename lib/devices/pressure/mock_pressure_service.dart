@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:espresso_log/devices/models/batter_device_mixin.dart';
+import 'package:espresso_log/data/models/battery_device_mixin.dart';
 import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
 import 'package:espresso_log/devices/pressure/models/pressure_notification.dart';
 import 'package:rxdart/subjects.dart';

@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:espresso_log/devices/bluetooth/bluetooth_service.dart';
+import 'package:espresso_log/data/bluetooth/bluetooth_devices_service.dart';
 import 'package:espresso_log/devices/models/notification.dart';
 import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
 import 'package:espresso_log/devices/scale/models/weight_notification.dart';
