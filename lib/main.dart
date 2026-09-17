@@ -1,15 +1,16 @@
+// lib/main.dart
 import 'dart:async';
 
-import 'package:espresso_log/devices/pressure/bookoo_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/mock_pressure_service.dart';
-import 'package:espresso_log/devices/pressure/models/abstract_pressure_service.dart';
-import 'package:espresso_log/devices/scale/decent_scale_service.dart';
-import 'package:espresso_log/devices/scale/mock_scale_service.dart';
-import 'package:espresso_log/devices/scale/models/abstract_scale_service.dart';
-import 'package:espresso_log/devices/timer/abstract_timer_service.dart';
-import 'package:espresso_log/devices/timer/timer_service.dart';
-import 'package:espresso_log/services/auto_start_stop_service.dart';
-import 'package:espresso_log/services/auto_tare_service.dart';
+import 'package:espresso_log/data/pressure/bookoo_pressure_service.dart';
+import 'package:espresso_log/data/pressure/mock_pressure_service.dart';
+import 'package:espresso_log/data/scale/decent_scale_service.dart';
+import 'package:espresso_log/data/scale/mock_scale_service.dart';
+import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
+import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
+import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
+import 'package:espresso_log/domain/shot/shot_clock.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 
 import 'package:espresso_log/router.dart';
 
@@ -51,46 +52,48 @@ void main() async {
   );
   await bluetoothService.init();
 
-  final AbstractTimerService timerService = TimerService();
+  final AbstractShotClock shotClock = ShotClock();
 
-  final scaleService = useMockScale
+  final scaleRepository = useMockScale
       ? MockScaleService()
       : DecentScaleService(bluetoothService, talker);
 
-  final AbstractPressureService pressureService = useMockPressure
+  final PressureRepository pressureRepository = useMockPressure
       ? MockPressureService()
       : BookooPressureService(bluetoothService, talker);
 
-  final AbstractAutoTareService autoTareService = AutoTareService(scaleService);
-  final AbstractAutoStartStopService autoStartStopService =
-      AutoStartStopService(pressureService, timerService);
+  final AbstractAutoTareRule autoTareRule = AutoTareRule(scaleRepository);
+  final AbstractAutoStartStopRule autoStartStopRule = AutoStartStopRule(
+    pressureRepository,
+    shotClock,
+  );
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (_) => ShotGraphCubit(
-            autoStartStopService,
-            scaleService,
-            timerService,
-            autoTareService,
-            pressureService,
+            autoStartStopRule,
+            scaleRepository,
+            shotClock,
+            autoTareRule,
+            pressureRepository,
           ),
         ),
-        BlocProvider(create: (_) => CurrentWeightCubit(scaleService)),
-        BlocProvider(create: (_) => WeightChangeCubit(scaleService)),
-        BlocProvider(create: (_) => TimerCubit(timerService)),
-        BlocProvider(create: (_) => PressureCubit(pressureService)),
+        BlocProvider(create: (_) => CurrentWeightCubit(scaleRepository)),
+        BlocProvider(create: (_) => WeightChangeCubit(scaleRepository)),
+        BlocProvider(create: (_) => TimerCubit(shotClock)),
+        BlocProvider(create: (_) => PressureCubit(pressureRepository)),
         BlocProvider(
           create: (_) =>
-              ConnectionCubit(scaleService, pressureService)..connect(),
+              ConnectionCubit(scaleRepository, pressureRepository)..connect(),
         ),
       ],
       child: MultiProvider(
         providers: [
           Provider<Talker>.value(value: talker),
-          Provider<AbstractScaleService>.value(value: scaleService),
-          Provider<AbstractPressureService>.value(value: pressureService),
-          Provider<AbstractTimerService>.value(value: timerService),
+          Provider<ScaleRepository>.value(value: scaleRepository),
+          Provider<PressureRepository>.value(value: pressureRepository),
+          Provider<AbstractShotClock>.value(value: shotClock),
         ],
         child: const MyApp(),
       ),
