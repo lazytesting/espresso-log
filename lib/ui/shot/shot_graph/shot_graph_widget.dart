@@ -1,9 +1,15 @@
 // lib/ui/shot/shot_graph/shot_graph_widget.dart
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
+import 'package:espresso_log/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+const _kWeightSeriesColor = kAccentColor;
+const _kPressureSeriesColor = Color(0xFFE8D7B0);
+const _kAxisLabelColor = Colors.white70;
+const _kGridLineColor = Colors.white12;
 
 class ShotGraphWidget extends StatelessWidget {
   const ShotGraphWidget({super.key});
@@ -77,19 +83,33 @@ class ShotGraphWidget extends StatelessWidget {
       maxSeconds = ((maxMillis / 10000).ceil()) * 10;
     }
 
+    const axisLabelStyle = TextStyle(color: _kAxisLabelColor);
+    const axisTitleStyle = TextStyle(color: _kAxisLabelColor);
+
     return Card(
       clipBehavior: Clip.hardEdge,
       child: SfCartesianChart(
-        legend: const Legend(isVisible: true),
+        plotAreaBorderColor: _kGridLineColor,
+        backgroundColor: kSurfaceColor,
+        legend: const Legend(
+          isVisible: true,
+          textStyle: axisLabelStyle,
+        ),
         primaryXAxis: NumericAxis(
-          title: const AxisTitle(text: 'Seconds'),
+          title: const AxisTitle(text: 'Seconds', textStyle: axisTitleStyle),
           minimum: 0,
           maximum: maxSeconds,
+          labelStyle: axisLabelStyle,
+          majorGridLines: const MajorGridLines(color: _kGridLineColor),
+          axisLine: const AxisLine(color: _kGridLineColor),
         ),
         primaryYAxis: NumericAxis(
           name: 'Grams',
           minimum: 0,
           maximum: maxWeight,
+          labelStyle: axisLabelStyle,
+          majorGridLines: const MajorGridLines(color: _kGridLineColor),
+          axisLine: const AxisLine(color: _kGridLineColor),
         ),
         axes: <ChartAxis>[
           NumericAxis(
@@ -98,11 +118,16 @@ class ShotGraphWidget extends StatelessWidget {
             interval: 1,
             minimum: 0,
             maximum: maxPressure,
+            labelStyle: axisLabelStyle,
+            majorGridLines: const MajorGridLines(width: 0),
+            axisLine: const AxisLine(color: _kGridLineColor),
           ),
         ],
         series: <CartesianSeries>[
           SplineSeries<ShotGraphPoint, double>(
             name: 'Grams',
+            color: _kWeightSeriesColor,
+            width: 2,
             dataSource: shotGraphRun.weightData,
             animationDuration: 0,
             splineType: SplineType.natural,
@@ -116,6 +141,8 @@ class ShotGraphWidget extends StatelessWidget {
           ),
           SplineSeries<ShotGraphPoint, double>(
             name: 'Bar',
+            color: _kPressureSeriesColor,
+            width: 2,
             dataSource: shotGraphRun.pressureData,
             animationDuration: 0,
             isVisibleInLegend: true,

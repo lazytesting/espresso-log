@@ -13,6 +13,7 @@ import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 
 import 'package:espresso_log/router.dart';
+import 'package:espresso_log/ui/theme.dart';
 
 import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_cubit.dart';
@@ -118,17 +119,7 @@ class MyApp extends StatelessWidget {
       child: ConnectionModalWrapper(
         navigatorKey: globalNavigatorKey,
         child: MaterialApp.router(
-          theme:
-              ThemeData.from(
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color.fromARGB(255, 84, 48, 134),
-                ),
-              ).copyWith(
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Color.fromARGB(255, 88, 77, 105),
-                  foregroundColor: Colors.white,
-                ),
-              ),
+          theme: buildAppTheme(),
           routerConfig: AppRouter(
             context.read<Talker>(),
             globalNavigatorKey,
