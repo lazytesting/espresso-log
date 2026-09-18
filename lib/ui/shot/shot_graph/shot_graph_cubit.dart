@@ -49,7 +49,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
         );
       }
       if (timerEvent is TimerStopped) {
-        _autoTareRule.stop();
+        _autoTareRule.disable();
         final snapshot = _session.snapshot;
         emit(ShotGraphStopped(snapshot.pressureData, snapshot.weightData));
       }
@@ -86,21 +86,21 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     _handleTimerUpdates();
     _handleScaleUpdates();
     _handlePressureUpdates();
-    _autoTareRule.start();
+    _autoTareRule.enable();
     _autoStartStopRule.enable();
   }
 
   void restart() {
     emit(ShotGraphWaiting());
     _session = ShotRecordingSession();
-    _autoTareRule.start();
+    _autoTareRule.enable();
     _autoStartStopRule.enable();
   }
 
   @override
   Future<void> close() {
     _autoStartStopRule.disable();
-    _autoTareRule.stop();
+    _autoTareRule.disable();
     _timerStreamSubscription?.cancel();
     _scaleStreamSubscription?.cancel();
     _pressureStreamSubscription?.cancel();

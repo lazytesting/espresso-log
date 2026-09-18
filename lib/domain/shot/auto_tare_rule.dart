@@ -1,27 +1,26 @@
-import 'dart:async';
-
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 
 abstract class AbstractAutoTareRule {
-  void start();
-  void stop();
+  void enable();
+  void disable();
 }
 
 class AutoTareRule implements AbstractAutoTareRule {
   final ScaleRepository scaleRepository;
-  StreamSubscription? scaleSubscription;
+  bool _enabled = false;
   List<WeightReading> _history = [];
   double? _startWeight;
 
-  AutoTareRule(this.scaleRepository);
-
-  @override
-  void start() {
-    scaleSubscription = scaleRepository.stream
+  AutoTareRule(this.scaleRepository) {
+    scaleRepository.stream
         .where((event) => event is WeightReading)
         .cast<WeightReading>()
         .listen((weightReading) {
+          if (!_enabled) {
+            return;
+          }
+
           if (_startWeight == null) {
             _startWeight = weightReading.weight;
             return;
@@ -54,15 +53,22 @@ class AutoTareRule implements AbstractAutoTareRule {
                   .inMilliseconds >
               1000) {
             scaleRepository.tareCommand();
-            stop();
+            disable();
           }
         });
   }
 
   @override
-  void stop() {
-    scaleSubscription?.cancel();
+  void enable() {
     _startWeight = null;
     _history = [];
+    _enabled = true;
+  }
+
+  @override
+  void disable() {
+    _startWeight = null;
+    _history = [];
+    _enabled = false;
   }
 }

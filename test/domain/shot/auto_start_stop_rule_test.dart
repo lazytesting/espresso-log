@@ -135,7 +135,7 @@ void main() {
   );
 
   test(
-    'disable() pauses the subscription so pressure readings are ignored',
+    'disable() stops reacting so pressure readings are ignored',
     () async {
       final rule = AutoStartStopRule(fakePressureRepository, shotClock);
       rule.enable();
@@ -159,4 +159,45 @@ void main() {
 
     expect(shotClock.startCalls, 1);
   });
+
+  test(
+    're-enabling after an auto-stopped shot (without an explicit disable()) '
+    'lets the next shot run a full course, as happens when the UI simply '
+    'calls enable() again for a second shot',
+    () async {
+      final rule = AutoStartStopRule(fakePressureRepository, shotClock);
+      rule.enable();
+
+      // First shot: ramps up, crosses threshold2, then auto-stops.
+      controller.add(PressureReading(0.2, t0));
+      controller.add(
+        PressureReading(0.6, t0.add(const Duration(milliseconds: 1))),
+      );
+      controller.add(
+        PressureReading(0.3, t0.add(const Duration(milliseconds: 2))),
+      ); // auto-stops and disables
+      await pumpEventQueue();
+      expect(shotClock.stopCalls, 1);
+
+      // Second shot: UI re-enables the rule directly (this is what
+      // ShotGraphCubit.start()/restart() does), without ever calling
+      // disable() first.
+      rule.enable();
+
+      controller.add(
+        PressureReading(0.2, t0.add(const Duration(seconds: 1))),
+      ); // starts second shot
+      await pumpEventQueue();
+      expect(shotClock.startCalls, 2);
+      expect(shotClock.isRunning, isTrue);
+
+      controller.add(
+        PressureReading(0.3, t0.add(const Duration(seconds: 1, milliseconds: 1))),
+      ); // still ramping up, below threshold2 - must NOT stop the clock
+      await pumpEventQueue();
+
+      expect(shotClock.stopCalls, 1);
+      expect(shotClock.isRunning, isTrue);
+    },
+  );
 }

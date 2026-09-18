@@ -1,10 +1,17 @@
+import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
+import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
+import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
+import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
+import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/home/home.dart';
 import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
+import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -88,7 +95,16 @@ class AppRouter {
           path: '/shot',
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
-            return ShotScreen();
+            return BlocProvider(
+              create: (_) => ShotGraphCubit(
+                context.read<AbstractAutoStartStopRule>(),
+                context.read<ScaleRepository>(),
+                context.read<AbstractShotClock>(),
+                context.read<AbstractAutoTareRule>(),
+                context.read<PressureRepository>(),
+              )..start(),
+              child: const ShotScreen(),
+            );
           },
         ),
       ],

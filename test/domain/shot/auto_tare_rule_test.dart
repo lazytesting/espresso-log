@@ -21,7 +21,7 @@ void main() {
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
-    autoTareRule.start();
+    autoTareRule.enable();
     controller.add(WeightReading(weight: 10, timeStamp: startTime));
     controller.add(
       WeightReading(
@@ -51,7 +51,7 @@ void main() {
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
-    autoTareRule.start();
+    autoTareRule.enable();
     controller.add(WeightReading(weight: 10, timeStamp: startTime));
     controller.add(
       WeightReading(
@@ -81,7 +81,7 @@ void main() {
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
-    autoTareRule.start();
+    autoTareRule.enable();
     controller.add(WeightReading(weight: 10, timeStamp: startTime));
     controller.add(
       WeightReading(
@@ -111,7 +111,7 @@ void main() {
     var startTime = DateTime(2020, 02, 03, 10, 11);
 
     // when
-    autoTareRule.start();
+    autoTareRule.enable();
     controller.add(WeightReading(weight: 10, timeStamp: startTime));
     controller.add(
       WeightReading(
@@ -142,7 +142,7 @@ void main() {
       var autoTareRule = AutoTareRule(fakeScaleRepository);
       var startTime = DateTime(2020, 02, 03, 10, 11);
 
-      autoTareRule.start();
+      autoTareRule.enable();
       controller.add(WeightReading(weight: 10, timeStamp: startTime));
       controller.add(
         WeightReading(
@@ -173,7 +173,7 @@ void main() {
   );
 
   test(
-    'stop cancels the subscription so further readings are ignored',
+    'disable() stops reacting so further readings are ignored',
     () async {
       var fakeScaleRepository = MockScaleRepository();
       var controller = BehaviorSubject<ScaleEvent>();
@@ -182,9 +182,9 @@ void main() {
       var autoTareRule = AutoTareRule(fakeScaleRepository);
       var startTime = DateTime(2020, 02, 03, 10, 11);
 
-      autoTareRule.start();
+      autoTareRule.enable();
       controller.add(WeightReading(weight: 10, timeStamp: startTime));
-      autoTareRule.stop();
+      autoTareRule.disable();
 
       controller.add(
         WeightReading(
@@ -201,6 +201,59 @@ void main() {
 
       await pumpEventQueue();
       verifyNever(fakeScaleRepository.tareCommand());
+    },
+  );
+
+  test(
+    're-enabling after a tare (without an explicit disable() first) starts '
+    'a clean shot instead of carrying over the previous shot\'s history, as '
+    'happens when the UI simply calls enable() again for a second shot',
+    () async {
+      var fakeScaleRepository = MockScaleRepository();
+      var controller = BehaviorSubject<ScaleEvent>();
+      when(fakeScaleRepository.stream).thenAnswer((_) => controller);
+
+      var autoTareRule = AutoTareRule(fakeScaleRepository);
+      var startTime = DateTime(2020, 02, 03, 10, 11);
+
+      // First shot: cup placed, stable weight tares.
+      autoTareRule.enable();
+      controller.add(WeightReading(weight: 10, timeStamp: startTime));
+      controller.add(
+        WeightReading(
+          weight: 62,
+          timeStamp: startTime.add(const Duration(milliseconds: 1)),
+        ),
+      );
+      controller.add(
+        WeightReading(
+          weight: 62,
+          timeStamp: startTime.add(const Duration(milliseconds: 1002)),
+        ),
+      );
+      await untilCalled(fakeScaleRepository.tareCommand());
+
+      // Second shot: UI re-enables directly (this is what ShotGraphCubit's
+      // start()/restart() does), without ever calling disable() first.
+      autoTareRule.enable();
+
+      final secondShotStart = startTime.add(const Duration(seconds: 5));
+      controller.add(WeightReading(weight: 5, timeStamp: secondShotStart));
+      controller.add(
+        WeightReading(
+          weight: 57,
+          timeStamp: secondShotStart.add(const Duration(milliseconds: 1)),
+        ),
+      );
+      controller.add(
+        WeightReading(
+          weight: 57,
+          timeStamp: secondShotStart.add(const Duration(milliseconds: 1002)),
+        ),
+      );
+      await pumpEventQueue();
+
+      verify(fakeScaleRepository.tareCommand()).called(2);
     },
   );
 }

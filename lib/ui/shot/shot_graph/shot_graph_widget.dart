@@ -16,11 +16,6 @@ class ShotGraphWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Call start() after the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShotGraphCubit>().start();
-    });
-
     return BlocBuilder<ShotGraphCubit, ShotGraphState>(
       builder: (context, state) {
         if (state is ShotGraphInitial || state is ShotGraphWaiting) {
@@ -91,10 +86,7 @@ class ShotGraphWidget extends StatelessWidget {
       child: SfCartesianChart(
         plotAreaBorderColor: _kGridLineColor,
         backgroundColor: kSurfaceColor,
-        legend: const Legend(
-          isVisible: true,
-          textStyle: axisLabelStyle,
-        ),
+        legend: const Legend(isVisible: true, textStyle: axisLabelStyle),
         primaryXAxis: NumericAxis(
           title: const AxisTitle(text: 'Seconds', textStyle: axisTitleStyle),
           minimum: 0,
