@@ -1,0 +1,174 @@
+# Device Selection & Onboarding — Spec
+
+**Date:** 2026-09-23
+**Status:** Agreed with user, ready to implement
+
+## Goal
+
+Make scale/pressure device selection a user-facing, runtime choice instead of
+a compile-time `--dart-define` flag. On first launch the user picks which
+scale and pressure sensor to use (from currently-supported brands, or mock)
+and pairs it; on every subsequent startup/resume the app verifies the
+selected devices are connected and reconnects if needed; the user can change
+the selection later from Settings without restarting the app. Settings must
+stay fully usable regardless of connection state.
+
+Scope is limited to the two roles and brands that exist today (scale: Decent
+or mock; pressure: Bookoo or mock) — no new hardware support, no
+multi-device-per-role support.
+
+## Current state (for context)
+
+- `main.dart:33-63` picks real-vs-mock per role via `bool.fromEnvironment`
+  dart-defines, decided at build time. Decent is the only real scale impl,
+  Bookoo the only real pressure impl — chosen with inline ternaries.
+- Repositories are constructed once in `main()` and injected as fixed
+  `Provider.value`/`BlocProvider` singletons (`main.dart:70-94`). Nothing
+  downstream supports replacing the concrete instance after construction.
+- `BluetoothDevicesService.connectToDevice(searchName)` reads a previously
+  stored device ID from `SharedPreferences` keyed by device name, but nothing
+  in the codebase currently *writes* that key — pairing persistence is
+  incomplete today.
+- `BatteryDeviceMixin` (`reconnect()`/`disconnect()`) is implemented only by
+  `BookooPressureService`; `DecentScaleService` does not implement it, so
+  scale reconnect is a no-op today.
+- `ConnectionCubit` exposes `connect()`/`reconnect()`/`disconnect()` and a
+  sealed `ConnectionState` (`ConnectionInitial`/`Connecting`/`Established`/
+  `Paused`), consumed today only by `ConnectionModalWrapper`'s blocking
+  dialog and by `IdleDetector`'s `onIdle`/`onActive` callbacks
+  (`main.dart:103-110`). There is no `AppLifecycleState`/
+  `WidgetsBindingObserver` hook anywhere in the app yet.
+- `lib/router.dart` has no onboarding/first-run route; the app always boots
+  into Home. `lib/ui/settings/settings.dart` has no device-selection UI —
+  only debug "init"/"tare" buttons acting directly on `ScaleRepository`.
+
+## Domain model additions
+
+`lib/domain/telemetry/`:
+
+- `ScaleDeviceType` (`decent`, `mock`) and `PressureDeviceType` (`bookoo`,
+  `mock`) — two separate enums, not one shared enum, since the roles don't
+  share brands and a shared enum would allow invalid role/brand combinations
+  to compile.
+- `BluetoothDeviceMixin` — replaces `BatteryDeviceMixin`. Generalized because
+  the shared connect/reconnect/disconnect/status-stream behavior applies to
+  any BLE device, not just battery-powered ones (the Decent scale is
+  mains-agnostic but shares the same connection lifecycle). Declares
+  `connect()`, `reconnect()`, `disconnect()`, and a
+  `Stream<DeviceConnectionStatus>` (`connecting`/`connected`/`disconnected`/
+  `failed`). `DecentScaleService` adopts this mixin (closing today's gap —
+  scale reconnect currently no-ops), as does `BookooPressureService`
+  (replacing its `BatteryDeviceMixin` use). Mock services implement it
+  trivially, always reporting `connected`.
+- `DeviceSelectionRepository` — wraps `SharedPreferences`. Two responsibilities
+  per role: `getSelected{Scale,Pressure}Type()` /
+  `setSelected{Scale,Pressure}Type()`, and the currently-missing write path
+  for the paired device ID (`BluetoothDevicesService` today only reads it).
+
+## Repository construction and runtime swapping
+
+- Factory functions replace the inline ternaries at `main.dart:57-63`:
+  `ScaleRepository createScaleRepository(ScaleDeviceType, BluetoothDevicesService, Talker)`
+  and the pressure equivalent.
+- `DeviceSelectionCubit` — a single combined cubit covering both roles (not
+  two separate cubits), since `MyApp`'s rebuild key needs both the current
+  scale type and pressure type together. Constructed once in `main()`, above
+  everything else, alongside `bluetoothService`/`talker`/
+  `globalNavigatorKey`. It owns *only* "which type is currently selected per
+  role" plus persistence via `DeviceSelectionRepository` — it does not own
+  the repository instances themselves, so it survives the rebuild described
+  next.
+- The body of `main()`'s `runApp(...)` — currently building
+  `scaleRepository`/`pressureRepository`/`autoTareRule`/`autoStartStopRule`
+  and the `MultiBlocProvider`/`MultiProvider` tree (`main.dart:65-94`) — moves
+  into `MyApp.build()`. `MyApp` wraps that subtree in a widget keyed by
+  `Key('$scaleType-$pressureType')`, fed by `DeviceSelectionCubit` via
+  `BlocBuilder`. When the selection changes, the key changes, and Flutter
+  tears down the old subtree (old repositories, old cubits, old stream
+  subscriptions) and rebuilds a fresh one from the factory functions with the
+  new type. No manual `setRepository()`/swap method needed on any consumer
+  cubit.
+- Accepted trade-off: `MaterialApp.router`/`go_router` lives inside the
+  rebuilt subtree, so changing device selection resets navigation to
+  `initialLocation: '/'` (Home). This only happens from a deliberate
+  selection change, so landing on Home is acceptable and expected.
+
+## Shared device-configuration modal
+
+- `DeviceConfigModal` — one widget, parameterized by role (scale or
+  pressure), used identically by onboarding and by Settings. Contents: a
+  brand/mock selection list, a "Connect" action that scans via
+  `BluetoothDevicesService` / the chosen concrete service, a
+  scanning/connecting progress state, and retry/cancel on scan timeout. On
+  successful connect it writes the selection + paired device ID through
+  `DeviceSelectionCubit`/`DeviceSelectionRepository` and closes. It depends
+  only on `DeviceSelectionCubit` and the bluetooth scanning primitives — it
+  has no awareness of whether it was opened from onboarding or Settings.
+- Scan timeout behavior: show retry/cancel; the modal cannot be dismissed
+  into a "resolved" state until the role has a real connected device or an
+  explicitly selected mock — no silent skip.
+
+## Onboarding
+
+- Mocked roles (`USE_MOCK_SCALE`/`USE_MOCK_PRESSURE` dart-defines) are
+  auto-selected and never shown in onboarding — this preserves today's
+  `flutter run --dart-define USE_MOCK_SCALE=true` workflow for UI iteration
+  without hardware.
+- For non-mocked roles, on first build `MyApp` checks
+  `DeviceSelectionCubit` for a persisted selection. If either real role is
+  unresolved, `DeviceConfigModal` is shown for that role (via
+  `globalNavigatorKey`, as a full-screen dialog/route) before the user can
+  reach Home. No new `go_router` route is added — onboarding is presented
+  orthogonally to the router, keeping the shell/router untouched.
+
+## Startup / resume connection check
+
+- `MyApp` becomes a `StatefulWidget` with `WidgetsBindingObserver` (new —
+  no lifecycle observer exists in the app today), reacting to
+  `AppLifecycleState.resumed` in addition to the existing idle-detector
+  `onActive` path. Both call `ConnectionCubit.reconnect()`, now meaningful
+  for both roles once `DecentScaleService` implements
+  `BluetoothDeviceMixin`.
+- On startup (after onboarding is resolved, i.e. both roles have a
+  selection) and on resume, `ConnectionCubit` attempts to connect/reconnect
+  using the stored device ID for each selected real device. Failure emits a
+  per-role connection-failed state rather than throwing.
+- Failures surface as a **non-blocking, dismissible banner** (e.g. on Home),
+  not the existing blocking `ConnectionModalWrapper` dialog. The existing
+  transient `Connecting…`/`Paused` dialog states are unchanged; only the
+  terminal failure case changes from blocking-dialog to dismissible-banner.
+  Settings remains reachable at all times — nothing today gates bottom-nav
+  tab navigation on connection state, and this feature does not introduce
+  such a gate.
+
+## Settings screen changes
+
+- `lib/ui/settings/settings.dart` gains one row per role (scale, pressure)
+  showing the current selection name and live connection status, each with
+  a "Change device" button opening `DeviceConfigModal` for that role,
+  pre-populated with the current selection. Saving triggers
+  `DeviceSelectionCubit` to emit the new type, which rebuilds `MyApp`'s
+  keyed subtree as described above, landing the user on Home.
+- The existing debug "init"/"tare" buttons (`settings.dart:25-32`) are
+  removed — `DeviceConfigModal` supersedes "init" for scale pairing, and
+  tare remains reachable through its normal in-shot path, not Settings.
+
+## Testing
+
+- Domain: `DeviceSelectionRepository` persistence round-trip; scale/pressure
+  factory functions; `BluetoothDeviceMixin` conformance test for
+  `DecentScaleService` (mirroring the existing `BookooPressureService`
+  coverage).
+- Cubit: `DeviceSelectionCubit` bloc_test coverage (select → persist →
+  emit); `ConnectionCubit` reconnect-failure-emits-error-state coverage for
+  *both* roles now that Decent supports reconnect.
+- Widget: `DeviceConfigModal` — scan/connect/retry/timeout states, and a
+  smoke test confirming it behaves identically opened standalone
+  (onboarding) vs. from Settings.
+- No new `go_router` tests are needed since onboarding is not a route.
+
+## Explicitly out of scope
+
+- Support for additional scale/pressure brands beyond Decent/Bookoo/mock.
+- Persisting shot history (unrelated, tracked separately per README).
+- Any change to `ShotGraphCubit`'s internal accumulation logic.
