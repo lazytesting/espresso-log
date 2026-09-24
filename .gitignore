@@ -46,4 +46,4 @@ app.*.map.json
 .fvm/
 
 # Claude Code superpowers scratch workspace
-.superpowers/
+.superpowers/.worktrees/
