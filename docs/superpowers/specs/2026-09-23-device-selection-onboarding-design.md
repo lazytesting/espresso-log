@@ -46,10 +46,14 @@ multi-device-per-role support.
 
 `lib/domain/telemetry/`:
 
-- `ScaleDeviceType` (`decent`, `mock`) and `PressureDeviceType` (`bookoo`,
-  `mock`) — two separate enums, not one shared enum, since the roles don't
-  share brands and a shared enum would allow invalid role/brand combinations
-  to compile.
+- `ScaleRepository`/`PressureRepository` each gain a `String get displayName;`
+  getter, implemented by every concrete class (`DecentScaleService` →
+  `"Decent Scale"`, `MockScaleService` → `"Mock Scale"`,
+  `BookooPressureService` → `"Bookoo Pressure Sensor"`,
+  `MockPressureService` → `"Mock Pressure Sensor"`). This is metadata about
+  the implementation, not vendor business logic, so it's an acceptable
+  addition to the otherwise vendor-agnostic domain interfaces — it avoids
+  needing a separate brand-naming enum or lookup table anywhere.
 - `BluetoothDeviceMixin` — replaces `BatteryDeviceMixin`. Generalized because
   the shared connect/reconnect/disconnect/status-stream behavior applies to
   any BLE device, not just battery-powered ones (the Decent scale is
@@ -60,34 +64,53 @@ multi-device-per-role support.
   scale reconnect currently no-ops), as does `BookooPressureService`
   (replacing its `BatteryDeviceMixin` use). Mock services implement it
   trivially, always reporting `connected`.
-- `DeviceSelectionRepository` — wraps `SharedPreferences`. Two responsibilities
-  per role: `getSelected{Scale,Pressure}Type()` /
-  `setSelected{Scale,Pressure}Type()`, and the currently-missing write path
-  for the paired device ID (`BluetoothDevicesService` today only reads it).
 
-## Repository construction and runtime swapping
+No enum of device types/brands is introduced anywhere — selection is
+expressed directly in terms of the concrete service classes (see below),
+keeping brand knowledge entirely in `lib/data/` and out of the domain layer.
 
-- Factory functions replace the inline ternaries at `main.dart:57-63`:
-  `ScaleRepository createScaleRepository(ScaleDeviceType, BluetoothDevicesService, Talker)`
-  and the pressure equivalent.
-- `DeviceSelectionCubit` — a single combined cubit covering both roles (not
-  two separate cubits), since `MyApp`'s rebuild key needs both the current
-  scale type and pressure type together. Constructed once in `main()`, above
-  everything else, alongside `bluetoothService`/`talker`/
-  `globalNavigatorKey`. It owns *only* "which type is currently selected per
-  role" plus persistence via `DeviceSelectionRepository` — it does not own
-  the repository instances themselves, so it survives the rebuild described
-  next.
+## Device registries, persistence, and runtime swapping
+
+- `lib/data/scale/scale_device_options.dart` (and the pressure equivalent):
+  a `Map<Type, ScaleRepository Function(BluetoothDevicesService, Talker)>`
+  registering every constructible option for that role, e.g.
+  `{DecentScaleService: (bt, talker) => DecentScaleService(bt, talker),
+  MockScaleService: (bt, talker) => MockScaleService()}`. This map is both
+  the source of truth for "what can be picked" (its keys) and the
+  replacement for today's inline ternaries at `main.dart:57-63`. Adding a
+  future brand means adding one entry here — nothing else changes. Since
+  construction performs no I/O (only `.init()`/`connectToDevice` do), a
+  picker can instantiate each registered option once just to read its
+  `displayName` without side effects.
+- `lib/data/device_selection/device_selection_service.dart` — wraps
+  `SharedPreferences` (this is exactly the kind of infrastructure access
+  that belongs in `lib/data/`, alongside `BluetoothDevicesService`, not in
+  domain). Two responsibilities per role: persisting/reading the selected
+  `Type` (serialized as its class name string) and the currently-missing
+  write path for the paired device ID (`BluetoothDevicesService` today only
+  reads it, never writes it).
+- `DeviceSelectionCubit` (`lib/ui/`) — a single combined cubit covering both
+  roles (not two separate cubits), since `MyApp`'s rebuild key needs both
+  the current scale type and pressure type together. Constructed once in
+  `main()`, above everything else, alongside `bluetoothService`/`talker`/
+  `globalNavigatorKey`. It owns *only* "which `Type` is currently selected
+  per role," backed by `DeviceSelectionService` — it does not own the
+  repository instances themselves, so it survives the rebuild described
+  next. It depends directly on the `lib/data/` registries and
+  `DeviceSelectionService` rather than through a domain port: device
+  selection isn't a hardware boundary needing mock-hardware substitutability
+  the way `ScaleRepository` is, it's local persisted configuration, so this
+  is a deliberate, narrow exception to "cubits depend only on domain types."
 - The body of `main()`'s `runApp(...)` — currently building
   `scaleRepository`/`pressureRepository`/`autoTareRule`/`autoStartStopRule`
   and the `MultiBlocProvider`/`MultiProvider` tree (`main.dart:65-94`) — moves
   into `MyApp.build()`. `MyApp` wraps that subtree in a widget keyed by
-  `Key('$scaleType-$pressureType')`, fed by `DeviceSelectionCubit` via
-  `BlocBuilder`. When the selection changes, the key changes, and Flutter
-  tears down the old subtree (old repositories, old cubits, old stream
-  subscriptions) and rebuilds a fresh one from the factory functions with the
-  new type. No manual `setRepository()`/swap method needed on any consumer
-  cubit.
+  `Key('$selectedScaleType-$selectedPressureType')` (the `Type`s' string
+  names), fed by `DeviceSelectionCubit` via `BlocBuilder`. When the selection
+  changes, the key changes, and Flutter tears down the old subtree (old
+  repositories, old cubits, old stream subscriptions) and rebuilds a fresh
+  one via `scaleDeviceOptions[selectedType]!(bluetoothService, talker)`. No
+  manual `setRepository()`/swap method needed on any consumer cubit.
 - Accepted trade-off: `MaterialApp.router`/`go_router` lives inside the
   rebuilt subtree, so changing device selection resets navigation to
   `initialLocation: '/'` (Home). This only happens from a deliberate
@@ -97,13 +120,14 @@ multi-device-per-role support.
 
 - `DeviceConfigModal` — one widget, parameterized by role (scale or
   pressure), used identically by onboarding and by Settings. Contents: a
-  brand/mock selection list, a "Connect" action that scans via
-  `BluetoothDevicesService` / the chosen concrete service, a
-  scanning/connecting progress state, and retry/cancel on scan timeout. On
-  successful connect it writes the selection + paired device ID through
-  `DeviceSelectionCubit`/`DeviceSelectionRepository` and closes. It depends
-  only on `DeviceSelectionCubit` and the bluetooth scanning primitives — it
-  has no awareness of whether it was opened from onboarding or Settings.
+  selection list built from that role's registry (`displayName` per entry),
+  a "Connect" action that scans via `BluetoothDevicesService` / the chosen
+  concrete service, a scanning/connecting progress state, and retry/cancel
+  on scan timeout. On successful connect it writes the selection + paired
+  device ID through `DeviceSelectionCubit`/`DeviceSelectionService` and
+  closes. It depends only on `DeviceSelectionCubit` and the bluetooth
+  scanning primitives — it has no awareness of whether it was opened from
+  onboarding or Settings.
 - Scan timeout behavior: show retry/cancel; the modal cannot be dismissed
   into a "resolved" state until the role has a real connected device or an
   explicitly selected mock — no silent skip.
@@ -144,9 +168,9 @@ multi-device-per-role support.
 ## Settings screen changes
 
 - `lib/ui/settings/settings.dart` gains one row per role (scale, pressure)
-  showing the current selection name and live connection status, each with
-  a "Change device" button opening `DeviceConfigModal` for that role,
-  pre-populated with the current selection. Saving triggers
+  showing the current selection's `displayName` and live connection status,
+  each with a "Change device" button opening `DeviceConfigModal` for that
+  role, pre-populated with the current selection. Saving triggers
   `DeviceSelectionCubit` to emit the new type, which rebuilds `MyApp`'s
   keyed subtree as described above, landing the user on Home.
 - The existing debug "init"/"tare" buttons (`settings.dart:25-32`) are
@@ -155,8 +179,10 @@ multi-device-per-role support.
 
 ## Testing
 
-- Domain: `DeviceSelectionRepository` persistence round-trip; scale/pressure
-  factory functions; `BluetoothDeviceMixin` conformance test for
+- Data: `DeviceSelectionService` persistence round-trip (selected `Type` +
+  paired device ID); `scaleDeviceOptions`/`pressureDeviceOptions` registry
+  construction (each entry constructs without side effects and reports the
+  expected `displayName`); `BluetoothDeviceMixin` conformance test for
   `DecentScaleService` (mirroring the existing `BookooPressureService`
   coverage).
 - Cubit: `DeviceSelectionCubit` bloc_test coverage (select → persist →
