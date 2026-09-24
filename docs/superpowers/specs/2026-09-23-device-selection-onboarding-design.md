@@ -56,14 +56,22 @@ multi-device-per-role support.
   needing a separate brand-naming enum or lookup table anywhere.
 - `BluetoothDeviceMixin` — replaces `BatteryDeviceMixin`. Generalized because
   the shared connect/reconnect/disconnect/status-stream behavior applies to
-  any BLE device, not just battery-powered ones (the Decent scale is
-  mains-agnostic but shares the same connection lifecycle). Declares
-  `connect()`, `reconnect()`, `disconnect()`, and a
-  `Stream<DeviceConnectionStatus>` (`connecting`/`connected`/`disconnected`/
-  `failed`). `DecentScaleService` adopts this mixin (closing today's gap —
-  scale reconnect currently no-ops), as does `BookooPressureService`
-  (replacing its `BatteryDeviceMixin` use). Mock services implement it
-  trivially, always reporting `connected`.
+  any BLE device, not just battery-powered ones. Declares `connect()`,
+  `reconnect()`, `disconnect()`, a `Stream<DeviceConnectionStatus>`
+  (`connecting`/`connected`/`disconnected`/`failed`), and
+  `bool get isBatteryPowered` — preserving the existing idle-disconnect
+  behavior, which must only apply to battery-powered devices, not to every
+  BLE device generically. `BookooPressureService` implements the mixin with
+  `isBatteryPowered => true` (unchanged from today). `DecentScaleService`
+  adopts the mixin too (closing today's gap — scale reconnect currently
+  no-ops, needed for the startup/resume check in this feature) but with
+  `isBatteryPowered => false`: the scale is USB-powered in current usage, so
+  it must keep opting out of idle-disconnect exactly as it does today. Mock
+  services implement the mixin trivially, always reporting `connected`, with
+  `isBatteryPowered => false`.
+  `ConnectionCubit`'s idle-disconnect logic changes from
+  `if (repo is BatteryDeviceMixin)` to
+  `if (repo is BluetoothDeviceMixin && repo.isBatteryPowered)`.
 
 No enum of device types/brands is introduced anywhere — selection is
 expressed directly in terms of the concrete service classes (see below),
@@ -184,10 +192,13 @@ keeping brand knowledge entirely in `lib/data/` and out of the domain layer.
   construction (each entry constructs without side effects and reports the
   expected `displayName`); `BluetoothDeviceMixin` conformance test for
   `DecentScaleService` (mirroring the existing `BookooPressureService`
-  coverage).
+  coverage), including `isBatteryPowered => false` for the scale vs. `=>
+  true` for the pressure sensor.
 - Cubit: `DeviceSelectionCubit` bloc_test coverage (select → persist →
   emit); `ConnectionCubit` reconnect-failure-emits-error-state coverage for
-  *both* roles now that Decent supports reconnect.
+  *both* roles now that Decent supports reconnect; a regression test
+  confirming idle-disconnect still only fires for `isBatteryPowered` devices
+  (i.e. the scale is never idle-disconnected).
 - Widget: `DeviceConfigModal` — scan/connect/retry/timeout states, and a
   smoke test confirming it behaves identically opened standalone
   (onboarding) vs. from Settings.
