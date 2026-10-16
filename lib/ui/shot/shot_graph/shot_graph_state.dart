@@ -22,4 +22,31 @@ final class ShotGraphUpdating extends ShotGraphRun {
 
 final class ShotGraphStopped extends ShotGraphRun {
   ShotGraphStopped(super.pressureData, super.weightData);
+
+  /// Same window the live g/s widget uses.
+  static const _rateWindowMillis = 600;
+
+  double? get finalWeight => weightData.isEmpty ? null : weightData.last.value;
+
+  double? get peakPressure => pressureData.isEmpty
+      ? null
+      : pressureData.map((p) => p.value).reduce((a, b) => a > b ? a : b);
+
+  double? get peakWeightChangeRate {
+    double? peak;
+    var windowStart = 0;
+    for (var i = 1; i < weightData.length; i++) {
+      final current = weightData[i];
+      while (current.millisecond - weightData[windowStart].millisecond >
+          _rateWindowMillis) {
+        windowStart++;
+      }
+      final first = weightData[windowStart];
+      final duration = current.millisecond - first.millisecond;
+      if (duration <= 0) continue;
+      final rate = (current.value - first.value) / duration * 1000;
+      if (peak == null || rate > peak) peak = rate;
+    }
+    return peak;
+  }
 }
