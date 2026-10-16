@@ -122,13 +122,12 @@ class ShotGraphWidget extends StatelessWidget {
             width: 2,
             dataSource: shotGraphRun.weightData,
             animationDuration: 0,
-            splineType: SplineType.natural,
+            splineType: SplineType.monotonic,
             isVisibleInLegend: true,
             emptyPointSettings: const EmptyPointSettings(
               mode: EmptyPointMode.average,
             ),
-            xValueMapper: (ShotGraphPoint sgd, _) =>
-                (sgd.millisecond / 1000).roundToDouble(),
+            xValueMapper: (ShotGraphPoint sgd, _) => sgd.millisecond / 1000,
             yValueMapper: (ShotGraphPoint sgd, _) => sgd.value,
           ),
           SplineSeries<ShotGraphPoint, double>(
@@ -138,12 +137,11 @@ class ShotGraphWidget extends StatelessWidget {
             dataSource: shotGraphRun.pressureData,
             animationDuration: 0,
             isVisibleInLegend: true,
-            splineType: SplineType.natural,
+            splineType: SplineType.monotonic,
             emptyPointSettings: const EmptyPointSettings(
               mode: EmptyPointMode.average,
             ),
-            xValueMapper: (ShotGraphPoint sgd, _) =>
-                (sgd.millisecond / 1000).roundToDouble(),
+            xValueMapper: (ShotGraphPoint sgd, _) => sgd.millisecond / 1000,
             yValueMapper: (ShotGraphPoint sgd, _) => sgd.value,
             yAxisName: 'bar',
           ),
