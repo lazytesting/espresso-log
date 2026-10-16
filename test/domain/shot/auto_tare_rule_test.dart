@@ -172,37 +172,34 @@ void main() {
     },
   );
 
-  test(
-    'disable() stops reacting so further readings are ignored',
-    () async {
-      var fakeScaleRepository = MockScaleRepository();
-      var controller = BehaviorSubject<ScaleEvent>();
-      when(fakeScaleRepository.stream).thenAnswer((_) => controller);
+  test('disable() stops reacting so further readings are ignored', () async {
+    var fakeScaleRepository = MockScaleRepository();
+    var controller = BehaviorSubject<ScaleEvent>();
+    when(fakeScaleRepository.stream).thenAnswer((_) => controller);
 
-      var autoTareRule = AutoTareRule(fakeScaleRepository);
-      var startTime = DateTime(2020, 02, 03, 10, 11);
+    var autoTareRule = AutoTareRule(fakeScaleRepository);
+    var startTime = DateTime(2020, 02, 03, 10, 11);
 
-      autoTareRule.enable();
-      controller.add(WeightReading(weight: 10, timeStamp: startTime));
-      autoTareRule.disable();
+    autoTareRule.enable();
+    controller.add(WeightReading(weight: 10, timeStamp: startTime));
+    autoTareRule.disable();
 
-      controller.add(
-        WeightReading(
-          weight: 62,
-          timeStamp: startTime.add(const Duration(milliseconds: 1)),
-        ),
-      );
-      controller.add(
-        WeightReading(
-          weight: 62,
-          timeStamp: startTime.add(const Duration(milliseconds: 1002)),
-        ),
-      );
+    controller.add(
+      WeightReading(
+        weight: 62,
+        timeStamp: startTime.add(const Duration(milliseconds: 1)),
+      ),
+    );
+    controller.add(
+      WeightReading(
+        weight: 62,
+        timeStamp: startTime.add(const Duration(milliseconds: 1002)),
+      ),
+    );
 
-      await pumpEventQueue();
-      verifyNever(fakeScaleRepository.tareCommand());
-    },
-  );
+    await pumpEventQueue();
+    verifyNever(fakeScaleRepository.tareCommand());
+  });
 
   test(
     're-enabling after a tare (without an explicit disable() first) starts '

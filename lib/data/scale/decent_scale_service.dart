@@ -66,45 +66,48 @@ class DecentScaleService implements ScaleRepository {
   }
 
   Future<void> _subscribeToReadings() async {
-    final subscription = _readCharacteristic!.onValueReceived.listen((value) {
-      if (value.length < 2) {
-        _talker.warning(
-          "Ignoring malformed Decent Scale notification (too short): $value",
-        );
-        return;
-      }
-
-      // weight notifications
-      if (value[1] == 0xCE || value[1] == 0xCA) {
-        if (value.length < 4) {
+    final subscription = _readCharacteristic!.onValueReceived.listen(
+      (value) {
+        if (value.length < 2) {
           _talker.warning(
-            "Ignoring malformed Decent Scale weight notification: $value",
+            "Ignoring malformed Decent Scale notification (too short): $value",
           );
           return;
         }
-        var d = ByteData(2);
-        d.setInt8(0, value[2]);
-        d.setInt8(1, value[3]);
-        var grams = d.getInt16(0) / 10;
 
-        var reading = WeightReading(weight: grams, timeStamp: DateTime.now());
-        _talker.debug("Received weight event: ${reading.weight}");
-        return _scaleEventController.add(reading);
-      }
+        // weight notifications
+        if (value[1] == 0xCE || value[1] == 0xCA) {
+          if (value.length < 4) {
+            _talker.warning(
+              "Ignoring malformed Decent Scale weight notification: $value",
+            );
+            return;
+          }
+          var d = ByteData(2);
+          d.setInt8(0, value[2]);
+          d.setInt8(1, value[3]);
+          var grams = d.getInt16(0) / 10;
 
-      // tare confirmation
-      if (value[1] == 0x0F) {
-        _talker.debug("Received tare confirmation");
-        var event = TareEvent(timeStamp: DateTime.now());
-        return _scaleEventController.add(event);
-      }
-    }, onError: (Object error, StackTrace stackTrace) {
-      _talker.handle(
-        error,
-        stackTrace,
-        "Error reading from Decent Scale characteristic",
-      );
-    });
+          var reading = WeightReading(weight: grams, timeStamp: DateTime.now());
+          _talker.debug("Received weight event: ${reading.weight}");
+          return _scaleEventController.add(reading);
+        }
+
+        // tare confirmation
+        if (value[1] == 0x0F) {
+          _talker.debug("Received tare confirmation");
+          var event = TareEvent(timeStamp: DateTime.now());
+          return _scaleEventController.add(event);
+        }
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        _talker.handle(
+          error,
+          stackTrace,
+          "Error reading from Decent Scale characteristic",
+        );
+      },
+    );
 
     // cleanup: cancel subscription when disconnected
     _device!.cancelWhenDisconnected(subscription);

@@ -13,10 +13,7 @@ ThemeData buildAppTheme() {
     brightness: Brightness.dark,
   ).copyWith(surface: kSurfaceColor);
 
-  return ThemeData.from(
-    colorScheme: colorScheme,
-    useMaterial3: true,
-  ).copyWith(
+  return ThemeData.from(colorScheme: colorScheme, useMaterial3: true).copyWith(
     scaffoldBackgroundColor: kBackgroundColor,
     appBarTheme: const AppBarTheme(
       backgroundColor: kBackgroundColor,
@@ -28,7 +25,9 @@ ThemeData buildAppTheme() {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
       ),
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(

@@ -7,6 +7,7 @@ import 'package:espresso_log/data/scale/decent_scale_service.dart';
 import 'package:espresso_log/data/scale/mock_scale_service.dart';
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
+import 'package:espresso_log/domain/shot/drip_end_rule.dart';
 import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
 import 'package:espresso_log/domain/shot/shot_clock.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
@@ -67,6 +68,10 @@ void main() async {
     pressureRepository,
     shotClock,
   );
+  final AbstractDripEndRule dripEndRule = DripEndRule(
+    scaleRepository,
+    shotClock,
+  );
   runApp(
     MultiBlocProvider(
       providers: [
@@ -87,6 +92,7 @@ void main() async {
           Provider<AbstractShotClock>.value(value: shotClock),
           Provider<AbstractAutoTareRule>.value(value: autoTareRule),
           Provider<AbstractAutoStartStopRule>.value(value: autoStartStopRule),
+          Provider<AbstractDripEndRule>.value(value: dripEndRule),
         ],
         child: const MyApp(),
       ),

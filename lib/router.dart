@@ -1,5 +1,6 @@
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
+import 'package:espresso_log/domain/shot/drip_end_rule.dart';
 import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
@@ -102,6 +103,7 @@ class AppRouter {
                 context.read<AbstractShotClock>(),
                 context.read<AbstractAutoTareRule>(),
                 context.read<PressureRepository>(),
+                context.read<AbstractDripEndRule>(),
               )..start(),
               child: const ShotScreen(),
             );

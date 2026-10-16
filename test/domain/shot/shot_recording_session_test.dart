@@ -247,4 +247,81 @@ void main() {
 
     expect(session.snapshot.weightData.single.millisecond, 100);
   });
+
+  group('metrics and summary', () {
+    WeightReading weightAt(int ms, double weight) => WeightReading(
+      weight: weight,
+      timeStamp: t0.add(Duration(milliseconds: ms)),
+    );
+    PressureReading pressureAt(int ms, double bar) =>
+        PressureReading(bar, t0.add(Duration(milliseconds: ms)));
+
+    // Weights are a step so the median smoothing leaves them unchanged.
+    void addStepWeights(ShotRecordingSession session) {
+      for (final (i, weight) in <double>[0, 0, 0, 5, 5, 5, 5].indexed) {
+        session.addWeight(weightAt(i * 100, weight));
+      }
+    }
+
+    test('live metrics follow the latest readings and clock tick', () {
+      final session = ShotRecordingSession()..start(t0);
+      addStepWeights(session);
+      session.addPressure(pressureAt(200, 6));
+      session.addPressure(pressureAt(400, 8));
+      session.tick(t0.add(const Duration(milliseconds: 600)));
+
+      final metrics = session.snapshot.metrics;
+      expect(metrics.weight, 5);
+      expect(metrics.pressure, 8);
+      expect(metrics.elapsedMillis, 600);
+      // 5 g over the last 600 ms
+      expect(metrics.weightChangeRate, closeTo(5 / 0.6, 0.001));
+    });
+
+    test('summary has final weight, peak rate, peak pressure and duration', () {
+      final session = ShotRecordingSession()..start(t0);
+      addStepWeights(session);
+      session.addPressure(pressureAt(100, 9));
+      session.addPressure(pressureAt(500, 4));
+      session.endPour(t0.add(const Duration(milliseconds: 600)));
+
+      final summary = session.snapshot.summary;
+      expect(summary.finalWeight, 5);
+      expect(summary.peakPressure, 9);
+      expect(summary.durationMillis, 600);
+      // steepest right after the step: 5 g over 300 ms
+      expect(summary.peakWeightChangeRate, closeTo(5 / 0.3, 0.001));
+    });
+
+    test('readings are still recorded while dripping, not after stop', () {
+      final session = ShotRecordingSession()..start(t0);
+      session.endPour(t0.add(const Duration(milliseconds: 1000)));
+      expect(session.isDripping, isTrue);
+
+      session.addWeight(weightAt(1500, 36));
+      expect(session.snapshot.summary.finalWeight, 36);
+      // the pour duration does not include the drip
+      expect(session.snapshot.summary.durationMillis, 1000);
+
+      session.stop(t0.add(const Duration(milliseconds: 2000)));
+      expect(session.isDripping, isFalse);
+      session.addWeight(weightAt(2500, 40));
+      expect(session.snapshot.summary.finalWeight, 36);
+    });
+
+    test('ticks after the pour ended do not change the elapsed time', () {
+      final session = ShotRecordingSession()..start(t0);
+      session.endPour(t0.add(const Duration(milliseconds: 1000)));
+      session.tick(t0.add(const Duration(milliseconds: 3000)));
+
+      expect(session.snapshot.metrics.elapsedMillis, 1000);
+    });
+
+    test('metrics are empty before any reading', () {
+      final session = ShotRecordingSession()..start(t0);
+
+      expect(session.snapshot.metrics.weight, isNull);
+      expect(session.snapshot.summary.peakPressure, isNull);
+    });
+  });
 }

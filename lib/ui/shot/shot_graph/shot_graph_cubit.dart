@@ -5,8 +5,11 @@ import 'package:equatable/equatable.dart';
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
 import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
+import 'package:espresso_log/domain/shot/drip_end_rule.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
+import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/shot_recording_session.dart';
+import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/domain/shot/timer_event.dart';
 import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
@@ -24,10 +27,12 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   final AbstractShotClock _shotClock;
   final AbstractAutoTareRule _autoTareRule;
   final PressureRepository _pressureRepository;
+  final AbstractDripEndRule _dripEndRule;
   ShotRecordingSession _session = ShotRecordingSession();
   StreamSubscription<TimerEvent>? _timerStreamSubscription;
   StreamSubscription<ScaleEvent>? _scaleStreamSubscription;
   StreamSubscription<PressureReading>? _pressureStreamSubscription;
+  StreamSubscription<DripEnded>? _dripEndSubscription;
 
   ShotGraphCubit(
     this._autoStartStopRule,
@@ -35,31 +40,35 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     this._shotClock,
     this._autoTareRule,
     this._pressureRepository,
+    this._dripEndRule,
   ) : super(ShotGraphInitial());
 
   void _handleTimerUpdates() {
     _timerStreamSubscription = _shotClock.stream.listen((timerEvent) {
-      if (timerEvent is TimerStarted) {
-        _session.start(timerEvent.timeStamp);
-        emit(
-          ShotGraphUpdating(
-            _session.snapshot.pressureData,
-            _session.snapshot.weightData,
-          ),
-        );
+      switch (timerEvent) {
+        case TimerStarted():
+          _session.start(timerEvent.timeStamp);
+        case TimerTicked():
+          _session.tick(timerEvent.timeStamp);
+        case TimerStopped():
+          _autoTareRule.disable();
+          _session.endPour(timerEvent.timeStamp);
+        default:
+          return;
       }
-      if (timerEvent is TimerStopped) {
-        _autoTareRule.disable();
-        final snapshot = _session.snapshot;
-        emit(ShotGraphStopped(snapshot.pressureData, snapshot.weightData));
-      }
-
-      if (timerEvent is TimerTicked) {
-        final snapshot = _session.snapshot;
-        emit(ShotGraphUpdating(snapshot.pressureData, snapshot.weightData));
-      }
+      _emitUpdating();
     });
   }
+
+  void _handleDripEnd() {
+    _dripEndSubscription = _dripEndRule.stream.listen((dripEnded) {
+      if (!_session.isDripping) return;
+      _session.stop(dripEnded.timeStamp);
+      emit(ShotGraphStopped(_session.snapshot));
+    });
+  }
+
+  void _emitUpdating() => emit(ShotGraphUpdating(_session.snapshot));
 
   void _handleScaleUpdates() {
     _scaleStreamSubscription = _scaleRepository.stream.listen((scaleEvent) {
@@ -67,6 +76,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
         _session.tare(scaleEvent.timeStamp);
       } else if (scaleEvent is WeightReading) {
         _session.addWeight(scaleEvent);
+        if (_session.isDripping) _emitUpdating();
       }
     });
   }
@@ -86,6 +96,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     _handleTimerUpdates();
     _handleScaleUpdates();
     _handlePressureUpdates();
+    _handleDripEnd();
     _autoTareRule.enable();
     _autoStartStopRule.enable();
   }
@@ -104,6 +115,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     _timerStreamSubscription?.cancel();
     _scaleStreamSubscription?.cancel();
     _pressureStreamSubscription?.cancel();
+    _dripEndSubscription?.cancel();
 
     return super.close();
   }
