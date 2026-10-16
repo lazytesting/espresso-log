@@ -5,6 +5,8 @@ import 'package:espresso_log/data/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/data/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/data/scale/decent_scale_service.dart';
 import 'package:espresso_log/data/scale/mock_scale_service.dart';
+import 'package:espresso_log/data/settings/shared_preferences_settings_service.dart';
+import 'package:espresso_log/domain/settings/settings_repository.dart';
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
 import 'package:espresso_log/domain/shot/drip_end_rule.dart';
@@ -53,6 +55,9 @@ void main() async {
   );
   await bluetoothService.init();
 
+  final SettingsRepository settings =
+      await SharedPreferencesSettingsService.create();
+
   final AbstractShotClock shotClock = ShotClock();
 
   final scaleRepository = useMockScale
@@ -87,6 +92,7 @@ void main() async {
       child: MultiProvider(
         providers: [
           Provider<Talker>.value(value: talker),
+          Provider<SettingsRepository>.value(value: settings),
           Provider<ScaleRepository>.value(value: scaleRepository),
           Provider<PressureRepository>.value(value: pressureRepository),
           Provider<AbstractShotClock>.value(value: shotClock),

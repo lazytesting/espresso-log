@@ -324,4 +324,81 @@ void main() {
       expect(session.snapshot.summary.peakPressure, isNull);
     });
   });
+
+  group('start compensation', () {
+    WeightReading weightAt(int ms, double weight) => WeightReading(
+      weight: weight,
+      timeStamp: t0.add(Duration(milliseconds: ms)),
+    );
+
+    test('start backdates the shot and keeps buffered readings', () {
+      final session = ShotRecordingSession(
+        startCompensation: const Duration(seconds: 5),
+      );
+      session.addWeight(weightAt(-6000, 1));
+      session.addWeight(weightAt(-4000, 2));
+      session.addPressure(
+        PressureReading(3, t0.add(const Duration(seconds: -2))),
+      );
+      session.start(t0);
+
+      final snapshot = session.snapshot;
+      // 5s before t0 is the new start: the -6s reading is dropped
+      expect(snapshot.weightData.single.millisecond, 1000);
+      expect(snapshot.weightData.single.value, 2);
+      expect(snapshot.pressureData.single.millisecond, 3000);
+    });
+
+    test('elapsed time includes the compensation', () {
+      final session = ShotRecordingSession(
+        startCompensation: const Duration(seconds: 5),
+      )..start(t0);
+      session.endPour(t0.add(const Duration(seconds: 25)));
+
+      expect(session.snapshot.summary.durationMillis, 30000);
+    });
+
+    test('readings older than the compensation are pruned before start', () {
+      final session = ShotRecordingSession(
+        startCompensation: const Duration(seconds: 5),
+      );
+      session.addWeight(weightAt(-60000, 1));
+      session.addWeight(weightAt(0, 2));
+      session.start(t0);
+
+      expect(session.snapshot.weightData.map((p) => p.value), [2]);
+    });
+
+    test('a tare inside the compensated period zeroes earlier readings', () {
+      final session = ShotRecordingSession(
+        startCompensation: const Duration(seconds: 5),
+      );
+      session.addWeight(weightAt(-4000, 200));
+      session.addWeight(weightAt(-3500, 200));
+      session.tare(t0.add(const Duration(seconds: -3)));
+      for (final ms in [-2500, -2000, -1500]) {
+        session.addWeight(weightAt(ms, 0.5));
+      }
+      session.start(t0);
+
+      expect(session.snapshot.weightData.map((p) => p.value), [
+        0,
+        0,
+        0.5,
+        0.5,
+        0.5,
+      ]);
+    });
+
+    test('a tare before the compensated period is ignored', () {
+      final session = ShotRecordingSession(
+        startCompensation: const Duration(seconds: 5),
+      );
+      session.tare(t0.add(const Duration(seconds: -20)));
+      session.addWeight(weightAt(-2000, 7));
+      session.start(t0);
+
+      expect(session.snapshot.weightData.single.value, 7);
+    });
+  });
 }

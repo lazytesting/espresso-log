@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:espresso_log/domain/settings/settings_repository.dart';
 import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/auto_start_stop_rule.dart';
 import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
@@ -28,7 +29,8 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   final AbstractAutoTareRule _autoTareRule;
   final PressureRepository _pressureRepository;
   final AbstractDripEndRule _dripEndRule;
-  ShotRecordingSession _session = ShotRecordingSession();
+  final SettingsRepository _settings;
+  late ShotRecordingSession _session = _newSession();
   StreamSubscription<TimerEvent>? _timerStreamSubscription;
   StreamSubscription<ScaleEvent>? _scaleStreamSubscription;
   StreamSubscription<PressureReading>? _pressureStreamSubscription;
@@ -41,6 +43,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     this._autoTareRule,
     this._pressureRepository,
     this._dripEndRule,
+    this._settings,
   ) : super(ShotGraphInitial());
 
   void _handleTimerUpdates() {
@@ -89,9 +92,15 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     });
   }
 
+  ShotRecordingSession _newSession() => ShotRecordingSession(
+    startCompensation: Duration(
+      seconds: _settings.startDelayCompensationSeconds,
+    ),
+  );
+
   void start() {
     emit(ShotGraphWaiting());
-    _session = ShotRecordingSession();
+    _session = _newSession();
 
     _handleTimerUpdates();
     _handleScaleUpdates();
@@ -103,7 +112,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
 
   void restart() {
     emit(ShotGraphWaiting());
-    _session = ShotRecordingSession();
+    _session = _newSession();
     _autoTareRule.enable();
     _autoStartStopRule.enable();
   }

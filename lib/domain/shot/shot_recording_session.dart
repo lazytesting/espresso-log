@@ -12,15 +12,24 @@ final _weightSmoothingFilter = MedianFilter(windowSize: 5);
 /// Accumulates readings for a single shot.
 ///
 /// A session is not started until [start] is called with the shot's start
-/// time. Readings and tare events are ignored while not started, and once
-/// started, ignored if timestamped before that start time — callers can
+/// time. Once started, readings and tare events timestamped before that start
+/// time are ignored — callers can
 /// freely forward every reading/tare event without checking readiness
 /// themselves. Create a new instance per shot rather than reusing one.
+///
+/// Shot detection is late, so readings from before [start] are buffered:
+/// [start] backdates the shot by [startCompensation] and keeps the buffered
+/// readings from that period.
 ///
 /// A shot has three phases: pouring (after [start]), dripping (after
 /// [endPour], readings keep being recorded) and finished (after [stop], which
 /// cuts off recording).
 class ShotRecordingSession {
+  /// How far before the detected start the recording begins.
+  final Duration startCompensation;
+
+  ShotRecordingSession({this.startCompensation = Duration.zero});
+
   DateTime? _startDateTime;
   DateTime? _pourEndDateTime;
   DateTime? _lastTickDateTime;
@@ -33,7 +42,11 @@ class ShotRecordingSession {
 
   void start(DateTime startDateTime) {
     if (_startDateTime != null) return;
-    _startDateTime = startDateTime;
+    final backdated = startDateTime.subtract(startCompensation);
+    _startDateTime = backdated;
+    _weightReadings.removeWhere((r) => r.timeStamp.isBefore(backdated));
+    _pressureReadings.removeWhere((r) => r.timeStamp.isBefore(backdated));
+    if (_tareDateTime?.isBefore(backdated) ?? false) _tareDateTime = null;
   }
 
   /// Whether the pour has ended but the shot is not finished yet.
@@ -58,18 +71,39 @@ class ShotRecordingSession {
   }
 
   void tare(DateTime tareDateTime) {
+    if (!isStarted) {
+      _tareDateTime = tareDateTime;
+      return;
+    }
     if (!_isWithinSession(tareDateTime)) return;
     _tareDateTime = tareDateTime;
   }
 
   void addWeight(WeightReading reading) {
+    if (!isStarted) {
+      _weightReadings.add(reading);
+      _pruneBuffer(reading.timeStamp);
+      return;
+    }
     if (!_isWithinSession(reading.timeStamp)) return;
     _weightReadings.add(reading);
   }
 
   void addPressure(PressureReading reading) {
+    if (!isStarted) {
+      _pressureReadings.add(reading);
+      _pruneBuffer(reading.timeStamp);
+      return;
+    }
     if (!_isWithinSession(reading.timeStamp)) return;
     _pressureReadings.add(reading);
+  }
+
+  /// Before the shot starts, only keep what [start] could still backdate to.
+  void _pruneBuffer(DateTime newest) {
+    final oldestToKeep = newest.subtract(startCompensation);
+    _weightReadings.removeWhere((r) => r.timeStamp.isBefore(oldestToKeep));
+    _pressureReadings.removeWhere((r) => r.timeStamp.isBefore(oldestToKeep));
   }
 
   bool _isWithinSession(DateTime timeStamp) {
