@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:espresso_log/data/mock/mock_shot_simulator.dart';
 import 'package:espresso_log/domain/telemetry/battery_device_mixin.dart';
 import 'package:espresso_log/domain/telemetry/pressure_reading.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
@@ -7,36 +8,27 @@ import 'package:rxdart/subjects.dart';
 class MockPressureService
     with BatteryDeviceMixin
     implements PressureRepository {
-  MockPressureService() {
+  MockPressureService(this._simulator) {
     stream = _pressureReadingController.stream.asBroadcastStream();
   }
+  final MockShotSimulator _simulator;
   final _pressureReadingController = BehaviorSubject<PressureReading>();
-  Timer? _timer;
+  StreamSubscription<double>? _subscription;
 
   @override
   Stream<PressureReading> stream = const Stream.empty();
 
   @override
   Future<void> init() async {
-    Future.delayed(Duration(seconds: 3));
-    _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer t) {
-      double pressure = 0;
-      var seconds = t.tick / 5;
-      if (seconds > 10 && seconds <= 15) {
-        pressure = seconds - 10;
-      } else if (seconds > 15 && seconds <= 20) {
-        pressure = 5 - (seconds - 15);
-      } else if (seconds > 20 && seconds <= 350) {
-        pressure = 8;
-      }
-      _pressureReadingController.asBroadcastStream();
+    _simulator.start();
+    _subscription = _simulator.pressure.listen((pressure) {
       _pressureReadingController.add(PressureReading(pressure, DateTime.now()));
     });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _subscription?.cancel();
   }
 
   @override

@@ -13,6 +13,7 @@ import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
+import 'package:espresso_log/ui/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,14 @@ class AppRouter {
                 GoRoute(
                   path: settingsLogPath,
                   builder: (context, state) {
-                    return TalkerScreen(talker: talker);
+                    return TalkerScreen(
+                      talker: talker,
+                      appBarTitle: 'Logs',
+                      theme: const TalkerScreenTheme(
+                        backgroundColor: kBackgroundColor,
+                        cardColor: kSurfaceColor,
+                      ),
+                    );
                   },
                 ),
                 GoRoute(

@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'dart:async';
 
+import 'package:espresso_log/data/mock/mock_shot_simulator.dart';
 import 'package:espresso_log/data/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/data/pressure/mock_pressure_service.dart';
 import 'package:espresso_log/data/scale/decent_scale_service.dart';
@@ -15,7 +16,9 @@ import 'package:espresso_log/domain/shot/shot_clock.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 
+import 'package:espresso_log/dev/mock_shot_button.dart';
 import 'package:espresso_log/router.dart';
+import 'package:espresso_log/ui/splash/splash_screen.dart';
 import 'package:espresso_log/ui/theme.dart';
 
 import 'package:espresso_log/ui/components/current-weight/current_weight_cubit.dart';
@@ -60,12 +63,19 @@ void main() async {
 
   final AbstractShotClock shotClock = ShotClock();
 
-  final scaleRepository = useMockScale
-      ? MockScaleService()
+  final mockScale = useMockScale || settings.scaleSource == ScaleSource.mock;
+  final mockPressure =
+      useMockPressure || settings.pressureSource == PressureSource.mock;
+
+  // Mock devices share one simulator so weight and pressure stay consistent.
+  final simulator = (mockScale || mockPressure) ? MockShotSimulator() : null;
+
+  final ScaleRepository scaleRepository = mockScale
+      ? MockScaleService(simulator!)
       : DecentScaleService(bluetoothService, talker);
 
-  final PressureRepository pressureRepository = useMockPressure
-      ? MockPressureService()
+  final PressureRepository pressureRepository = mockPressure
+      ? MockPressureService(simulator!)
       : BookooPressureService(bluetoothService, talker);
 
   final AbstractAutoTareRule autoTareRule = AutoTareRule(scaleRepository);
@@ -100,14 +110,16 @@ void main() async {
           Provider<AbstractAutoStartStopRule>.value(value: autoStartStopRule),
           Provider<AbstractDripEndRule>.value(value: dripEndRule),
         ],
-        child: const MyApp(),
+        child: MyApp(simulator: simulator),
       ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final MockShotSimulator? simulator;
+
+  const MyApp({super.key, this.simulator});
 
   // This widget is the root of your application.
   @override
@@ -123,6 +135,11 @@ class MyApp extends StatelessWidget {
       child: ConnectionModalWrapper(
         navigatorKey: globalNavigatorKey,
         child: MaterialApp.router(
+          builder: (context, child) => AppStartSplash(
+            child: simulator == null
+                ? child
+                : MockShotButton(simulator: simulator!, child: child),
+          ),
           theme: buildAppTheme(),
           routerConfig: AppRouter(
             context.read<Talker>(),

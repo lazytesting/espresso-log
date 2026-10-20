@@ -1,3 +1,7 @@
+enum ScaleSource { decent, mock }
+
+enum PressureSource { bookoo, mock }
+
 /// User-configurable settings. Values are read synchronously: implementations
 /// load them up front.
 abstract class SettingsRepository {
@@ -9,4 +13,16 @@ abstract class SettingsRepository {
   int get startDelayCompensationSeconds;
 
   Future<void> setStartDelayCompensationSeconds(int seconds);
+
+  /// Which scale implementation is wired at app start. Changes apply after
+  /// a restart.
+  ScaleSource get scaleSource;
+
+  Future<void> setScaleSource(ScaleSource source);
+
+  /// Which pressure sensor implementation is wired at app start. Changes apply
+  /// after a restart.
+  PressureSource get pressureSource;
+
+  Future<void> setPressureSource(PressureSource source);
 }
