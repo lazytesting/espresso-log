@@ -12,6 +12,7 @@ import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
+import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -98,15 +99,18 @@ class AppRouter {
           parentNavigatorKey: rootNavigatorKey,
           builder: (context, state) {
             return BlocProvider(
-              create: (_) => ShotGraphCubit(
-                context.read<AbstractAutoStartStopRule>(),
-                context.read<ScaleRepository>(),
-                context.read<AbstractShotClock>(),
-                context.read<AbstractAutoTareRule>(),
-                context.read<PressureRepository>(),
-                context.read<AbstractDripEndRule>(),
-                context.read<SettingsRepository>(),
-              )..start(),
+              create: (_) {
+                context.read<TimerCubit>().reset();
+                return ShotGraphCubit(
+                  context.read<AbstractAutoStartStopRule>(),
+                  context.read<ScaleRepository>(),
+                  context.read<AbstractShotClock>(),
+                  context.read<AbstractAutoTareRule>(),
+                  context.read<PressureRepository>(),
+                  context.read<AbstractDripEndRule>(),
+                  context.read<SettingsRepository>(),
+                )..start();
+              },
               child: const ShotScreen(),
             );
           },

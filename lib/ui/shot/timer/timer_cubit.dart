@@ -22,4 +22,6 @@ class TimerCubit extends Cubit<TimerState> {
       }
     });
   }
+
+  void reset() => emit(TimerInitial());
 }
