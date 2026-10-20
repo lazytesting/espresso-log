@@ -73,8 +73,8 @@ class ShotGraphWidget extends StatelessWidget {
         ? maxMillisPressure
         : maxMillisGrams;
 
-    double maxSeconds = 40;
-    if (maxMillis > 40000) {
+    double maxSeconds = 35;
+    if (maxMillis > 35000) {
       maxSeconds = ((maxMillis / 10000).ceil()) * 10;
     }
 
