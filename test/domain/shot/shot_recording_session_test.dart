@@ -401,4 +401,22 @@ void main() {
       expect(session.snapshot.weightData.single.value, 7);
     });
   });
+
+  test('flattens a temporary weight peak, e.g. a cup placed before tare', () {
+    final session = ShotRecordingSession()..start(t0);
+
+    for (var i = 0; i < 30; i++) {
+      final isPeak = i >= 5 && i < 20;
+      session.addWeight(
+        WeightReading(
+          weight: isPeak ? 100 : 0,
+          timeStamp: t0.add(Duration(milliseconds: i * 100)),
+        ),
+      );
+    }
+
+    final snapshot = session.snapshot;
+    expect(snapshot.weightData.map((p) => p.value), everyElement(0));
+    expect(snapshot.summary.peakWeightChangeRate, 0);
+  });
 }

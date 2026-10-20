@@ -1,4 +1,5 @@
 import 'package:espresso_log/domain/shot/median_filter.dart';
+import 'package:espresso_log/domain/shot/peak_filter.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
@@ -8,6 +9,13 @@ import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 /// Smooths raw weight readings to remove single-sample spikes, e.g. from
 /// bumping the scale while pressing tare.
 final _weightSmoothingFilter = MedianFilter(windowSize: 5);
+
+/// Flattens large temporary weight peaks, e.g. placing a cup on the scale
+/// before it is tared. Such a peak never happens during a real shot.
+final _weightPeakFilter = PeakFilter(
+  minDuration: Duration(milliseconds: 500),
+  minHeight: 10,
+);
 
 /// Accumulates readings for a single shot.
 ///
@@ -140,7 +148,7 @@ class ShotRecordingSession {
       weightReadings.map((reading) => reading.weight).toList(),
     );
 
-    final weightData = [
+    final tared = [
       for (final (i, reading) in weightReadings.indexed)
         if (tareDateTime == null || reading.timeStamp.isAfter(tareDateTime))
           ShotGraphPoint(
@@ -153,6 +161,7 @@ class ShotRecordingSession {
             0,
           ),
     ];
+    final weightData = _weightPeakFilter.apply(tared);
 
     return ShotSnapshot(
       weightData: weightData,
