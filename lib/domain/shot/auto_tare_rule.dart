@@ -1,5 +1,6 @@
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/domain/telemetry/weight_reading.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 abstract class AbstractAutoTareRule {
   void enable();
@@ -8,11 +9,12 @@ abstract class AbstractAutoTareRule {
 
 class AutoTareRule implements AbstractAutoTareRule {
   final ScaleRepository scaleRepository;
+  final Talker? _talker;
   bool _enabled = false;
   List<WeightReading> _history = [];
   double? _startWeight;
 
-  AutoTareRule(this.scaleRepository) {
+  AutoTareRule(this.scaleRepository, {Talker? talker}) : _talker = talker {
     scaleRepository.stream
         .where((event) => event is WeightReading)
         .cast<WeightReading>()
@@ -23,6 +25,9 @@ class AutoTareRule implements AbstractAutoTareRule {
 
           if (_startWeight == null) {
             _startWeight = weightReading.weight;
+            _talker?.info(
+              'Auto tare: baseline weight ${weightReading.weight}g',
+            );
             return;
           }
 
@@ -52,6 +57,10 @@ class AutoTareRule implements AbstractAutoTareRule {
                   .difference(_history.first.timeStamp)
                   .inMilliseconds >
               1000) {
+            _talker?.info(
+              'Auto tare: weight stable at ${weightReading.weight}g for >1s, '
+              'sending tare',
+            );
             scaleRepository.tareCommand();
             disable();
           }
@@ -60,6 +69,7 @@ class AutoTareRule implements AbstractAutoTareRule {
 
   @override
   void enable() {
+    _talker?.info('Auto tare enabled');
     _startWeight = null;
     _history = [];
     _enabled = true;
@@ -67,6 +77,7 @@ class AutoTareRule implements AbstractAutoTareRule {
 
   @override
   void disable() {
+    if (_enabled) _talker?.info('Auto tare disabled');
     _startWeight = null;
     _history = [];
     _enabled = false;

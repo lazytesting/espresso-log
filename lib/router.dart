@@ -117,6 +117,7 @@ class AppRouter {
                   context.read<PressureRepository>(),
                   context.read<AbstractDripEndRule>(),
                   context.read<SettingsRepository>(),
+                  talker: context.read<Talker>(),
                 )..start();
               },
               child: const ShotScreen(),

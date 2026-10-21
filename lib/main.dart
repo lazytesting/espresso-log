@@ -61,7 +61,7 @@ void main() async {
   final SettingsRepository settings =
       await SharedPreferencesSettingsService.create();
 
-  final AbstractShotClock shotClock = ShotClock();
+  final AbstractShotClock shotClock = ShotClock(talker: talker);
 
   final mockScale = useMockScale || settings.scaleSource == ScaleSource.mock;
   final mockPressure =
@@ -78,14 +78,19 @@ void main() async {
       ? MockPressureService(simulator!)
       : BookooPressureService(bluetoothService, talker);
 
-  final AbstractAutoTareRule autoTareRule = AutoTareRule(scaleRepository);
+  final AbstractAutoTareRule autoTareRule = AutoTareRule(
+    scaleRepository,
+    talker: talker,
+  );
   final AbstractAutoStartStopRule autoStartStopRule = AutoStartStopRule(
     pressureRepository,
     shotClock,
+    talker: talker,
   );
   final AbstractDripEndRule dripEndRule = DripEndRule(
     scaleRepository,
     shotClock,
+    talker: talker,
   );
   runApp(
     MultiBlocProvider(

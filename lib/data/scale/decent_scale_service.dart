@@ -58,7 +58,7 @@ class DecentScaleService implements ScaleRepository {
 
   @override
   Future<void> tareCommand() async {
-    _talker.debug("Sending tare command to Decent Scale");
+    _talker.info("Sending tare command to Decent Scale");
     int incremental = 0x00;
     List<int> command = [0x03, 0x0F, incremental, 0x00, 0x00, 0x00];
     List<int> signedCommand = _signWithXor(command);
@@ -89,13 +89,12 @@ class DecentScaleService implements ScaleRepository {
           var grams = d.getInt16(0) / 10;
 
           var reading = WeightReading(weight: grams, timeStamp: DateTime.now());
-          _talker.debug("Received weight event: ${reading.weight}");
           return _scaleEventController.add(reading);
         }
 
         // tare confirmation
         if (value[1] == 0x0F) {
-          _talker.debug("Received tare confirmation");
+          _talker.info("Received tare confirmation");
           var event = TareEvent(timeStamp: DateTime.now());
           return _scaleEventController.add(event);
         }

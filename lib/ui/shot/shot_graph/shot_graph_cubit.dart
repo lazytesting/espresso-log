@@ -19,6 +19,7 @@ import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/domain/telemetry/tare_event.dart';
 import 'package:espresso_log/domain/telemetry/weight_reading.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 part 'shot_graph_state.dart';
 
@@ -30,6 +31,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   final PressureRepository _pressureRepository;
   final AbstractDripEndRule _dripEndRule;
   final SettingsRepository _settings;
+  final Talker? _talker;
   late ShotRecordingSession _session = _newSession();
   StreamSubscription<TimerEvent>? _timerStreamSubscription;
   StreamSubscription<ScaleEvent>? _scaleStreamSubscription;
@@ -43,17 +45,21 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
     this._autoTareRule,
     this._pressureRepository,
     this._dripEndRule,
-    this._settings,
-  ) : super(ShotGraphInitial());
+    this._settings, {
+    Talker? talker,
+  }) : _talker = talker,
+       super(ShotGraphInitial());
 
   void _handleTimerUpdates() {
     _timerStreamSubscription = _shotClock.stream.listen((timerEvent) {
       switch (timerEvent) {
         case TimerStarted():
+          _talker?.info('Shot recording started');
           _session.start(timerEvent.timeStamp);
         case TimerTicked():
           _session.tick(timerEvent.timeStamp);
         case TimerStopped():
+          _talker?.info('Pour ended, dripping');
           _autoTareRule.disable();
           _session.endPour(timerEvent.timeStamp);
         default:
@@ -66,6 +72,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _handleDripEnd() {
     _dripEndSubscription = _dripEndRule.stream.listen((dripEnded) {
       if (!_session.isDripping) return;
+      _talker?.info('Shot recording stopped');
       _session.stop(dripEnded.timeStamp);
       emit(ShotGraphStopped(_session.snapshot));
     });
@@ -76,6 +83,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   void _handleScaleUpdates() {
     _scaleStreamSubscription = _scaleRepository.stream.listen((scaleEvent) {
       if (scaleEvent is TareEvent) {
+        _talker?.info('Tare confirmed by scale');
         _session.tare(scaleEvent.timeStamp);
       } else if (scaleEvent is WeightReading) {
         _session.addWeight(scaleEvent);
@@ -99,6 +107,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   );
 
   void start() {
+    _talker?.info('Shot screen started, waiting for shot');
     emit(ShotGraphWaiting());
     _session = _newSession();
 
@@ -111,6 +120,7 @@ class ShotGraphCubit extends Cubit<ShotGraphState> {
   }
 
   void restart() {
+    _talker?.info('Shot restarted, waiting for shot');
     emit(ShotGraphWaiting());
     _session = _newSession();
     _autoTareRule.enable();

@@ -4,6 +4,7 @@ import 'package:espresso_log/domain/shot/abstract_shot_clock.dart';
 import 'package:espresso_log/domain/shot/timer_event.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/domain/telemetry/weight_reading.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class DripEnded {
   final DateTime timeStamp;
@@ -22,6 +23,7 @@ class DripEndRule implements AbstractDripEndRule {
   final ScaleRepository scaleRepository;
   final Duration settleDuration;
   final Duration maxDuration;
+  final Talker? _talker;
 
   /// Smallest weight gain that counts as "weight added" (scale resolution).
   static const weightEpsilon = 0.1;
@@ -37,7 +39,8 @@ class DripEndRule implements AbstractDripEndRule {
     AbstractShotClock shotClock, {
     this.settleDuration = const Duration(seconds: 1),
     this.maxDuration = const Duration(seconds: 5),
-  }) {
+    Talker? talker,
+  }) : _talker = talker {
     shotClock.stream.listen((event) {
       if (event is TimerStopped) _beginDrip();
       if (event is TimerStarted) _reset();
@@ -49,8 +52,9 @@ class DripEndRule implements AbstractDripEndRule {
 
   void _beginDrip() {
     _reset();
-    _settleTimer = Timer(settleDuration, _endDrip);
-    _maxTimer = Timer(maxDuration, _endDrip);
+    _talker?.info('Drip phase started');
+    _settleTimer = Timer(settleDuration, () => _endDrip('settled'));
+    _maxTimer = Timer(maxDuration, () => _endDrip('max duration reached'));
     _weightSubscription = scaleRepository.stream
         .where((event) => event is WeightReading)
         .cast<WeightReading>()
@@ -64,11 +68,12 @@ class DripEndRule implements AbstractDripEndRule {
     } else if (reading.weight - baseline >= weightEpsilon) {
       _baselineWeight = reading.weight;
       _settleTimer?.cancel();
-      _settleTimer = Timer(settleDuration, _endDrip);
+      _settleTimer = Timer(settleDuration, () => _endDrip('settled'));
     }
   }
 
-  void _endDrip() {
+  void _endDrip(String reason) {
+    _talker?.info('Drip phase ended: $reason');
     _reset();
     _controller.add(DripEnded(DateTime.now()));
   }

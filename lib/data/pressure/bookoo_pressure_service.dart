@@ -58,14 +58,12 @@ class BookooPressureService
     _talker.debug("Subscribing to pressure readings");
     await _sendCommand([0x02, 0x0c, 0x01, 0x00, 0x00, 0x00, 0x0f]);
     final subscription = _readCharacteristic!.onValueReceived.listen((value) {
-      _talker.debug("Pressure data received $value");
       var d = ByteData(2);
       d.setInt8(0, value[4]);
       d.setInt8(1, value[5]);
       var pressure = d.getInt16(0) / 100;
 
       var reading = PressureReading(pressure, DateTime.now());
-      _talker.debug("Emit pressure event: ${reading.pressure}");
       _pressureReadingController.add(reading);
     });
 
