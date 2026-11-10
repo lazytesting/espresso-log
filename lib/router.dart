@@ -7,6 +7,7 @@ import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
+import 'package:espresso_log/ui/history/saved_shot_screen.dart';
 import 'package:espresso_log/ui/home/home.dart';
 import 'package:espresso_log/ui/settings/recorder.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
@@ -59,6 +60,16 @@ class AppRouter {
                   builder: (context, state) {
                     return const HistoryScreen();
                   },
+                  routes: [
+                    GoRoute(
+                      path: ':id',
+                      builder: (context, state) {
+                        return SavedShotScreen(
+                          shotId: state.pathParameters['id']!,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

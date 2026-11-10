@@ -1,3 +1,4 @@
+import 'dart:io';
 // lib/main.dart
 import 'dart:async';
 
@@ -33,6 +34,9 @@ import 'package:idle_detector_wrapper/idle_detector_wrapper.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:espresso_log/data/shot/file_shot_repository.dart';
+import 'package:espresso_log/domain/shot/shot_repository.dart';
 
 import 'data/bluetooth/bluetooth_devices_service.dart';
 
@@ -60,6 +64,11 @@ void main() async {
 
   final SettingsRepository settings =
       await SharedPreferencesSettingsService.create();
+
+  final ShotRepository shotRepository = FileShotRepository(
+    Directory('${(await getApplicationDocumentsDirectory()).path}/shots'),
+    talker: talker,
+  );
 
   final AbstractShotClock shotClock = ShotClock(talker: talker);
 
@@ -110,6 +119,7 @@ void main() async {
           Provider<SettingsRepository>.value(value: settings),
           Provider<ScaleRepository>.value(value: scaleRepository),
           Provider<PressureRepository>.value(value: pressureRepository),
+          Provider<ShotRepository>.value(value: shotRepository),
           Provider<AbstractShotClock>.value(value: shotClock),
           Provider<AbstractAutoTareRule>.value(value: autoTareRule),
           Provider<AbstractAutoStartStopRule>.value(value: autoStartStopRule),

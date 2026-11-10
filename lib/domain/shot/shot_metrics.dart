@@ -40,6 +40,20 @@ class ShotMetrics extends Equatable {
 
   static const empty = ShotMetrics();
 
+  factory ShotMetrics.fromJson(Map<String, dynamic> json) => ShotMetrics(
+    weight: (json['weight'] as num?)?.toDouble(),
+    weightChangeRate: (json['weightChangeRate'] as num?)?.toDouble(),
+    pressure: (json['pressure'] as num?)?.toDouble(),
+    elapsedMillis: json['elapsedMillis'] as int,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'weight': weight,
+    'weightChangeRate': weightChangeRate,
+    'pressure': pressure,
+    'elapsedMillis': elapsedMillis,
+  };
+
   @override
   List<Object?> get props => [
     weight,
@@ -66,6 +80,20 @@ class ShotSummary extends Equatable {
   });
 
   static const empty = ShotSummary();
+
+  factory ShotSummary.fromJson(Map<String, dynamic> json) => ShotSummary(
+    finalWeight: (json['finalWeight'] as num?)?.toDouble(),
+    peakWeightChangeRate: (json['peakWeightChangeRate'] as num?)?.toDouble(),
+    peakPressure: (json['peakPressure'] as num?)?.toDouble(),
+    durationMillis: json['durationMillis'] as int,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'finalWeight': finalWeight,
+    'peakWeightChangeRate': peakWeightChangeRate,
+    'peakPressure': peakPressure,
+    'durationMillis': durationMillis,
+  };
 
   @override
   List<Object?> get props => [

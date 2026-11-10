@@ -32,16 +32,32 @@ class ShotGraphWidget extends StatelessWidget {
         }
 
         if (state is ShotGraphRun) {
-          return _getShotGraph(state);
+          return ShotGraph(
+            weightData: state.weightData,
+            pressureData: state.pressureData,
+          );
         }
 
         return const Text('Error! Unexpected state');
       },
     );
   }
+}
 
-  Widget _getShotGraph(ShotGraphRun shotGraphRun) {
-    var maxWeight = shotGraphRun.weightData.fold(
+/// Static chart of a shot's weight and pressure series.
+class ShotGraph extends StatelessWidget {
+  final List<ShotGraphPoint> weightData;
+  final List<ShotGraphPoint> pressureData;
+
+  const ShotGraph({
+    super.key,
+    required this.weightData,
+    required this.pressureData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var maxWeight = weightData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,
     );
@@ -49,7 +65,7 @@ class ShotGraphWidget extends StatelessWidget {
       maxWeight = 40;
     }
 
-    var maxPressure = shotGraphRun.pressureData.fold(
+    var maxPressure = pressureData.fold(
       0.0,
       (value, element) => value > element.value ? value : element.value,
     );
@@ -57,13 +73,13 @@ class ShotGraphWidget extends StatelessWidget {
       maxPressure = 10;
     }
 
-    var maxMillisPressure = shotGraphRun.pressureData.fold(
+    var maxMillisPressure = pressureData.fold(
       0,
       (value, element) =>
           value > element.millisecond ? value : element.millisecond,
     );
 
-    var maxMillisGrams = shotGraphRun.weightData.fold(
+    var maxMillisGrams = weightData.fold(
       0,
       (value, element) =>
           value > element.millisecond ? value : element.millisecond,
@@ -120,7 +136,7 @@ class ShotGraphWidget extends StatelessWidget {
             name: 'Grams',
             color: _kWeightSeriesColor,
             width: 2,
-            dataSource: shotGraphRun.weightData,
+            dataSource: weightData,
             animationDuration: 0,
             splineType: SplineType.monotonic,
             isVisibleInLegend: true,
@@ -134,7 +150,7 @@ class ShotGraphWidget extends StatelessWidget {
             name: 'Bar',
             color: _kPressureSeriesColor,
             width: 2,
-            dataSource: shotGraphRun.pressureData,
+            dataSource: pressureData,
             animationDuration: 0,
             isVisibleInLegend: true,
             splineType: SplineType.monotonic,

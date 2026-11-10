@@ -1,3 +1,6 @@
+import 'package:espresso_log/domain/shot/recorded_shot.dart';
+import 'package:espresso_log/domain/shot/shot_repository.dart';
+import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/components/current-weight/current_weight_widget.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
@@ -22,6 +25,11 @@ class ShotScreen extends StatelessWidget {
           ),
         ),
         actions: [
+          BlocBuilder<ShotGraphCubit, ShotGraphState>(
+            builder: (context, state) => state is ShotGraphStopped
+                ? _SaveShotButton(state.snapshot)
+                : const SizedBox.shrink(),
+          ),
           IconButton(
             icon: Icon(Icons.refresh),
             onPressed: () {
@@ -55,6 +63,37 @@ class ShotScreen extends StatelessWidget {
           Expanded(child: ShotGraphWidget()),
         ],
       ),
+    );
+  }
+}
+
+class _SaveShotButton extends StatefulWidget {
+  final ShotSnapshot snapshot;
+
+  const _SaveShotButton(this.snapshot);
+
+  @override
+  State<_SaveShotButton> createState() => _SaveShotButtonState();
+}
+
+class _SaveShotButtonState extends State<_SaveShotButton> {
+  bool _saved = false;
+
+  Future<void> _save() async {
+    final repository = context.read<ShotRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    await repository.save(RecordedShot.create(widget.snapshot));
+    if (!mounted) return;
+    setState(() => _saved = true);
+    messenger.showSnackBar(const SnackBar(content: Text('Shot saved')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(_saved ? Icons.check : Icons.save_alt),
+      tooltip: 'Save shot',
+      onPressed: _saved ? null : _save,
     );
   }
 }
