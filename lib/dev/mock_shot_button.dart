@@ -13,7 +13,7 @@ class MockShotButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (child != null) child!,
+        ?child,
         Positioned(
           left: 16,
           bottom: 16,

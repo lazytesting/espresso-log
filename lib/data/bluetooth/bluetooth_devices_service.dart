@@ -94,6 +94,6 @@ class BluetoothDevicesService {
     });
 
     device.cancelWhenDisconnected(subscription, delayed: true, next: true);
-    await device.connect(license: License.free);
+    await device.connect(license: License.nonprofit);
   }
 }
