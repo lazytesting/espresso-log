@@ -25,19 +25,12 @@ Other features:
 
 ## Future plans
 
-Stabilize:
-- Increase test coverage and refactor where needed
 
 Storing shot data:
-- Export shot data
-- Store shot data
-- Display historic shots
 - Show reference shot in graph
 
 Support more devices:
-- Onboarding flow
 - Add other scales/pressure sensors
-- Manage devices via settings screen
 
 Store other data:
 - Beans
