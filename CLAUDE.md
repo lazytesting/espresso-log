@@ -13,7 +13,7 @@ is early WiP; there's no persistence of shot history yet (see README.md future p
 ## Commands
 
 This project uses [FVM](https://fvm.app/) to pin the Flutter SDK (version in `.fvmrc`, currently
-3.35.7). Prefix Flutter/Dart commands with `fvm` as shown below.
+3.47.9). Prefix Flutter/Dart commands with `fvm` as shown below.
 
 - Install dependencies: `fvm flutter pub get`
 - One-time setup of the pre-commit hook: `fvm dart run tools/setup_git_hooks.dart` (writes

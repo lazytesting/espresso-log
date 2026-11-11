@@ -4,18 +4,18 @@ part of 'current_weight_cubit.dart';
 sealed class CurrentWeightState {}
 
 final class CurrentWeightInitial extends CurrentWeightState
-    with EquatableMixin {
+    with Equatable {
   @override
   List<Object?> get props => throw UnimplementedError();
 }
 
-final class CurrentWeightError extends CurrentWeightState with EquatableMixin {
+final class CurrentWeightError extends CurrentWeightState with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 final class CurrentWeightMeasured extends CurrentWeightState
-    with EquatableMixin {
+    with Equatable {
   final double weight;
 
   CurrentWeightMeasured(this.weight);

@@ -7,7 +7,7 @@ final class ShotGraphInitial extends ShotGraphState {}
 
 final class ShotGraphWaiting extends ShotGraphState {}
 
-final class ShotGraphRun extends ShotGraphState with EquatableMixin {
+final class ShotGraphRun extends ShotGraphState with Equatable {
   final ShotSnapshot snapshot;
   ShotGraphRun(this.snapshot);
 

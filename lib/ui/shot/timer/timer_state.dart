@@ -4,7 +4,7 @@ sealed class TimerState {}
 
 final class TimerInitial extends TimerState {}
 
-final class TimerRunning extends TimerState with EquatableMixin {
+final class TimerRunning extends TimerState with Equatable {
   final int seconds;
   final int deciSeconds;
 
@@ -14,7 +14,7 @@ final class TimerRunning extends TimerState with EquatableMixin {
   List<Object?> get props => [seconds, deciSeconds];
 }
 
-final class TimerStopped extends TimerState with EquatableMixin {
+final class TimerStopped extends TimerState with Equatable {
   final int seconds;
   final int deciSeconds;
 
