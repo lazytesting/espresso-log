@@ -25,4 +25,15 @@ abstract class SettingsRepository {
   PressureSource get pressureSource;
 
   Future<void> setPressureSource(PressureSource source);
+
+  /// Id of the bean currently in use, or null when none is selected.
+  String? get selectedBeanId;
+
+  /// Passing null clears the selection.
+  Future<void> setSelectedBeanId(String? id);
+
+  /// Dose used for shots when no bean is selected.
+  double get unknownBeanDoseGrams;
+
+  Future<void> setUnknownBeanDoseGrams(double grams);
 }

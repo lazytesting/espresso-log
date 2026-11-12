@@ -1,3 +1,4 @@
+import 'package:espresso_log/domain/bean/dose.dart';
 import 'package:espresso_log/domain/settings/settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,6 +7,8 @@ class SharedPreferencesSettingsService implements SettingsRepository {
 
   static const _scaleSourceKey = 'scaleSource';
   static const _pressureSourceKey = 'pressureSource';
+  static const _selectedBeanIdKey = 'selectedBeanId';
+  static const _unknownBeanDoseKey = 'unknownBeanDoseGrams';
 
   final SharedPreferences _prefs;
 
@@ -46,5 +49,26 @@ class SharedPreferencesSettingsService implements SettingsRepository {
   @override
   Future<void> setPressureSource(PressureSource source) async {
     await _prefs.setString(_pressureSourceKey, source.name);
+  }
+
+  @override
+  String? get selectedBeanId => _prefs.getString(_selectedBeanIdKey);
+
+  @override
+  Future<void> setSelectedBeanId(String? id) async {
+    if (id == null) {
+      await _prefs.remove(_selectedBeanIdKey);
+    } else {
+      await _prefs.setString(_selectedBeanIdKey, id);
+    }
+  }
+
+  @override
+  double get unknownBeanDoseGrams =>
+      normalizeDose(_prefs.getDouble(_unknownBeanDoseKey) ?? defaultDoseGrams);
+
+  @override
+  Future<void> setUnknownBeanDoseGrams(double grams) async {
+    await _prefs.setDouble(_unknownBeanDoseKey, grams);
   }
 }
