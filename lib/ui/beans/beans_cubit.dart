@@ -66,9 +66,7 @@ class BeansCubit extends Cubit<BeansState> {
       notes: notes,
     );
     await _beans.save(bean);
-    final beans = [...state.beans, bean]
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    emit(_copy(beans: beans));
+    emit(_copy(beans: _sorted([...state.beans, bean])));
     return bean;
   }
 
@@ -110,9 +108,12 @@ class BeansCubit extends Cubit<BeansState> {
     return null;
   }
 
-  List<Bean> _replace(Bean bean) => [
-    for (final b in state.beans) b.id == bean.id ? bean : b,
-  ];
+  static List<Bean> _sorted(List<Bean> beans) =>
+      beans
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+  List<Bean> _replace(Bean bean) =>
+      _sorted([for (final b in state.beans) b.id == bean.id ? bean : b]);
 
   BeansState _copy({List<Bean>? beans, double? doseGrams}) => BeansState(
     loaded: state.loaded,

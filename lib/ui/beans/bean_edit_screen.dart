@@ -19,6 +19,7 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
   int _roastLevel = Bean.defaultRoastLevel;
   Bean? _existing;
   bool _initialized = false;
+  bool _busy = false;
 
   @override
   void initState() {
@@ -51,13 +52,14 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
+    setState(() => _busy = true);
     final cubit = context.read<BeansCubit>();
     final navigator = Navigator.of(context);
     final name = _name.text.trim();
     final roaster = _roaster.text.trim();
     final notes = _notes.text.trim();
-    final existing = _existing;
-    if (existing == null) {
+    if (widget.beanId == null) {
       await cubit.addBean(
         name: name,
         roaster: roaster,
@@ -65,19 +67,28 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
         notes: notes,
       );
     } else {
-      await cubit.updateBean(
-        existing.copyWith(
-          name: name,
-          roaster: () => roaster.isEmpty ? null : roaster,
-          roastLevel: _roastLevel,
-          notes: () => notes.isEmpty ? null : notes,
-        ),
-      );
+      // Merge onto the current bean, not the first-build snapshot, so changes
+      // made elsewhere in the meantime (e.g. the dose on Home) are kept.
+      Bean? current;
+      for (final bean in cubit.state.beans) {
+        if (bean.id == widget.beanId) current = bean;
+      }
+      if (current != null) {
+        await cubit.updateBean(
+          current.copyWith(
+            name: name,
+            roaster: () => roaster.isEmpty ? null : roaster,
+            roastLevel: _roastLevel,
+            notes: () => notes.isEmpty ? null : notes,
+          ),
+        );
+      }
     }
     navigator.pop();
   }
 
   Future<void> _archive() async {
+    if (_busy) return;
     final cubit = context.read<BeansCubit>();
     final navigator = Navigator.of(context);
     final confirmed = await showDialog<bool>(
@@ -97,7 +108,8 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
         ],
       ),
     );
-    if (confirmed != true) return;
+    if (confirmed != true || _busy) return;
+    setState(() => _busy = true);
     await cubit.archiveBean(widget.beanId!);
     navigator.pop();
   }
@@ -119,7 +131,7 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
         title: Text(isEdit ? 'Edit bean' : 'Add bean'),
         actions: [
           TextButton(
-            onPressed: _name.text.trim().isEmpty ? null : _save,
+            onPressed: _busy || _name.text.trim().isEmpty ? null : _save,
             child: const Text('Save'),
           ),
         ],
@@ -172,7 +184,7 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
           if (isEdit) ...[
             const SizedBox(height: 32),
             OutlinedButton.icon(
-              onPressed: _archive,
+              onPressed: _busy ? null : _archive,
               icon: const Icon(Icons.archive_outlined),
               label: const Text('Archive bean'),
             ),

@@ -111,6 +111,54 @@ void main() {
     expect(saved.doseGrams, 17.5);
   });
 
+  testWidgets('edit save keeps a dose changed while the screen was open', (
+    tester,
+  ) async {
+    final bean = Bean.create(name: 'Old').copyWith(doseGrams: 18.0);
+    await repo.save(bean);
+    await pump(tester, beanId: bean.id);
+    await cubit.select(bean.id);
+    await cubit.setDose(19.5);
+    await tester.enterText(find.byKey(const Key('bean-name')), 'New');
+    await tester.pump();
+    await tester.tap(saveButton());
+    await tester.pumpAndSettle();
+    expect(repo.beans[bean.id]!.name, 'New');
+    expect(repo.beans[bean.id]!.doseGrams, 19.5);
+    expect(cubit.state.doseGrams, 19.5);
+  });
+
+  testWidgets('save after the bean was archived meanwhile does not re-add', (
+    tester,
+  ) async {
+    final bean = Bean.create(name: 'Old');
+    await repo.save(bean);
+    await pump(tester, beanId: bean.id);
+    await cubit.archiveBean(bean.id);
+    await tester.enterText(find.byKey(const Key('bean-name')), 'New');
+    await tester.pump();
+    await tester.tap(saveButton());
+    await tester.pumpAndSettle();
+    expect(repo.beans[bean.id]!.archived, isTrue);
+    expect(repo.beans[bean.id]!.name, 'Old');
+    expect(cubit.state.beans, isEmpty);
+    expect(find.byType(BeanEditScreen), findsNothing);
+  });
+
+  testWidgets('double tap on Save in add mode creates one bean', (
+    tester,
+  ) async {
+    await pump(tester);
+    await tester.enterText(find.byKey(const Key('bean-name')), 'Guji');
+    await tester.pump();
+    final onPressed = tester.widget<TextButton>(saveButton()).onPressed!;
+    onPressed();
+    onPressed();
+    await tester.pumpAndSettle();
+    expect(repo.beans.length, 1);
+    expect(cubit.state.beans.length, 1);
+  });
+
   testWidgets('archive confirm archives, cancel does not', (tester) async {
     final bean = Bean.create(name: 'Old');
     await repo.save(bean);

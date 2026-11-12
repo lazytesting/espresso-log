@@ -136,6 +136,14 @@ void main() {
     expect(repo.beans['a']!.name, 'New');
   });
 
+  test('updateBean re-sorts the list after a rename', () async {
+    repo.beans['a'] = bean('a', 'Alpha');
+    repo.beans['b'] = bean('b', 'Bravo');
+    await cubit.load();
+    await cubit.updateBean(repo.beans['a']!.copyWith(name: 'Zulu'));
+    expect(cubit.state.beans.map((b) => b.name), ['Bravo', 'Zulu']);
+  });
+
   test('updateBean of selected bean makes dose follow', () async {
     repo.beans['a'] = bean('a', 'A');
     settings.selectedBeanId = 'a';
