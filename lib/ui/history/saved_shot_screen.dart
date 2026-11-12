@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/ui/history/history.dart';
@@ -32,7 +33,7 @@ class SavedShotScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.ios_share),
                   tooltip: 'Share as JSON',
-                  onPressed: () => _share(shot),
+                  onPressed: () => _share(context, shot),
                 ),
             ],
           ),
@@ -58,11 +59,15 @@ class SavedShotScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _share(RecordedShot shot) async {
+  Future<void> _share(BuildContext context, RecordedShot shot) async {
+    final beanId = shot.beanId;
+    final bean = beanId == null
+        ? null
+        : await context.read<BeanRepository>().get(beanId);
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/espresso_shot_${shot.id}.json');
     await file.writeAsString(
-      const JsonEncoder.withIndent('  ').convert(shot.toJson()),
+      const JsonEncoder.withIndent('  ').convert(shot.toExportJson(bean: bean)),
     );
     await SharePlus.instance.share(
       ShareParams(

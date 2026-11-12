@@ -1,6 +1,7 @@
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
+import 'package:espresso_log/ui/beans/beans_cubit.dart';
 import 'package:espresso_log/ui/components/current-weight/current_weight_widget.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
@@ -27,7 +28,7 @@ class ShotScreen extends StatelessWidget {
         actions: [
           BlocBuilder<ShotGraphCubit, ShotGraphState>(
             builder: (context, state) => state is ShotGraphStopped
-                ? _SaveShotButton(state.snapshot)
+                ? SaveShotButton(state.snapshot)
                 : const SizedBox.shrink(),
           ),
           IconButton(
@@ -67,22 +68,29 @@ class ShotScreen extends StatelessWidget {
   }
 }
 
-class _SaveShotButton extends StatefulWidget {
+class SaveShotButton extends StatefulWidget {
   final ShotSnapshot snapshot;
 
-  const _SaveShotButton(this.snapshot);
+  const SaveShotButton(this.snapshot, {super.key});
 
   @override
-  State<_SaveShotButton> createState() => _SaveShotButtonState();
+  State<SaveShotButton> createState() => _SaveShotButtonState();
 }
 
-class _SaveShotButtonState extends State<_SaveShotButton> {
+class _SaveShotButtonState extends State<SaveShotButton> {
   bool _saved = false;
 
   Future<void> _save() async {
     final repository = context.read<ShotRepository>();
     final messenger = ScaffoldMessenger.of(context);
-    await repository.save(RecordedShot.create(widget.snapshot));
+    final beans = context.read<BeansCubit>().state;
+    await repository.save(
+      RecordedShot.create(
+        widget.snapshot,
+        beanId: beans.selectedBeanId,
+        doseGrams: beans.doseGrams,
+      ),
+    );
     if (!mounted) return;
     setState(() => _saved = true);
     messenger.showSnackBar(const SnackBar(content: Text('Shot saved')));
