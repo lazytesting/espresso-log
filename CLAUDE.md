@@ -8,7 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 devices while pulling an espresso shot — a Decent Espresso Scale and a Bookoo Pressure Sensor are
 currently supported. The app is explicitly meant to add zero steps to the espresso workflow: scale
 taring and shot timing are automated from sensor data rather than by the user pressing buttons. It
-is early WiP; there's no persistence of shot history yet (see README.md future plans).
+is early WiP. Finished shots are saved as JSON files and listed in a History tab, and shots can be
+tagged with a bean and a dose (grams in); see README.md future plans for what is still missing.
 
 ## Commands
 
@@ -63,6 +64,14 @@ old `lib/devices/`/`lib/services/` split.
   before the tare timestamp so pre-tare cup weight doesn't pollute the graph) — logic that used to
   live untested inline in `ShotGraphCubit`.
 
+- `lib/domain/bean/` — `Bean` (`bean.dart`: id, name, roaster, roastLevel 1-5, notes, archived,
+  doseGrams) and the `BeanRepository` port (`bean_repository.dart`; `list()` includes archived
+  beans). `dose.dart` holds the dose rules: default 18.0 g, allowed 5.0-30.0 g, one decimal.
+- `lib/domain/shot/recorded_shot.dart` — `RecordedShot`, a finished shot as saved/exported, with
+  optional `beanId`/`doseGrams`, `formatVersion` 2 (version 1 files still load) and a `ratio` getter
+  (`brew_ratio.dart`). `toExportJson` (share/export) embeds the full bean; stored shot files hold
+  only the bean id.
+
 ### Data layer: adapters implementing the domain's repository interfaces
 
 `lib/data/` contains the concrete, hardware-facing implementations of the telemetry ports:
@@ -77,6 +86,10 @@ old `lib/devices/`/`lib/services/` split.
 - `MockScaleService` (`lib/data/scale/mock_scale_service.dart`) / `MockPressureService`
   (`lib/data/pressure/mock_pressure_service.dart`) — synthetic data generators implementing the
   same interfaces, used when the `USE_MOCK_SCALE`/`USE_MOCK_PRESSURE` dart-defines are set.
+
+- `FileBeanRepository` (`lib/data/bean/file_bean_repository.dart`) — implements `BeanRepository`,
+  one `<id>.json` per bean under `<documents>/beans/`. Shots are stored similarly by
+  `FileShotRepository` (`lib/data/shot/`), settings by `SharedPreferencesSettingsService`.
 
 Everything downstream (cubits) depends on the domain's abstract interfaces, never these concrete
 implementations — `lib/main.dart` is the only place that decides real vs. mock and wires concrete
@@ -100,6 +113,14 @@ depend only on domain types (`ScaleRepository`, `PressureRepository`, `AbstractS
 implementations — and `listen()` to their streams, filtering by event type (`is`/pattern matching
 on `ScaleEvent`/`TimerEvent` subtypes) and emitting UI state.
 
+`BeansCubit` (`lib/ui/beans/beans_cubit.dart`) is app-wide, created in `main()`. It holds the
+non-archived beans, the selected bean and the current dose. The dose is remembered per bean on the
+bean itself; the dose for the "Unknown bean" case and the selected bean id live in
+`SettingsRepository`. The Home screen has a bean selector and dose control
+(`lib/ui/home/bean_selector.dart`, `dose_selector.dart`); `lib/ui/beans/` has `BeansScreen` and
+`BeanEditScreen`. The History list shows bean and dose per row; the detail screen shows bean, dose,
+weight out and ratio.
+
 `ShotGraphCubit` (`lib/ui/shot/shot_graph/shot_graph_cubit.dart`) is the central orchestrator for
 an active shot, but is now a thin one: it composes `AbstractAutoStartStopRule`,
 `AbstractAutoTareRule`, the scale/pressure repositories, and `AbstractShotClock`, and delegates
@@ -114,7 +135,8 @@ app-wide via `MultiBlocProvider`/`MultiProvider`, rather than being scoped to a 
 ### Navigation
 
 `lib/router.dart` defines a `go_router` config with a bottom-tab `StatefulShellRoute` (Home /
-History / Settings, each with its own navigator so tab state survives switching) plus a
+History / Beans / Settings, each with its own navigator so tab state survives switching; Beans has `/beans`, `/beans/new` and
+`/beans/:id`) plus a
 full-screen `/shot` route pushed on top of the shell for the active-shot view. `Talker`
 (`talker_flutter`) is wired in as a route observer and also powers the in-app log viewer at
 `/settings/log`.

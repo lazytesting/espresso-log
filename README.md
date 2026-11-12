@@ -20,6 +20,7 @@ Metrics:
   - Pressure
 
 Other features:
+- Manage beans and select the bean and dose (grams in) per shot; shown with the ratio in history
 - Automatically tare the scale after putting cups on it
 - Automatically start and stop timer
 
@@ -33,9 +34,7 @@ Support more devices:
 - Add other scales/pressure sensors
 
 Store other data:
-- Beans
 - Grinder settings
-- Grams beans in
 - Tasting notes
 
 ## Development
