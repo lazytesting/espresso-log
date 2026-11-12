@@ -22,36 +22,67 @@ class HistoryScreen extends StatelessWidget {
         context.read<ShotRepository>(),
         context.read<BeanRepository>(),
       )..load(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('History')),
-        body: BlocBuilder<HistoryCubit, List<HistoryEntry>?>(
-          builder: (context, entries) {
-            if (entries == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (entries.isEmpty) {
-              return const Center(child: Text('No saved shots yet'));
-            }
-            return RefreshIndicator(
-              onRefresh: context.read<HistoryCubit>().load,
-              child: ListView.builder(
-                itemCount: entries.length,
-                itemBuilder: (context, index) {
-                  final entry = entries[index];
-                  final shot = entry.shot;
-                  final subtitle = historySubtitle(shot, entry.bean);
-                  return ListTile(
-                    title: Text(formatShotDate(shot.recordedAt)),
-                    subtitle: subtitle == null ? null : Text(subtitle),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/history/${shot.id}'),
-                  );
-                },
-              ),
-            );
-          },
+      child: _ReloadWhenActive(
+        child: Scaffold(
+          appBar: AppBar(title: const Text('History')),
+          body: BlocBuilder<HistoryCubit, List<HistoryEntry>?>(
+            builder: (context, entries) {
+              if (entries == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (entries.isEmpty) {
+                return const Center(child: Text('No saved shots yet'));
+              }
+              return RefreshIndicator(
+                onRefresh: context.read<HistoryCubit>().load,
+                child: ListView.builder(
+                  itemCount: entries.length,
+                  itemBuilder: (context, index) {
+                    final entry = entries[index];
+                    final shot = entry.shot;
+                    final subtitle = historySubtitle(shot, entry.bean);
+                    return ListTile(
+                      title: Text(formatShotDate(shot.recordedAt)),
+                      subtitle: subtitle == null ? null : Text(subtitle),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/history/${shot.id}'),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
+}
+
+/// The shell keeps the History tab alive while another tab is shown, so a shot
+/// saved in the meantime would not appear. Inactive tabs have tickers
+/// disabled, so reload when that flips back to enabled.
+class _ReloadWhenActive extends StatefulWidget {
+  final Widget child;
+
+  const _ReloadWhenActive({required this.child});
+
+  @override
+  State<_ReloadWhenActive> createState() => _ReloadWhenActiveState();
+}
+
+class _ReloadWhenActiveState extends State<_ReloadWhenActive> {
+  bool? _wasActive;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final active = TickerMode.valuesOf(context).enabled;
+    if (_wasActive == false && active) {
+      context.read<HistoryCubit>().load();
+    }
+    _wasActive = active;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
