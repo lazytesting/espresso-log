@@ -5,6 +5,8 @@ import 'package:espresso_log/domain/shot/drip_end_rule.dart';
 import 'package:espresso_log/domain/shot/auto_tare_rule.dart';
 import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
+import 'package:espresso_log/ui/beans/bean_edit_screen.dart';
+import 'package:espresso_log/ui/beans/beans_screen.dart';
 import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/history/saved_shot_screen.dart';
@@ -24,10 +26,12 @@ class AppRouter {
   GoRouter? router;
   final _homeTabNavigatorKey = GlobalKey<NavigatorState>();
   final _historyTabNavigatorKey = GlobalKey<NavigatorState>();
+  final _beansTabNavigatorKey = GlobalKey<NavigatorState>();
   final _settingsTabNavigatorKey = GlobalKey<NavigatorState>();
 
   static const homePath = '/';
   static const historyPath = '/history';
+  static const beansPath = '/beans';
   static const settingsPath = '/settings';
   static const settingsLogPath = '/settings/log';
   static const settingsRecorderPath = '/settings/recorder';
@@ -66,6 +70,33 @@ class AppRouter {
                       builder: (context, state) {
                         return SavedShotScreen(
                           shotId: state.pathParameters['id']!,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              navigatorKey: _beansTabNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: beansPath,
+                  builder: (context, state) {
+                    return const BeansScreen();
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'new',
+                      builder: (context, state) {
+                        return const BeanEditScreen();
+                      },
+                    ),
+                    GoRoute(
+                      path: ':id',
+                      builder: (context, state) {
+                        return BeanEditScreen(
+                          beanId: state.pathParameters['id']!,
                         );
                       },
                     ),

@@ -2,6 +2,9 @@ import 'dart:io';
 // lib/main.dart
 import 'dart:async';
 
+import 'package:espresso_log/data/bean/file_bean_repository.dart';
+import 'package:espresso_log/domain/bean/bean_repository.dart';
+import 'package:espresso_log/ui/beans/beans_cubit.dart';
 import 'package:espresso_log/data/mock/mock_shot_simulator.dart';
 import 'package:espresso_log/data/pressure/bookoo_pressure_service.dart';
 import 'package:espresso_log/data/pressure/mock_pressure_service.dart';
@@ -65,8 +68,13 @@ void main() async {
   final SettingsRepository settings =
       await SharedPreferencesSettingsService.create();
 
+  final documents = (await getApplicationDocumentsDirectory()).path;
   final ShotRepository shotRepository = FileShotRepository(
-    Directory('${(await getApplicationDocumentsDirectory()).path}/shots'),
+    Directory('$documents/shots'),
+    talker: talker,
+  );
+  final BeanRepository beanRepository = FileBeanRepository(
+    Directory('$documents/beans'),
     talker: talker,
   );
 
@@ -109,6 +117,9 @@ void main() async {
         BlocProvider(create: (_) => TimerCubit(shotClock)),
         BlocProvider(create: (_) => PressureCubit(pressureRepository)),
         BlocProvider(
+          create: (_) => BeansCubit(beanRepository, settings)..load(),
+        ),
+        BlocProvider(
           create: (_) =>
               ConnectionCubit(scaleRepository, pressureRepository)..connect(),
         ),
@@ -120,6 +131,7 @@ void main() async {
           Provider<ScaleRepository>.value(value: scaleRepository),
           Provider<PressureRepository>.value(value: pressureRepository),
           Provider<ShotRepository>.value(value: shotRepository),
+          Provider<BeanRepository>.value(value: beanRepository),
           Provider<AbstractShotClock>.value(value: shotClock),
           Provider<AbstractAutoTareRule>.value(value: autoTareRule),
           Provider<AbstractAutoStartStopRule>.value(value: autoStartStopRule),

@@ -19,6 +19,7 @@ class RootScaffold extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
+          BottomNavigationBarItem(icon: Icon(Icons.grain), label: 'Beans'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
