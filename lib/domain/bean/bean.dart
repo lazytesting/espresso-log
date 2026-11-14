@@ -48,9 +48,10 @@ class Bean extends Equatable {
       id: json['id'] as String,
       name: json['name'] as String,
       roaster: json['roaster'] as String?,
-      roastLevel: (json['roastLevel'] as num)
-          .toInt()
-          .clamp(minRoastLevel, maxRoastLevel),
+      roastLevel: (json['roastLevel'] as num).toInt().clamp(
+        minRoastLevel,
+        maxRoastLevel,
+      ),
       notes: json['notes'] as String?,
       archived: json['archived'] as bool? ?? false,
       doseGrams: normalizeDose((json['doseGrams'] as num).toDouble()),
@@ -58,14 +59,14 @@ class Bean extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'roaster': roaster,
-        'roastLevel': roastLevel,
-        'notes': notes,
-        'archived': archived,
-        'doseGrams': doseGrams,
-      };
+    'id': id,
+    'name': name,
+    'roaster': roaster,
+    'roastLevel': roastLevel,
+    'notes': notes,
+    'archived': archived,
+    'doseGrams': doseGrams,
+  };
 
   Bean copyWith({
     String? name,
@@ -87,12 +88,12 @@ class Bean extends Equatable {
   }
 
   static String roastLabel(int level) => switch (level) {
-        1 => 'Light',
-        2 => 'Medium-light',
-        3 => 'Medium',
-        4 => 'Medium-dark',
-        _ => 'Dark',
-      };
+    1 => 'Light',
+    2 => 'Medium-light',
+    3 => 'Medium',
+    4 => 'Medium-dark',
+    _ => 'Dark',
+  };
 
   static String? _blankToNull(String? text) {
     final trimmed = text?.trim();
@@ -100,6 +101,13 @@ class Bean extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, name, roaster, roastLevel, notes, archived, doseGrams];
+  List<Object?> get props => [
+    id,
+    name,
+    roaster,
+    roastLevel,
+    notes,
+    archived,
+    doseGrams,
+  ];
 }

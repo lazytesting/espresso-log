@@ -12,8 +12,9 @@ class InMemoryBeanRepository implements BeanRepository {
   }
 
   @override
-  Future<List<Bean>> list() async => beans.values.toList()
-    ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  Future<List<Bean>> list() async =>
+      beans.values.toList()
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
   @override
   Future<Bean?> get(String id) async => beans[id];

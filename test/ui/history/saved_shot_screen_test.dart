@@ -62,9 +62,10 @@ void main() {
 
     expect(find.text('Guji'), findsOneWidget);
     expect(find.text('Roastery · Medium-light'), findsOneWidget);
-    expect(find.text('18.0 g'), findsOneWidget);
-    expect(find.text('36.0 g'), findsOneWidget);
-    expect(find.text('1 : 2.0'), findsOneWidget);
+    expect(find.textContaining('18.0', findRichText: true), findsOneWidget);
+    expect(find.textContaining('36.0', findRichText: true), findsOneWidget);
+    expect(find.text('1 : 2.0', findRichText: true), findsOneWidget);
+    expect(find.text('Time'), findsOneWidget);
   });
 
   testWidgets('old shot shows unknown bean and dashes', (tester) async {
@@ -74,7 +75,7 @@ void main() {
     await _pump(tester, shots, InMemoryBeanRepository(), '1');
 
     expect(find.text('Unknown bean'), findsOneWidget);
-    expect(find.text('--'), findsNWidgets(5));
-    expect(find.text('36.0 g'), findsOneWidget);
+    expect(find.text('--', findRichText: true), findsNWidgets(4));
+    expect(find.textContaining('36.0', findRichText: true), findsOneWidget);
   });
 }

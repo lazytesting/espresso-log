@@ -23,8 +23,7 @@ class FakeSettings implements SettingsRepository {
       startDelayCompensationSeconds = seconds;
 
   @override
-  Future<void> setScaleSource(ScaleSource source) async =>
-      scaleSource = source;
+  Future<void> setScaleSource(ScaleSource source) async => scaleSource = source;
 
   @override
   Future<void> setPressureSource(PressureSource source) async =>

@@ -45,14 +45,11 @@ void main() {
   });
 
   test('version 1 files load with nulls', () {
-    final json = RecordedShot.create(
-      _snapshot(),
-      beanId: 'b1',
-      doseGrams: 18.0,
-    ).toJson()
-      ..['version'] = 1
-      ..remove('beanId')
-      ..remove('doseGrams');
+    final json =
+        RecordedShot.create(_snapshot(), beanId: 'b1', doseGrams: 18.0).toJson()
+          ..['version'] = 1
+          ..remove('beanId')
+          ..remove('doseGrams');
     final copy = RecordedShot.fromJson(json);
 
     expect(copy.beanId, isNull);
