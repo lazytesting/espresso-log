@@ -65,7 +65,6 @@ void main() {
     expect(find.text('18.0 g'), findsOneWidget);
     expect(find.text('36.0 g'), findsOneWidget);
     expect(find.text('1 : 2.0'), findsOneWidget);
-    expect(find.text('Seconds'), findsOneWidget);
   });
 
   testWidgets('old shot shows unknown bean and dashes', (tester) async {
@@ -75,7 +74,7 @@ void main() {
     await _pump(tester, shots, InMemoryBeanRepository(), '1');
 
     expect(find.text('Unknown bean'), findsOneWidget);
-    expect(find.text('--'), findsNWidgets(2));
+    expect(find.text('--'), findsNWidgets(5));
     expect(find.text('36.0 g'), findsOneWidget);
   });
 }

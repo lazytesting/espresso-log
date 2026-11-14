@@ -6,6 +6,7 @@ import 'package:espresso_log/ui/components/current-weight/current_weight_widget.
 import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_widget.dart';
+import 'package:espresso_log/ui/shot/metric_grid.dart';
 import 'package:espresso_log/ui/shot/shot_metrics_widget.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_widget.dart';
@@ -40,29 +41,30 @@ class ShotScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          BlocBuilder<ShotGraphCubit, ShotGraphState>(
-            builder: (context, state) {
-              if (state is ShotGraphStopped) {
-                return ShotSummaryWidget(state.summary);
-              }
-              if (state is ShotGraphUpdating) {
-                return ShotMetricsWidget(state.metrics);
-              }
-              return const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: CurrentWeightWidget()),
-                  Expanded(child: WeightChangeWidget()),
-                  Expanded(child: PressureWidget()),
-                  Expanded(child: TimerWidget()),
-                ],
-              );
-            },
-          ),
-          Expanded(child: ShotGraphWidget()),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          children: [
+            BlocBuilder<ShotGraphCubit, ShotGraphState>(
+              builder: (context, state) {
+                if (state is ShotGraphRun) {
+                  return ShotMetricsWidget(state.metrics);
+                }
+                return const MetricGrid(
+                  columns: 4,
+                  cells: [
+                    CurrentWeightWidget(),
+                    WeightChangeWidget(),
+                    PressureWidget(),
+                    TimerWidget(),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(child: ShotGraphWidget()),
+          ],
+        ),
       ),
     );
   }

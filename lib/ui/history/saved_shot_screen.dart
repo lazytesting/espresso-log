@@ -47,7 +47,7 @@ class SavedShotScreen extends StatelessWidget {
             ),
             ConnectionState.done => ListView(
               children: [
-                ShotSummaryWidget(shot!.snapshot.summary),
+                ShotMetricsWidget(shot!.snapshot.metrics),
                 SizedBox(
                   height: 300,
                   child: ShotGraph(
