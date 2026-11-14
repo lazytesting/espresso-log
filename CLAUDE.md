@@ -116,10 +116,17 @@ on `ScaleEvent`/`TimerEvent` subtypes) and emitting UI state.
 `BeansCubit` (`lib/ui/beans/beans_cubit.dart`) is app-wide, created in `main()`. It holds the
 non-archived beans, the selected bean and the current dose. The dose is remembered per bean on the
 bean itself; the dose for the "Unknown bean" case and the selected bean id live in
-`SettingsRepository`. The Home screen has a bean selector and dose control
-(`lib/ui/home/bean_selector.dart`, `dose_selector.dart`); `lib/ui/beans/` has `BeansScreen` and
-`BeanEditScreen`. The History list shows bean and dose per row; the detail screen shows bean, dose,
-weight out and ratio.
+`SettingsRepository`. The Home screen is only one card with a bean selector and dose control
+(`lib/ui/home/bean_selector.dart`, `dose_selector.dart`, sharing `SetupLabel`) plus the START SHOT
+button; `lib/ui/beans/` has `BeansScreen` and `BeanEditScreen`. The History list is grouped by
+local day (`lib/ui/history/history_format.dart`) and shows time, bean, roaster, dose → yield and
+shot time per row.
+
+A finished shot is shown by one shared widget, `ShotResultView`
+(`lib/ui/shot/shot_result_view.dart`): bean header, all metrics in one `MetricGrid`
+(`lib/ui/shot/metric_grid.dart`; Dose, Yield, Ratio, Time, Peak pressure, Peak flow), then the
+graph. Both the shot-done state of `ShotScreen` (with a Save button) and `SavedShotScreen` (History
+detail, with share) use it; add new shot metrics as extra `MetricCell`s there.
 
 `ShotGraphCubit` (`lib/ui/shot/shot_graph/shot_graph_cubit.dart`) is the central orchestrator for
 an active shot, but is now a thin one: it composes `AbstractAutoStartStopRule`,

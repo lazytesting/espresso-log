@@ -31,7 +31,8 @@ void main() {
   testWidgets('shows empty state', (tester) async {
     await pump(tester);
     expect(find.text('No beans yet'), findsOneWidget);
-    expect(find.text('Add bean'), findsOneWidget);
+    expect(find.byTooltip('Add bean'), findsOneWidget);
+    expect(find.text('Add bean'), findsNothing);
   });
 
   testWidgets('lists beans with subtitle, hides archived', (tester) async {
@@ -44,5 +45,7 @@ void main() {
     expect(find.text('Dark'), findsOneWidget);
     expect(find.text('Gone'), findsNothing);
     expect(find.text('No beans yet'), findsNothing);
+    expect(find.byType(Card), findsNothing);
+    expect(find.text('18.0 g'), findsNWidgets(2));
   });
 }

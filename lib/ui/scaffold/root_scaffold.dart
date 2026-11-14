@@ -17,7 +17,7 @@ class RootScaffold extends StatelessWidget {
           child.goBranch(index, initialLocation: index == child.currentIndex);
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(icon: Icon(Icons.grain), label: 'Beans'),
           BottomNavigationBarItem(
