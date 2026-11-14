@@ -1,5 +1,6 @@
 import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
+import 'package:espresso_log/ui/home/setup_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,14 +12,46 @@ class BeanSelector extends StatelessWidget {
     return BlocBuilder<BeansCubit, BeansState>(
       builder: (context, state) {
         final bean = state.selectedBean;
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: ListTile(
-            title: Text(bean?.name ?? 'Unknown bean'),
-            subtitle: bean == null ? null : Text(_subtitle(bean)),
-            leading: const Text('Bean'),
-            trailing: const Icon(Icons.arrow_drop_down),
-            onTap: () => _openSheet(context),
+        final theme = Theme.of(context);
+        return InkWell(
+          onTap: () => _openSheet(context),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 72),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+              child: Row(
+                children: [
+                  const SetupLabel('Bean'),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          bean?.name ?? 'Unknown bean',
+                          style: theme.textTheme.titleMedium,
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (bean != null)
+                          Text(
+                            _subtitle(bean),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.end,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
           ),
         );
       },

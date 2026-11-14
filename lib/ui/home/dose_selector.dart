@@ -1,5 +1,6 @@
 import 'package:espresso_log/domain/bean/dose.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
+import 'package:espresso_log/ui/home/setup_label.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,15 +12,15 @@ class DoseSelector extends StatelessWidget {
     return BlocBuilder<BeansCubit, BeansState>(
       builder: (context, state) {
         final cubit = context.read<BeansCubit>();
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        return ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 72),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
             child: Row(
               children: [
-                const Text('Dose'),
+                const SetupLabel('Dose'),
                 const Spacer(),
-                IconButton(
+                IconButton.outlined(
                   icon: const Icon(Icons.remove),
                   onPressed: () =>
                       cubit.setDose(state.doseGrams - doseStepGrams),
@@ -35,7 +36,7 @@ class DoseSelector extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
+                IconButton.outlined(
                   icon: const Icon(Icons.add),
                   onPressed: () =>
                       cubit.setDose(state.doseGrams + doseStepGrams),

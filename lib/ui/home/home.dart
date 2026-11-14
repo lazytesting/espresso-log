@@ -1,6 +1,3 @@
-import 'package:espresso_log/ui/components/current-weight/current_weight_widget.dart';
-import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
-import 'package:espresso_log/ui/components/weight-change/weight_change_widget.dart';
 import 'package:espresso_log/ui/home/bean_selector.dart';
 import 'package:espresso_log/ui/home/dose_selector.dart';
 import 'package:flutter/material.dart';
@@ -11,33 +8,35 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(child: CurrentWeightWidget()),
-              Expanded(child: WeightChangeWidget()),
-              Expanded(child: PressureWidget()),
-            ],
-          ),
-          SizedBox(height: 20),
-          BeanSelector(),
-          DoseSelector(),
-          SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () {
-              context.push('/shot');
-            },
-            icon: Icon(Icons.coffee, size: 32),
-            label: Text('START SHOT', style: TextStyle(fontSize: 18)),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              minimumSize: Size(200, 80),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: const Column(
+                children: [
+                  BeanSelector(),
+                  Divider(height: 1, indent: 16, endIndent: 16),
+                  DoseSelector(),
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 64,
+              child: FilledButton.icon(
+                onPressed: () => context.push('/shot'),
+                icon: const Icon(Icons.coffee, size: 28),
+                label: const Text('START SHOT', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
