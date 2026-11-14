@@ -90,6 +90,6 @@ void main() {
 
   test('formatShotSeconds', () {
     expect(formatShotSeconds(28400), '28.4 s');
-    expect(formatShotSeconds(0), '0.0 s');
+    expect(formatShotSeconds(0), '--');
   });
 }

@@ -66,7 +66,7 @@ void main() {
     await _pump(tester, snapshot: ShotSnapshot.empty);
 
     expect(find.text('Unknown bean'), findsOneWidget);
-    expect(find.text('--', findRichText: true), findsNWidgets(5));
+    expect(find.text('--', findRichText: true), findsNWidgets(6));
     expect(tester.takeException(), isNull);
   });
 

@@ -70,6 +70,6 @@ String formatDoseYield(double? dose, double? yield) {
   return '${f(dose)} → ${f(yield)} g';
 }
 
-/// `28.4 s`.
+/// `28.4 s`, or `--` when the duration was not recorded (0).
 String formatShotSeconds(int millis) =>
-    '${(millis / 1000).toStringAsFixed(1)} s';
+    millis <= 0 ? '--' : '${(millis / 1000).toStringAsFixed(1)} s';

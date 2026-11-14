@@ -75,7 +75,9 @@ class ShotResultView extends StatelessWidget {
               valueColor: ratio == null ? null : theme.colorScheme.primary,
             ),
             MetricCell(
-              value: (summary.durationMillis / 1000).toStringAsFixed(1),
+              value: summary.durationMillis <= 0
+                  ? '--'
+                  : (summary.durationMillis / 1000).toStringAsFixed(1),
               unit: 's',
               label: 'Time',
             ),
