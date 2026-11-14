@@ -35,16 +35,17 @@ void main() {
 
   tearDown(() => cubit.close());
 
-  Future<void> pumpButton(WidgetTester tester) async {
+  Future<void> pumpButton(
+    WidgetTester tester, [
+    ShotSnapshot snapshot = ShotSnapshot.empty,
+  ]) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           Provider<ShotRepository>.value(value: shots),
           BlocProvider<BeansCubit>.value(value: cubit),
         ],
-        child: const MaterialApp(
-          home: Scaffold(body: SaveShotButton(ShotSnapshot.empty)),
-        ),
+        child: MaterialApp(home: Scaffold(body: SaveShotButton(snapshot))),
       ),
     );
   }
@@ -56,7 +57,7 @@ void main() {
     await cubit.setDose(17.5);
     await pumpButton(tester);
 
-    await tester.tap(find.byIcon(Icons.save_alt));
+    await tester.tap(find.text('Save'));
     await tester.pump();
 
     expect(shots.saved, hasLength(1));
@@ -71,10 +72,39 @@ void main() {
     await cubit.setDose(16.0);
     await pumpButton(tester);
 
-    await tester.tap(find.byIcon(Icons.save_alt));
+    await tester.tap(find.text('Save'));
     await tester.pump();
 
     expect(shots.saved.single.beanId, isNull);
     expect(shots.saved.single.doseGrams, 16.0);
+  });
+
+  testWidgets('shows a check and disables after saving', (tester) async {
+    await cubit.load();
+    await pumpButton(tester);
+
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+
+    expect(find.byIcon(Icons.check), findsOneWidget);
+    expect(find.text('Save'), findsNothing);
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pump();
+    expect(shots.saved, hasLength(1));
+  });
+
+  testWidgets('resets to Save for a new shot after restart', (tester) async {
+    await cubit.load();
+    await pumpButton(tester);
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+
+    await pumpButton(
+      tester,
+      // A different (non-identical) snapshot, as after a restart.
+      ShotSnapshot(weightData: List.empty(), pressureData: List.empty()),
+    );
+
+    expect(find.text('Save'), findsOneWidget);
   });
 }

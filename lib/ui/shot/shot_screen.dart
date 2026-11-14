@@ -8,6 +8,7 @@ import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_widget.dart';
 import 'package:espresso_log/ui/shot/metric_grid.dart';
 import 'package:espresso_log/ui/shot/shot_metrics_widget.dart';
+import 'package:espresso_log/ui/shot/shot_result_view.dart';
 import 'package:espresso_log/ui/shot/timer/timer_cubit.dart';
 import 'package:espresso_log/ui/shot/timer/timer_widget.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_widget.dart';
@@ -23,48 +24,59 @@ class ShotScreen extends StatelessWidget {
       appBar: AppBar(
         title: BlocBuilder<ShotGraphCubit, ShotGraphState>(
           builder: (context, state) => Text(
-            state is ShotGraphStopped ? 'Shot Done' : 'Shot In Progress',
+            state is ShotGraphStopped ? 'Shot done' : 'Shot in progress',
           ),
         ),
         actions: [
-          BlocBuilder<ShotGraphCubit, ShotGraphState>(
-            builder: (context, state) => state is ShotGraphStopped
-                ? SaveShotButton(state.snapshot)
-                : const SizedBox.shrink(),
-          ),
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
+            tooltip: 'New shot',
             onPressed: () {
               context.read<TimerCubit>().reset();
               context.read<ShotGraphCubit>().restart();
             },
           ),
+          BlocBuilder<ShotGraphCubit, ShotGraphState>(
+            builder: (context, state) => state is ShotGraphStopped
+                ? SaveShotButton(state.snapshot)
+                : const SizedBox.shrink(),
+          ),
+          const SizedBox(width: 12),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: Column(
-          children: [
-            BlocBuilder<ShotGraphCubit, ShotGraphState>(
-              builder: (context, state) {
-                if (state is ShotGraphRun) {
-                  return ShotMetricsWidget(state.metrics);
-                }
-                return const MetricGrid(
-                  columns: 4,
-                  cells: [
-                    CurrentWeightWidget(),
-                    WeightChangeWidget(),
-                    PressureWidget(),
-                    TimerWidget(),
-                  ],
-                );
-              },
+      body: BlocBuilder<ShotGraphCubit, ShotGraphState>(
+        builder: (context, state) {
+          if (state is ShotGraphStopped) {
+            return BlocBuilder<BeansCubit, BeansState>(
+              builder: (context, beans) => ShotResultView(
+                snapshot: state.snapshot,
+                bean: beans.selectedBean,
+                doseGrams: beans.doseGrams,
+              ),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              children: [
+                if (state is ShotGraphRun)
+                  ShotMetricsWidget(state.metrics)
+                else
+                  const MetricGrid(
+                    columns: 4,
+                    cells: [
+                      CurrentWeightWidget(),
+                      WeightChangeWidget(),
+                      PressureWidget(),
+                      TimerWidget(),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                const Expanded(child: ShotGraphWidget()),
+              ],
             ),
-            const SizedBox(height: 16),
-            Expanded(child: ShotGraphWidget()),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -81,6 +93,12 @@ class SaveShotButton extends StatefulWidget {
 
 class _SaveShotButtonState extends State<SaveShotButton> {
   bool _saved = false;
+
+  @override
+  void didUpdateWidget(SaveShotButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.snapshot, widget.snapshot)) _saved = false;
+  }
 
   Future<void> _save() async {
     final repository = context.read<ShotRepository>();
@@ -100,10 +118,13 @@ class _SaveShotButtonState extends State<SaveShotButton> {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(_saved ? Icons.check : Icons.save_alt),
-      tooltip: 'Save shot',
-      onPressed: _saved ? null : _save,
-    );
+    if (_saved) {
+      return const IconButton(
+        icon: Icon(Icons.check),
+        tooltip: 'Saved',
+        onPressed: null,
+      );
+    }
+    return FilledButton(onPressed: _save, child: const Text('Save'));
   }
 }
