@@ -6,6 +6,7 @@ import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/ui/history/history.dart';
+import 'package:espresso_log/ui/history/history_format.dart';
 import 'package:espresso_log/ui/shot/shot_result_view.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,7 +28,9 @@ class SavedShotScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              shot == null ? 'Shot' : formatShotDate(shot.recordedAt),
+              shot == null
+                  ? 'Shot'
+                  : formatShotTitle(shot.recordedAt, DateTime.now()),
             ),
             actions: [
               if (shot != null)

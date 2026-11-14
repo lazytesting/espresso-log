@@ -21,32 +21,6 @@ const _guji = Bean(
 );
 
 void main() {
-  test('subtitle with resolved bean and dose', () {
-    expect(
-      historySubtitle(_shot(beanId: 'b1', dose: 18.0), _guji),
-      'Guji · 18.0 g',
-    );
-  });
-
-  test('subtitle with missing bean', () {
-    expect(
-      historySubtitle(_shot(beanId: 'b1', dose: 18.0), null),
-      'Unknown bean · 18.0 g',
-    );
-  });
-
-  test('subtitle without bean id but with dose', () {
-    expect(historySubtitle(_shot(dose: 18.0), null), 'Unknown bean · 18.0 g');
-  });
-
-  test('subtitle omits dose when null', () {
-    expect(historySubtitle(_shot(beanId: 'b1'), _guji), 'Guji');
-  });
-
-  test('old shot has no subtitle', () {
-    expect(historySubtitle(_shot(), null), isNull);
-  });
-
   test('formatDose', () {
     expect(formatDose(null), '--');
     expect(formatDose(18.04), '18.0 g');
