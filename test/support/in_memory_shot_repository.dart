@@ -14,4 +14,7 @@ class InMemoryShotRepository implements ShotRepository {
 
   @override
   Future<RecordedShot?> get(String id) async => shots[id];
+
+  @override
+  Future<void> delete(String id) async => shots.remove(id);
 }

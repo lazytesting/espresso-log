@@ -8,4 +8,7 @@ abstract class ShotRepository {
   Future<List<RecordedShot>> list();
 
   Future<RecordedShot?> get(String id);
+
+  /// Permanently removes the shot; does nothing when it does not exist.
+  Future<void> delete(String id);
 }

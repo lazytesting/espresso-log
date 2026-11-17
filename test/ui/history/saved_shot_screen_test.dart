@@ -78,4 +78,66 @@ void main() {
     expect(find.text('--', findRichText: true), findsNWidgets(4));
     expect(find.textContaining('36.0', findRichText: true), findsOneWidget);
   });
+
+  Future<void> pumpPushed(
+    WidgetTester tester,
+    InMemoryShotRepository shots,
+    String id,
+  ) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<ShotRepository>.value(value: shots),
+          Provider<BeanRepository>.value(value: InMemoryBeanRepository()),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => SavedShotScreen(shotId: id),
+                  ),
+                ),
+                child: const Text('History home'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('History home'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('cancel in the delete dialog keeps the shot', (tester) async {
+    final shots = InMemoryShotRepository();
+    await shots.save(_shot('1'));
+    await pumpPushed(tester, shots, '1');
+
+    await tester.tap(find.byTooltip('Delete shot'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete shot?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(await shots.get('1'), isNotNull);
+    expect(find.byType(SavedShotScreen), findsOneWidget);
+  });
+
+  testWidgets('delete removes the shot and goes back', (tester) async {
+    final shots = InMemoryShotRepository();
+    await shots.save(_shot('1'));
+    await pumpPushed(tester, shots, '1');
+
+    await tester.tap(find.byTooltip('Delete shot'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    expect(await shots.get('1'), isNull);
+    expect(find.byType(SavedShotScreen), findsNothing);
+    expect(find.text('History home'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

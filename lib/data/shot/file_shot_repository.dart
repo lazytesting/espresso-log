@@ -41,6 +41,14 @@ class FileShotRepository implements ShotRepository {
     return _read(file);
   }
 
+  @override
+  Future<void> delete(String id) async {
+    final file = _file(id);
+    if (!await file.exists()) return;
+    await file.delete();
+    _talker?.info('Deleted shot $id');
+  }
+
   Future<RecordedShot?> _read(File file) async {
     try {
       final json = jsonDecode(await file.readAsString());

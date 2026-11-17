@@ -39,6 +39,12 @@ class SavedShotScreen extends StatelessWidget {
                   tooltip: 'Share as JSON',
                   onPressed: () => _share(context, shot),
                 ),
+              if (shot != null)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Delete shot',
+                  onPressed: () => _delete(context, shot),
+                ),
             ],
           ),
           body: switch (snapshot.connectionState) {
@@ -65,6 +71,31 @@ class SavedShotScreen extends StatelessWidget {
     final beanId = shot.beanId;
     final bean = beanId == null ? null : await beans.get(beanId);
     return _LoadedShot(shot, bean);
+  }
+
+  Future<void> _delete(BuildContext context, RecordedShot shot) async {
+    final repository = context.read<ShotRepository>();
+    final navigator = Navigator.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete shot?'),
+        content: const Text("This can't be undone."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await repository.delete(shot.id);
+    navigator.pop();
   }
 
   Future<void> _share(BuildContext context, RecordedShot shot) async {

@@ -22,6 +22,9 @@ class _RecordingShotRepository implements ShotRepository {
 
   @override
   Future<RecordedShot?> get(String id) async => null;
+
+  @override
+  Future<void> delete(String id) async {}
 }
 
 void main() {

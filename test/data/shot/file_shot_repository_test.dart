@@ -61,4 +61,19 @@ void main() {
 
     expect(await repository.list(), hasLength(1));
   });
+
+  test('delete removes the shot', () async {
+    final shot = RecordedShot.create(_snapshot());
+    await repository.save(shot);
+
+    await repository.delete(shot.id);
+
+    expect(await repository.get(shot.id), isNull);
+    expect(await repository.list(), isEmpty);
+  });
+
+  test('delete of a missing id does nothing', () async {
+    await repository.delete('missing');
+    expect(await repository.list(), isEmpty);
+  });
 }

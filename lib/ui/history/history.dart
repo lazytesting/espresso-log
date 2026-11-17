@@ -121,7 +121,11 @@ class _HistoryRow extends StatelessWidget {
     final summary = shot.snapshot.summary;
     const tabular = [FontFeature.tabularFigures()];
     return InkWell(
-      onTap: () => context.push('/history/${shot.id}'),
+      onTap: () {
+        final cubit = context.read<HistoryCubit>();
+        // Reload on return: the shot may have been deleted.
+        context.push('/history/${shot.id}').then((_) => cubit.load());
+      },
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 64),
         child: Padding(
