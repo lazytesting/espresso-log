@@ -44,19 +44,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder saveButton() => find.widgetWithText(TextButton, 'Save');
+  Finder saveButton() => find.widgetWithText(FilledButton, 'Save');
 
   testWidgets('Save disabled for empty and blank name, enabled for text', (
     tester,
   ) async {
     await pump(tester);
-    expect(tester.widget<TextButton>(saveButton()).onPressed, isNull);
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNull);
     await tester.enterText(find.byKey(const Key('bean-name')), '   ');
     await tester.pump();
-    expect(tester.widget<TextButton>(saveButton()).onPressed, isNull);
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNull);
     await tester.enterText(find.byKey(const Key('bean-name')), 'Guji');
     await tester.pump();
-    expect(tester.widget<TextButton>(saveButton()).onPressed, isNotNull);
+    expect(tester.widget<FilledButton>(saveButton()).onPressed, isNotNull);
   });
 
   testWidgets('add mode saves trimmed text with default roast level 3', (
@@ -151,7 +151,7 @@ void main() {
     await pump(tester);
     await tester.enterText(find.byKey(const Key('bean-name')), 'Guji');
     await tester.pump();
-    final onPressed = tester.widget<TextButton>(saveButton()).onPressed!;
+    final onPressed = tester.widget<FilledButton>(saveButton()).onPressed!;
     onPressed();
     onPressed();
     await tester.pumpAndSettle();

@@ -56,7 +56,7 @@ void main() {
     ]) {
       expect(find.text(label), findsOneWidget, reason: label);
     }
-    expect(find.text('1 : 2.0', findRichText: true), findsOneWidget);
+    expect(find.text('1:2.0', findRichText: true), findsOneWidget);
     expect(find.textContaining('28.4', findRichText: true), findsOneWidget);
     expect(find.textContaining('9.2', findRichText: true), findsOneWidget);
     expect(find.textContaining('2.4', findRichText: true), findsOneWidget);
@@ -85,5 +85,18 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ratio uses the same text colour as the other values', (
+    tester,
+  ) async {
+    await _pump(tester, snapshot: _fullShot, bean: _guji, dose: 18.0);
+
+    Color? colorOf(String text) => tester
+        .widget<RichText>(find.textContaining(text, findRichText: true))
+        .text
+        .style
+        ?.color;
+    expect(colorOf('1:2.0'), colorOf('28.4'));
   });
 }

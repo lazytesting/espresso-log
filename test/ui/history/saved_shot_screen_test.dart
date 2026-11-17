@@ -64,7 +64,7 @@ void main() {
     expect(find.text('Roastery · Medium-light'), findsOneWidget);
     expect(find.textContaining('18.0', findRichText: true), findsOneWidget);
     expect(find.textContaining('36.0', findRichText: true), findsOneWidget);
-    expect(find.text('1 : 2.0', findRichText: true), findsOneWidget);
+    expect(find.text('1:2.0', findRichText: true), findsOneWidget);
     expect(find.text('Time'), findsOneWidget);
   });
 

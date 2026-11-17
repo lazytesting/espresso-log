@@ -110,7 +110,8 @@ class SavedShotScreen extends StatelessWidget {
     );
     await SharePlus.instance.share(
       ShareParams(
-        text: 'Espresso shot ${formatShotDate(shot.recordedAt)}',
+        text:
+            'Espresso shot ${formatShotTitle(shot.recordedAt, DateTime.now())}',
         files: [XFile(file.path)],
         subject: 'Espresso Log shot',
       ),

@@ -5,6 +5,6 @@ double? brewRatio({double? outputGrams, double? doseGrams}) {
   return outputGrams / doseGrams;
 }
 
-/// Formats a ratio as `1 : 2.1`, or `--` when unknown.
+/// Formats a ratio as `1:2.1`, or `--` when unknown.
 String formatBrewRatio(double? ratio) =>
-    ratio == null ? '--' : '1 : ${ratio.toStringAsFixed(1)}';
+    ratio == null ? '--' : '1:${ratio.toStringAsFixed(1)}';

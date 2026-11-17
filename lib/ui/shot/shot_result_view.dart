@@ -69,11 +69,7 @@ class ShotResultView extends StatelessWidget {
               unit: 'g',
               label: 'Yield',
             ),
-            MetricCell(
-              value: formatBrewRatio(ratio),
-              label: 'Ratio',
-              valueColor: ratio == null ? null : theme.colorScheme.primary,
-            ),
+            MetricCell(value: formatBrewRatio(ratio), label: 'Ratio'),
             MetricCell(
               value: summary.durationMillis <= 0
                   ? '--'

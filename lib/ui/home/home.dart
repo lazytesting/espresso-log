@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => context.push('/shot'),
                 icon: const Icon(Icons.coffee, size: 28),
-                label: const Text('START SHOT', style: TextStyle(fontSize: 18)),
+                label: const Text('Start shot', style: TextStyle(fontSize: 18)),
               ),
             ),
           ],

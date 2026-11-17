@@ -9,15 +9,8 @@ class MetricCell extends StatelessWidget {
   final String value;
   final String? unit;
   final String? label;
-  final Color? valueColor;
 
-  const MetricCell({
-    super.key,
-    required this.value,
-    this.unit,
-    this.label,
-    this.valueColor,
-  });
+  const MetricCell({super.key, required this.value, this.unit, this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +33,6 @@ class MetricCell extends StatelessWidget {
             ],
           ),
           style: theme.textTheme.titleLarge?.copyWith(
-            color: valueColor,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
           maxLines: 1,

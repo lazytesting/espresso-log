@@ -130,10 +130,11 @@ class _BeanEditScreenState extends State<BeanEditScreen> {
       appBar: AppBar(
         title: Text(isEdit ? 'Edit bean' : 'Add bean'),
         actions: [
-          TextButton(
+          FilledButton(
             onPressed: _busy || _name.text.trim().isEmpty ? null : _save,
             child: const Text('Save'),
           ),
+          const SizedBox(width: 12),
         ],
       ),
       body: ListView(

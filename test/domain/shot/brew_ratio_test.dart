@@ -14,8 +14,8 @@ void main() {
   });
 
   test('formatBrewRatio', () {
-    expect(formatBrewRatio(2.1), '1 : 2.1');
+    expect(formatBrewRatio(2.1), '1:2.1');
     expect(formatBrewRatio(null), '--');
-    expect(formatBrewRatio(1.96), '1 : 2.0');
+    expect(formatBrewRatio(1.96), '1:2.0');
   });
 }

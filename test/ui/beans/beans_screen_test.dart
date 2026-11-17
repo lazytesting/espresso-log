@@ -46,6 +46,6 @@ void main() {
     expect(find.text('Gone'), findsNothing);
     expect(find.text('No beans yet'), findsNothing);
     expect(find.byType(Card), findsNothing);
-    expect(find.text('18.0 g'), findsNWidgets(2));
+    expect(find.text('18.0 g'), findsNothing);
   });
 }

@@ -48,7 +48,7 @@ void main() {
 
     expect(find.text('Bean'), findsOneWidget);
     expect(find.text('Dose'), findsOneWidget);
-    expect(find.text('START SHOT'), findsOneWidget);
+    expect(find.text('Start shot'), findsOneWidget);
     expect(find.byType(Card), findsOneWidget);
     expect(find.byType(CurrentWeightWidget), findsNothing);
     expect(find.byType(WeightChangeWidget), findsNothing);

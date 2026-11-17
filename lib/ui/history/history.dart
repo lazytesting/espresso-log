@@ -8,12 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-String formatShotDate(DateTime date) {
-  String two(int n) => n.toString().padLeft(2, '0');
-  return '${date.year}-${two(date.month)}-${two(date.day)} '
-      '${two(date.hour)}:${two(date.minute)}';
-}
-
 class HistoryScreen extends StatelessWidget {
   final DateTime Function() now;
 

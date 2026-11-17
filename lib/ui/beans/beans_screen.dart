@@ -1,7 +1,6 @@
 import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/router.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
-import 'package:espresso_log/ui/history/shot_bean_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -28,8 +27,7 @@ class BeansScreen extends StatelessWidget {
           if (state.beans.isEmpty) {
             return const Center(child: Text('No beans yet'));
           }
-          final theme = Theme.of(context);
-          final muted = theme.colorScheme.onSurfaceVariant;
+          final muted = Theme.of(context).colorScheme.onSurfaceVariant;
           return ListView.separated(
             padding: const EdgeInsets.only(top: 8, bottom: 88),
             itemCount: state.beans.length,
@@ -48,10 +46,6 @@ class BeansScreen extends StatelessWidget {
                   style: TextStyle(color: muted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  formatDose(bean.doseGrams),
-                  style: theme.textTheme.bodyLarge?.copyWith(color: muted),
                 ),
                 onTap: () => context.push('${AppRouter.beansPath}/${bean.id}'),
               );

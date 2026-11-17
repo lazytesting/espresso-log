@@ -76,7 +76,7 @@ void main() {
     expect(find.byType(ShotResultView), findsOneWidget);
     expect(find.text('Guji'), findsOneWidget);
     expect(find.text('Dose'), findsOneWidget);
-    expect(find.text('1 : 2.0', findRichText: true), findsOneWidget);
+    expect(find.text('1:2.0', findRichText: true), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
   });
 }
