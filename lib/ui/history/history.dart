@@ -1,5 +1,6 @@
 import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
+import 'package:espresso_log/ui/components/section_header.dart';
 import 'package:espresso_log/ui/history/history_cubit.dart';
 import 'package:espresso_log/ui/history/history_format.dart';
 import 'package:espresso_log/ui/history/shot_bean_labels.dart';
@@ -43,7 +44,7 @@ class HistoryScreen extends StatelessWidget {
                 child: ListView(
                   children: [
                     for (final day in days) ...[
-                      _DayHeader(formatDayHeader(day.day, today)),
+                      SectionHeader(formatDayHeader(day.day, today)),
                       for (final entry in day.entries) _HistoryRow(entry),
                     ],
                   ],
@@ -84,27 +85,6 @@ class _ReloadWhenActiveState extends State<_ReloadWhenActive> {
 
   @override
   Widget build(BuildContext context) => widget.child;
-}
-
-class _DayHeader extends StatelessWidget {
-  final String label;
-
-  const _DayHeader(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: theme.colorScheme.primary,
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
 }
 
 class _HistoryRow extends StatelessWidget {
