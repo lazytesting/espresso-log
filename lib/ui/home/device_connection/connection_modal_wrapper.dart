@@ -36,7 +36,7 @@ class ConnectionModalWrapper extends StatelessWidget {
             barrierDismissible: false,
             useRootNavigator: true,
             routeSettings: RouteSettings(name: 'connection_dialog'),
-            builder: (_) => AlertDialog(title: Text('Connecting...')),
+            builder: (_) => const ConnectionDialog(paused: false),
           );
         } else {
           await showDialog<void>(
@@ -44,11 +44,41 @@ class ConnectionModalWrapper extends StatelessWidget {
             barrierDismissible: false,
             useRootNavigator: true,
             routeSettings: RouteSettings(name: 'connection_dialog'),
-            builder: (_) => AlertDialog(title: Text('Paused')),
+            builder: (_) => const ConnectionDialog(paused: true),
           );
         }
       },
       child: child,
+    );
+  }
+}
+
+/// Blocking dialog shown while devices connect or are paused when idle.
+class ConnectionDialog extends StatelessWidget {
+  final bool paused;
+
+  const ConnectionDialog({super.key, required this.paused});
+
+  @override
+  Widget build(BuildContext context) {
+    if (paused) {
+      return const AlertDialog(
+        icon: Icon(Icons.battery_saver_outlined),
+        title: Text('Devices paused to save battery'),
+        content: Text('Touch the screen to reconnect'),
+      );
+    }
+    return const AlertDialog(
+      content: Row(
+        children: [
+          SizedBox.square(
+            dimension: 24,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          ),
+          SizedBox(width: 16),
+          Expanded(child: Text('Connecting to your scale and pressure sensor')),
+        ],
+      ),
     );
   }
 }
