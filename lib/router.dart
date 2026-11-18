@@ -7,6 +7,8 @@ import 'package:espresso_log/domain/telemetry/pressure_repository.dart';
 import 'package:espresso_log/domain/telemetry/scale_repository.dart';
 import 'package:espresso_log/ui/beans/bean_edit_screen.dart';
 import 'package:espresso_log/ui/beans/beans_screen.dart';
+import 'package:espresso_log/ui/grinders/grinder_edit_screen.dart';
+import 'package:espresso_log/ui/grinders/grinders_screen.dart';
 import 'package:espresso_log/ui/scaffold/root_scaffold.dart';
 import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/history/saved_shot_screen.dart';
@@ -34,6 +36,7 @@ class AppRouter {
   static const beansPath = '/beans';
   static const settingsPath = '/settings';
   static const settingsLogPath = '/settings/log';
+  static const settingsGrindersPath = '/settings/grinders';
   static const settingsRecorderPath = '/settings/recorder';
 
   AppRouter(Talker talker, GlobalKey<NavigatorState> rootNavigatorKey) {
@@ -125,6 +128,28 @@ class AppRouter {
                       ),
                     );
                   },
+                ),
+                GoRoute(
+                  path: settingsGrindersPath,
+                  builder: (context, state) {
+                    return const GrindersScreen();
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'new',
+                      builder: (context, state) {
+                        return const GrinderEditScreen();
+                      },
+                    ),
+                    GoRoute(
+                      path: ':id',
+                      builder: (context, state) {
+                        return GrinderEditScreen(
+                          grinderId: state.pathParameters['id']!,
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: settingsRecorderPath,

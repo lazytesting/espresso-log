@@ -3,6 +3,11 @@ import 'dart:async';
 
 import 'package:espresso_log/data/bean/drift_bean_repository.dart';
 import 'package:espresso_log/data/db/app_database.dart';
+import 'package:espresso_log/data/grinder/drift_grind_memory_repository.dart';
+import 'package:espresso_log/data/grinder/drift_grinder_repository.dart';
+import 'package:espresso_log/domain/grinder/grind_memory_repository.dart';
+import 'package:espresso_log/domain/grinder/grinder_repository.dart';
+import 'package:espresso_log/ui/grinders/grinders_cubit.dart';
 import 'package:espresso_log/data/db/legacy_file_importer.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
@@ -81,6 +86,9 @@ void main() async {
   }
   final ShotRepository shotRepository = DriftShotRepository(db);
   final BeanRepository beanRepository = DriftBeanRepository(db);
+  final GrinderRepository grinderRepository = DriftGrinderRepository(db);
+  final GrindMemoryRepository grindMemoryRepository =
+      DriftGrindMemoryRepository(db);
 
   final AbstractShotClock shotClock = ShotClock(talker: talker);
 
@@ -113,6 +121,15 @@ void main() async {
     shotClock,
     talker: talker,
   );
+  final beansCubit = BeansCubit(beanRepository, settings);
+  await beansCubit.load();
+  final grindersCubit = GrindersCubit(
+    grinderRepository,
+    grindMemoryRepository,
+    settings,
+    beansCubit,
+  );
+  await grindersCubit.load();
   runApp(
     MultiBlocProvider(
       providers: [
@@ -120,9 +137,8 @@ void main() async {
         BlocProvider(create: (_) => WeightChangeCubit(scaleRepository)),
         BlocProvider(create: (_) => TimerCubit(shotClock)),
         BlocProvider(create: (_) => PressureCubit(pressureRepository)),
-        BlocProvider(
-          create: (_) => BeansCubit(beanRepository, settings)..load(),
-        ),
+        BlocProvider.value(value: beansCubit),
+        BlocProvider.value(value: grindersCubit),
         BlocProvider(
           create: (_) =>
               ConnectionCubit(scaleRepository, pressureRepository)..connect(),
@@ -136,6 +152,8 @@ void main() async {
           Provider<PressureRepository>.value(value: pressureRepository),
           Provider<ShotRepository>.value(value: shotRepository),
           Provider<BeanRepository>.value(value: beanRepository),
+          Provider<GrinderRepository>.value(value: grinderRepository),
+          Provider<GrindMemoryRepository>.value(value: grindMemoryRepository),
           Provider<AbstractShotClock>.value(value: shotClock),
           Provider<AbstractAutoTareRule>.value(value: autoTareRule),
           Provider<AbstractAutoStartStopRule>.value(value: autoStartStopRule),

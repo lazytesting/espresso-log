@@ -3,6 +3,7 @@ import 'package:espresso_log/ui/components/section_header.dart';
 import 'package:espresso_log/ui/settings/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../support/fake_settings.dart';
@@ -41,5 +42,26 @@ void main() {
     await pump(tester);
     expect(find.text('Decent scale'), findsOneWidget);
     expect(find.text('Bookoo pressure sensor'), findsOneWidget);
+  });
+
+  testWidgets('Grinders tile navigates to the grinders route', (tester) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(path: '/', builder: (context, state) => const SettingsScreen()),
+        GoRoute(
+          path: '/settings/grinders',
+          builder: (context, state) => const Text('grinders page'),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      Provider<SettingsRepository>.value(
+        value: FakeSettings(),
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.tap(find.text('Grinders'));
+    await tester.pumpAndSettle();
+    expect(find.text('grinders page'), findsOneWidget);
   });
 }

@@ -1,3 +1,4 @@
+import 'package:espresso_log/router.dart';
 import 'package:espresso_log/domain/settings/settings_repository.dart';
 import 'package:espresso_log/ui/components/section_header.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             trailing: Text('$_startDelayCompensation s'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_input_component_outlined),
+            title: const Text('Grinders'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRouter.settingsGrindersPath),
           ),
           const SectionHeader('Developer tools'),
           ListTile(
