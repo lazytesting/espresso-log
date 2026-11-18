@@ -14,6 +14,13 @@ void main() {
     );
   });
 
+  test('parse trims whitespace', () {
+    expect(
+      GrindSetting.parse(GrindSettingType.coarseFine, ' 3c '),
+      const GrindSetting.coarseFine(3, 'C'),
+    );
+  });
+
   test('parse returns null for invalid text', () {
     expect(GrindSetting.parse(GrindSettingType.numeric, '11'), isNull);
     expect(GrindSetting.parse(GrindSettingType.numeric, '0'), isNull);

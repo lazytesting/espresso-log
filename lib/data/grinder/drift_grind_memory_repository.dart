@@ -59,7 +59,10 @@ class DriftGrindMemoryRepository implements GrindMemoryRepository {
     final rows =
         await (_db.select(_db.grindMemory)
               ..where((t) => t.grinderId.equals(grinderId))
-              ..orderBy([(t) => OrderingTerm.desc(t.lastUsedAt)]))
+              ..orderBy([
+                (t) => OrderingTerm.desc(t.lastUsedAt),
+                (t) => OrderingTerm.asc(t.beanKey),
+              ]))
             .get();
     final entries = <GrindMemoryEntry>[];
     for (final row in rows) {

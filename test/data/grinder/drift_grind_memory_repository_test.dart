@@ -61,7 +61,7 @@ void main() {
     },
   );
 
-  test('entriesFor orders newest first, even within the same second', () async {
+  test('entriesFor orders newest first with a microsecond gap', () async {
     final t = DateTime(2026, 1, 1, 10);
     await memory.remember(
       grinderId: numeric.id,
