@@ -1,4 +1,5 @@
 import 'package:espresso_log/domain/bean/bean_repository.dart';
+import 'package:espresso_log/domain/grinder/grinder_repository.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/ui/components/section_header.dart';
 import 'package:espresso_log/ui/history/history_cubit.dart';
@@ -19,6 +20,7 @@ class HistoryScreen extends StatelessWidget {
       create: (context) => HistoryCubit(
         context.read<ShotRepository>(),
         context.read<BeanRepository>(),
+        context.read<GrinderRepository>(),
       )..load(),
       child: _ReloadWhenActive(
         child: Scaffold(
@@ -92,6 +94,7 @@ class _HistoryRow extends StatelessWidget {
     final muted = theme.colorScheme.onSurfaceVariant;
     final item = entry.item;
     final roaster = entry.bean?.roaster;
+    final grinder = entry.grinder;
     const tabular = [FontFeature.tabularFigures()];
     return InkWell(
       onTap: () {
@@ -131,6 +134,15 @@ class _HistoryRow extends StatelessWidget {
                     if (roaster != null)
                       Text(
                         roaster,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: muted,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    if (grinder != null)
+                      Text(
+                        grinderLineFor(grinder, item.grindSetting),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: muted,
                         ),

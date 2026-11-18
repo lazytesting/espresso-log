@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 HistoryEntry _entry(DateTime at) => HistoryEntry(
   ShotListItem.fromShot(RecordedShot.create(ShotSnapshot.empty, now: at)),
   null,
+  null,
 );
 
 void main() {

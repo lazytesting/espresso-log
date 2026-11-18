@@ -1,5 +1,8 @@
 import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
+import 'package:espresso_log/domain/grinder/grinder_repository.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
@@ -10,9 +13,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import '../../support/in_memory_bean_repository.dart';
+import '../../support/in_memory_grinder_repository.dart';
 import '../../support/in_memory_shot_repository.dart';
 
-RecordedShot _shot(String id, {String? beanId, double? dose}) => RecordedShot(
+RecordedShot _shot(
+  String id, {
+  String? beanId,
+  double? dose,
+  String? grinderId,
+  String? grindSetting,
+}) => RecordedShot(
   id: id,
   recordedAt: DateTime(2026, 1, 1),
   snapshot: const ShotSnapshot(
@@ -22,19 +32,25 @@ RecordedShot _shot(String id, {String? beanId, double? dose}) => RecordedShot(
   ),
   beanId: beanId,
   doseGrams: dose,
+  grinderId: grinderId,
+  grindSetting: grindSetting,
 );
 
 Future<void> _pump(
   WidgetTester tester,
   InMemoryShotRepository shots,
   InMemoryBeanRepository beans,
-  String id,
-) async {
+  String id, [
+  InMemoryGrinderRepository? grinders,
+]) async {
   await tester.pumpWidget(
     MultiProvider(
       providers: [
         Provider<ShotRepository>.value(value: shots),
         Provider<BeanRepository>.value(value: beans),
+        Provider<GrinderRepository>.value(
+          value: grinders ?? InMemoryGrinderRepository(),
+        ),
       ],
       child: MaterialApp(home: SavedShotScreen(shotId: id)),
     ),
@@ -79,6 +95,28 @@ void main() {
     expect(find.textContaining('36.0', findRichText: true), findsOneWidget);
   });
 
+  testWidgets('shows grinder and grind setting, archived included', (
+    tester,
+  ) async {
+    final shots = InMemoryShotRepository();
+    final grinders = InMemoryGrinderRepository();
+    await grinders.save(
+      const Grinder(
+        id: 'g1',
+        name: 'Niche',
+        brand: 'Niche',
+        settingType: GrindSettingType.coarseFine,
+        archived: true,
+      ),
+    );
+    await shots.save(_shot('1', grinderId: 'g1', grindSetting: '3C'));
+
+    await _pump(tester, shots, InMemoryBeanRepository(), '1', grinders);
+
+    expect(find.text('Niche', findRichText: true), findsOneWidget);
+    expect(find.text('3C', findRichText: true), findsOneWidget);
+  });
+
   Future<void> pumpPushed(
     WidgetTester tester,
     InMemoryShotRepository shots,
@@ -89,6 +127,7 @@ void main() {
         providers: [
           Provider<ShotRepository>.value(value: shots),
           Provider<BeanRepository>.value(value: InMemoryBeanRepository()),
+          Provider<GrinderRepository>.value(value: InMemoryGrinderRepository()),
         ],
         child: MaterialApp(
           home: Builder(

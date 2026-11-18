@@ -1,5 +1,8 @@
 import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
+import 'package:espresso_log/domain/grinder/grinder_repository.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
@@ -10,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import '../../support/in_memory_bean_repository.dart';
+import '../../support/in_memory_grinder_repository.dart';
 import '../../support/in_memory_shot_repository.dart';
 
 void main() {
@@ -21,6 +25,7 @@ void main() {
       providers: [
         Provider<ShotRepository>.value(value: shots),
         Provider<BeanRepository>.value(value: InMemoryBeanRepository()),
+        Provider<GrinderRepository>.value(value: InMemoryGrinderRepository()),
       ],
       child: MaterialApp(
         home: TickerMode(enabled: active, child: const HistoryScreen()),
@@ -48,13 +53,17 @@ void main() {
   Future<void> pumpHistory(
     WidgetTester tester,
     InMemoryShotRepository shots,
-    InMemoryBeanRepository beans,
-  ) async {
+    InMemoryBeanRepository beans, [
+    InMemoryGrinderRepository? grinders,
+  ]) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           Provider<ShotRepository>.value(value: shots),
           Provider<BeanRepository>.value(value: beans),
+          Provider<GrinderRepository>.value(
+            value: grinders ?? InMemoryGrinderRepository(),
+          ),
         ],
         child: MaterialApp(
           home: HistoryScreen(now: () => DateTime(2026, 11, 14, 9)),
@@ -64,18 +73,25 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  RecordedShot shotAt(DateTime at, {String? beanId, double? dose}) =>
-      RecordedShot(
-        id: at.microsecondsSinceEpoch.toString(),
-        recordedAt: at,
-        snapshot: const ShotSnapshot(
-          weightData: [],
-          pressureData: [],
-          summary: ShotSummary(finalWeight: 36.0, durationMillis: 28400),
-        ),
-        beanId: beanId,
-        doseGrams: dose,
-      );
+  RecordedShot shotAt(
+    DateTime at, {
+    String? beanId,
+    double? dose,
+    String? grinderId,
+    String? grindSetting,
+  }) => RecordedShot(
+    id: at.microsecondsSinceEpoch.toString(),
+    recordedAt: at,
+    snapshot: const ShotSnapshot(
+      weightData: [],
+      pressureData: [],
+      summary: ShotSummary(finalWeight: 36.0, durationMillis: 28400),
+    ),
+    beanId: beanId,
+    doseGrams: dose,
+    grinderId: grinderId,
+    grindSetting: grindSetting,
+  );
 
   testWidgets('groups shots under day headers with roaster and shot time', (
     tester,
@@ -135,5 +151,36 @@ void main() {
     await pumpHistory(tester, shots, beans);
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('row shows grinder and grind setting when present', (
+    tester,
+  ) async {
+    final shots = InMemoryShotRepository();
+    final grinders = InMemoryGrinderRepository();
+    await grinders.save(
+      const Grinder(
+        id: 'g1',
+        name: 'Niche',
+        brand: 'Niche',
+        settingType: GrindSettingType.coarseFine,
+        archived: true,
+      ),
+    );
+    await shots.save(
+      shotAt(
+        DateTime(2026, 11, 14, 8, 42),
+        grinderId: 'g1',
+        grindSetting: '3C',
+      ),
+    );
+    await shots.save(shotAt(DateTime(2026, 11, 14, 8, 10), grinderId: 'g1'));
+    await shots.save(shotAt(DateTime(2026, 11, 14, 7, 5)));
+
+    await pumpHistory(tester, shots, InMemoryBeanRepository(), grinders);
+
+    expect(find.text('Niche · 3C'), findsOneWidget);
+    expect(find.text('Niche'), findsOneWidget);
+    expect(find.textContaining('Unknown grinder'), findsNothing);
   });
 }

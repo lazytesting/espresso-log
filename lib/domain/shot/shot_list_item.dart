@@ -27,6 +27,8 @@ class ShotListItem {
     id: shot.id,
     recordedAt: shot.recordedAt,
     beanId: shot.beanId,
+    grinderId: shot.grinderId,
+    grindSetting: shot.grindSetting,
     doseGrams: shot.doseGrams,
     finalWeight: shot.snapshot.summary.finalWeight,
     durationMillis: shot.snapshot.summary.durationMillis,

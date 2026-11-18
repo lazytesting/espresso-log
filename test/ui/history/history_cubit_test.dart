@@ -1,23 +1,33 @@
 import 'package:espresso_log/domain/bean/bean.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/history/history_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/in_memory_bean_repository.dart';
+import '../../support/in_memory_grinder_repository.dart';
 import '../../support/in_memory_shot_repository.dart';
 
-RecordedShot _shot(String id, {String? beanId, double? dose}) => RecordedShot(
+RecordedShot _shot(
+  String id, {
+  String? beanId,
+  double? dose,
+  String? grinderId,
+}) => RecordedShot(
   id: id,
   recordedAt: DateTime(2026, 1, int.parse(id)),
   snapshot: ShotSnapshot.empty,
   beanId: beanId,
   doseGrams: dose,
+  grinderId: grinderId,
 );
 
 void main() {
   late InMemoryShotRepository shots;
   late InMemoryBeanRepository beans;
+  late InMemoryGrinderRepository grinders;
   late HistoryCubit cubit;
 
   const archived = Bean(
@@ -31,7 +41,8 @@ void main() {
   setUp(() {
     shots = InMemoryShotRepository();
     beans = InMemoryBeanRepository()..beans['old'] = archived;
-    cubit = HistoryCubit(shots, beans);
+    grinders = InMemoryGrinderRepository();
+    cubit = HistoryCubit(shots, beans, grinders);
   });
 
   test('starts as null before loading', () {
@@ -55,4 +66,28 @@ void main() {
     expect(entries[0].item.beanId, isNull);
     expect(entries[0].item.doseGrams, isNull);
   });
+
+  test(
+    'pairs shots with grinders, archived included, null otherwise',
+    () async {
+      const niche = Grinder(
+        id: 'g1',
+        name: 'Niche',
+        brand: 'Niche',
+        settingType: GrindSettingType.coarseFine,
+        archived: true,
+      );
+      await grinders.save(niche);
+      await shots.save(_shot('1', grinderId: 'g1'));
+      await shots.save(_shot('2', grinderId: 'gone'));
+      await shots.save(_shot('3'));
+
+      await cubit.load();
+
+      final entries = cubit.state!;
+      expect(entries[2].grinder, niche);
+      expect(entries[1].grinder, isNull);
+      expect(entries[0].grinder, isNull);
+    },
+  );
 }

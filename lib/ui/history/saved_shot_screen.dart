@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
+import 'package:espresso_log/domain/grinder/grinder_repository.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/ui/history/history_format.dart';
@@ -54,8 +56,8 @@ class SavedShotScreen extends StatelessWidget {
               snapshot: shot!.snapshot,
               bean: loaded!.bean,
               doseGrams: shot.doseGrams,
-              grinder: null,
-              grindSetting: null,
+              grinder: loaded.grinder,
+              grindSetting: shot.grindSetting,
             ),
             _ => const Center(child: CircularProgressIndicator()),
           },
@@ -67,11 +69,14 @@ class SavedShotScreen extends StatelessWidget {
   Future<_LoadedShot?> _load(BuildContext context) async {
     final shots = context.read<ShotRepository>();
     final beans = context.read<BeanRepository>();
+    final grinders = context.read<GrinderRepository>();
     final shot = await shots.get(shotId);
     if (shot == null) return null;
     final beanId = shot.beanId;
     final bean = beanId == null ? null : await beans.get(beanId);
-    return _LoadedShot(shot, bean);
+    final grinderId = shot.grinderId;
+    final grinder = grinderId == null ? null : await grinders.get(grinderId);
+    return _LoadedShot(shot, bean, grinder);
   }
 
   Future<void> _delete(BuildContext context, RecordedShot shot) async {
@@ -100,14 +105,18 @@ class SavedShotScreen extends StatelessWidget {
   }
 
   Future<void> _share(BuildContext context, RecordedShot shot) async {
+    final beans = context.read<BeanRepository>();
+    final grinders = context.read<GrinderRepository>();
     final beanId = shot.beanId;
-    final bean = beanId == null
-        ? null
-        : await context.read<BeanRepository>().get(beanId);
+    final bean = beanId == null ? null : await beans.get(beanId);
+    final grinderId = shot.grinderId;
+    final grinder = grinderId == null ? null : await grinders.get(grinderId);
     final directory = await getTemporaryDirectory();
     final file = File('${directory.path}/espresso_shot_${shot.id}.json');
     await file.writeAsString(
-      const JsonEncoder.withIndent('  ').convert(shot.toExportJson(bean: bean)),
+      const JsonEncoder.withIndent(
+        '  ',
+      ).convert(shot.toExportJson(bean: bean, grinder: grinder)),
     );
     await SharePlus.instance.share(
       ShareParams(
@@ -123,6 +132,7 @@ class SavedShotScreen extends StatelessWidget {
 class _LoadedShot {
   final RecordedShot shot;
   final Bean? bean;
+  final Grinder? grinder;
 
-  const _LoadedShot(this.shot, this.bean);
+  const _LoadedShot(this.shot, this.bean, this.grinder);
 }
