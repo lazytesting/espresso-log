@@ -209,4 +209,46 @@ void main() {
     expect(grinderRepo.grinders[added.id], added);
     expect(cubit.state.selectedGrinderId, 'g');
   });
+
+  test('select second grinder does not write rows for the first', () async {
+    grinderRepo.grinders['h'] = grinder('h');
+    await loadAll();
+    await beans.select('a');
+    await remember('g', 'a', const GrindSetting.numeric(3), 1);
+    await remember('h', 'b', const GrindSetting.numeric(8), 2);
+    await cubit.select('g');
+    await pumpEventQueue();
+    final before = (await memory.entriesFor('g')).length;
+    final emitted = <GrindersState>[];
+    final sub = cubit.stream.listen(emitted.add);
+    await cubit.select('h');
+    await pumpEventQueue();
+    await sub.cancel();
+    expect(beans.state.selectedBeanId, 'b');
+    expect((await memory.entriesFor('g')).length, before);
+    expect(memory.entries.containsKey(('g', 'b')), false);
+    expect(cubit.state.selectedGrinderId, 'h');
+    expect(cubit.state.setting, const GrindSetting.numeric(8));
+    expect(
+      emitted.where(
+        (s) => s.selectedGrinderId == 'g' && s.setting == emitted.last.setting,
+      ),
+      isEmpty,
+    );
+    expect(emitted.every((s) => s.selectedGrinderId == 'h'), true);
+  });
+
+  test('rapid bean changes end with the last bean\'s setting', () async {
+    await loadAll();
+    await remember('g', 'a', const GrindSetting.numeric(3), 1);
+    await remember('g', 'b', const GrindSetting.numeric(8), 2);
+    await cubit.select('g');
+    await pumpEventQueue();
+    final f1 = beans.select('a');
+    final f2 = beans.select('b');
+    await Future.wait([f1, f2]);
+    await pumpEventQueue();
+    expect(beans.state.selectedBeanId, 'b');
+    expect(cubit.state.setting, const GrindSetting.numeric(8));
+  });
 }

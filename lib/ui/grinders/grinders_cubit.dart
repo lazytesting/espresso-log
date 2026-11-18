@@ -28,7 +28,11 @@ class GrindersCubit extends Cubit<GrindersState> {
   /// `select` calls, which already load the setting) trigger a reload.
   String? _lastBeanId;
 
+  /// Bumped by every operation that loads a setting; stale loads are dropped.
+  int _gen = 0;
+
   Future<void> load() async {
+    final gen = ++_gen;
     final grinders = (await _grinders.list())
         .where((g) => !g.archived)
         .toList();
@@ -40,33 +44,38 @@ class GrindersCubit extends Cubit<GrindersState> {
         loaded: true,
         grinders: grinders,
         selectedGrinderId: selected?.id,
-        setting: selected == null ? null : await _loadSetting(selected),
+        setting: selected == null
+            ? null
+            : await _loadSetting(selected, _lastBeanId, gen),
       ),
     );
   }
 
   Future<void> select(String? grinderId) async {
+    final gen = ++_gen;
     final grinder = _find(state.grinders, grinderId);
     await _settings.setSelectedGrinderId(grinder?.id);
+    if (gen != _gen) return;
     if (grinder == null) {
       emit(GrindersState(loaded: state.loaded, grinders: state.grinders));
       return;
     }
     final entries = await _memory.entriesFor(grinder.id);
+    if (gen != _gen) return;
     for (final entry in entries) {
       final beanId = entry.beanId;
       if (beanId == null || _beans.state.beans.any((b) => b.id == beanId)) {
+        // Set before selecting so the bean listener ignores our own change.
+        _lastBeanId = beanId;
         await _beans.select(beanId);
         break;
       }
     }
+    if (gen != _gen) return;
     _lastBeanId = _beans.state.selectedBeanId;
-    emit(
-      _copy(
-        selectedGrinderId: grinder.id,
-        setting: await _loadSetting(grinder),
-      ),
-    );
+    final setting = await _loadSetting(grinder, _lastBeanId, gen);
+    if (setting == null) return;
+    emit(_copy(selectedGrinderId: grinder.id, setting: setting));
   }
 
   Future<void> setSetting(GrindSetting setting) async {
@@ -130,19 +139,25 @@ class GrindersCubit extends Cubit<GrindersState> {
     _lastBeanId = beans.selectedBeanId;
     final grinder = state.selectedGrinder;
     if (grinder == null) return;
-    final setting = await _loadSetting(grinder);
-    if (isClosed || state.selectedGrinderId != grinder.id) return;
+    final gen = ++_gen;
+    final setting = await _loadSetting(grinder, beans.selectedBeanId, gen);
+    if (setting == null) return;
     emit(_copy(selectedGrinderId: grinder.id, setting: setting));
   }
 
-  /// The remembered setting for [grinder] and the current bean. Creates the
-  /// memory row with the default setting when the pair has none yet.
-  Future<GrindSetting> _loadSetting(Grinder grinder) async {
-    final beanId = _beans.state.selectedBeanId;
+  /// The remembered setting for [grinder] and [beanId]. Creates the memory
+  /// row with the default setting when the pair has none yet. Returns null
+  /// (without writing) when superseded by a newer operation ([gen]).
+  Future<GrindSetting?> _loadSetting(
+    Grinder grinder,
+    String? beanId,
+    int gen,
+  ) async {
     final remembered = await _memory.settingFor(
       grinderId: grinder.id,
       beanId: beanId,
     );
+    if (isClosed || gen != _gen) return null;
     if (remembered != null) return remembered;
     final setting = GrindSetting.defaultFor(grinder.settingType);
     await _memory.remember(
@@ -150,6 +165,7 @@ class GrindersCubit extends Cubit<GrindersState> {
       beanId: beanId,
       setting: setting,
     );
+    if (isClosed || gen != _gen) return null;
     return setting;
   }
 
