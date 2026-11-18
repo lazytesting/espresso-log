@@ -15,20 +15,27 @@ class DriftShotRepository implements ShotRepository {
 
   @override
   Future<void> save(RecordedShot shot) async {
-    final summary = shot.snapshot.summary;
+    await _db.into(_db.shots).insertOnConflictUpdate(_toCompanion(shot));
+  }
+
+  /// Inserts [shot] unless a shot with the same id already exists.
+  Future<void> insertIfAbsent(RecordedShot shot) async {
     await _db
         .into(_db.shots)
-        .insertOnConflictUpdate(
-          ShotsCompanion.insert(
-            id: shot.id,
-            recordedAt: shot.recordedAt,
-            beanId: Value(shot.beanId),
-            doseGrams: Value(shot.doseGrams),
-            finalWeight: Value(summary.finalWeight),
-            durationMillis: summary.durationMillis,
-            snapshotJson: jsonEncode(shot.snapshot.toJson()),
-          ),
-        );
+        .insert(_toCompanion(shot), mode: InsertMode.insertOrIgnore);
+  }
+
+  ShotsCompanion _toCompanion(RecordedShot shot) {
+    final summary = shot.snapshot.summary;
+    return ShotsCompanion.insert(
+      id: shot.id,
+      recordedAt: shot.recordedAt,
+      beanId: Value(shot.beanId),
+      doseGrams: Value(shot.doseGrams),
+      finalWeight: Value(summary.finalWeight),
+      durationMillis: summary.durationMillis,
+      snapshotJson: jsonEncode(shot.snapshot.toJson()),
+    );
   }
 
   @override

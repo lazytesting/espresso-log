@@ -11,20 +11,25 @@ class DriftBeanRepository implements BeanRepository {
 
   @override
   Future<void> save(Bean bean) async {
+    await _db.into(_db.beans).insertOnConflictUpdate(_toCompanion(bean));
+  }
+
+  /// Inserts [bean] unless a bean with the same id already exists.
+  Future<void> insertIfAbsent(Bean bean) async {
     await _db
         .into(_db.beans)
-        .insertOnConflictUpdate(
-          BeansCompanion.insert(
-            id: bean.id,
-            name: bean.name,
-            roaster: Value(bean.roaster),
-            roastLevel: bean.roastLevel,
-            notes: Value(bean.notes),
-            archived: Value(bean.archived),
-            doseGrams: bean.doseGrams,
-          ),
-        );
+        .insert(_toCompanion(bean), mode: InsertMode.insertOrIgnore);
   }
+
+  BeansCompanion _toCompanion(Bean bean) => BeansCompanion.insert(
+    id: bean.id,
+    name: bean.name,
+    roaster: Value(bean.roaster),
+    roastLevel: bean.roastLevel,
+    notes: Value(bean.notes),
+    archived: Value(bean.archived),
+    doseGrams: bean.doseGrams,
+  );
 
   @override
   Future<List<Bean>> list() async {
