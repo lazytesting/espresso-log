@@ -5,7 +5,6 @@ import 'package:espresso_log/domain/bean/bean.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
-import 'package:espresso_log/ui/history/history.dart';
 import 'package:espresso_log/ui/history/history_format.dart';
 import 'package:espresso_log/ui/shot/shot_result_view.dart';
 import 'package:flutter/material.dart';
