@@ -1,11 +1,14 @@
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
+import 'package:espresso_log/domain/shot/shot_list_item.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/history/history_cubit.dart';
 import 'package:espresso_log/ui/history/history_format.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-HistoryEntry _entry(DateTime at) =>
-    HistoryEntry(RecordedShot.create(ShotSnapshot.empty, now: at), null);
+HistoryEntry _entry(DateTime at) => HistoryEntry(
+  ShotListItem.fromShot(RecordedShot.create(ShotSnapshot.empty, now: at)),
+  null,
+);
 
 void main() {
   final now = DateTime(2026, 11, 14, 9);

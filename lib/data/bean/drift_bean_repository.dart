@@ -2,10 +2,10 @@ import 'package:drift/drift.dart';
 
 import '../../domain/bean/bean.dart';
 import '../../domain/bean/bean_repository.dart';
-import '../db/app_database.dart' as db;
+import '../db/app_database.dart';
 
 class DriftBeanRepository implements BeanRepository {
-  final db.AppDatabase _db;
+  final AppDatabase _db;
 
   DriftBeanRepository(this._db);
 
@@ -14,7 +14,7 @@ class DriftBeanRepository implements BeanRepository {
     await _db
         .into(_db.beans)
         .insertOnConflictUpdate(
-          db.BeansCompanion.insert(
+          BeansCompanion.insert(
             id: bean.id,
             name: bean.name,
             roaster: Value(bean.roaster),
@@ -42,7 +42,7 @@ class DriftBeanRepository implements BeanRepository {
     return row == null ? null : _toBean(row);
   }
 
-  Bean _toBean(db.Bean row) => Bean(
+  Bean _toBean(BeanRow row) => Bean(
     id: row.id,
     name: row.name,
     roaster: row.roaster,

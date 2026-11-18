@@ -47,12 +47,12 @@ void main() {
     await cubit.load();
 
     final entries = cubit.state!;
-    expect(entries.map((e) => e.shot.id), ['4', '3', '2', '1']);
+    expect(entries.map((e) => e.item.id), ['4', '3', '2', '1']);
     expect(entries[3].bean, archived);
     expect(entries[2].bean, isNull);
     expect(entries[1].bean, isNull);
     expect(entries[0].bean, isNull);
-    expect(entries[0].shot.beanId, isNull);
-    expect(entries[0].shot.doseGrams, isNull);
+    expect(entries[0].item.beanId, isNull);
+    expect(entries[0].item.doseGrams, isNull);
   });
 }

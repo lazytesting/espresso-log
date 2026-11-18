@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
+import 'package:espresso_log/domain/shot/shot_list_item.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
@@ -22,7 +23,7 @@ class FileShotRepository implements ShotRepository {
   }
 
   @override
-  Future<List<RecordedShot>> list() async {
+  Future<List<ShotListItem>> list() async {
     if (!await directory.exists()) return [];
     final shots = <RecordedShot>[];
     await for (final entity in directory.list()) {
@@ -31,7 +32,7 @@ class FileShotRepository implements ShotRepository {
       if (shot != null) shots.add(shot);
     }
     shots.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
-    return shots;
+    return shots.map(ShotListItem.fromShot).toList();
   }
 
   @override

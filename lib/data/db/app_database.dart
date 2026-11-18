@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'app_database.g.dart';
 
+@DataClassName('BeanRow')
 class Beans extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -17,6 +18,7 @@ class Beans extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('GrinderRow')
 class Grinders extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -26,6 +28,16 @@ class Grinders extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+class _MicrosDateTime extends TypeConverter<DateTime, int> {
+  const _MicrosDateTime();
+
+  @override
+  DateTime fromSql(int fromDb) => DateTime.fromMicrosecondsSinceEpoch(fromDb);
+
+  @override
+  int toSql(DateTime value) => value.microsecondsSinceEpoch;
 }
 
 /// Last grind setting used per grinder and bean. [beanKey] is the bean id, or
@@ -40,9 +52,13 @@ class GrindMemory extends Table {
   Set<Column> get primaryKey => {grinderId, beanKey};
 }
 
+@DataClassName('ShotRow')
 class Shots extends Table {
   TextColumn get id => text()();
-  DateTimeColumn get recordedAt => dateTime()();
+
+  /// Microseconds since epoch: drift's default (seconds) would truncate the
+  /// precision that shot ids and newest-first ordering rely on.
+  IntColumn get recordedAt => integer().map(const _MicrosDateTime())();
   TextColumn get beanId => text().nullable().references(Beans, #id)();
   TextColumn get grinderId => text().nullable().references(Grinders, #id)();
   TextColumn get grindSetting => text().nullable()();

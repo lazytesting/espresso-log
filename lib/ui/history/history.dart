@@ -90,15 +90,14 @@ class _HistoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    final shot = entry.shot;
+    final item = entry.item;
     final roaster = entry.bean?.roaster;
-    final summary = shot.snapshot.summary;
     const tabular = [FontFeature.tabularFigures()];
     return InkWell(
       onTap: () {
         final cubit = context.read<HistoryCubit>();
         // Reload on return: the shot may have been deleted.
-        context.push('/history/${shot.id}').then((_) => cubit.load());
+        context.push('/history/${item.id}').then((_) => cubit.load());
       },
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 64),
@@ -109,7 +108,7 @@ class _HistoryRow extends StatelessWidget {
               SizedBox(
                 width: 56,
                 child: Text(
-                  formatTime(shot.recordedAt),
+                  formatTime(item.recordedAt),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: muted,
                     fontFeatures: tabular,
@@ -122,7 +121,7 @@ class _HistoryRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      beanNameFor(shot, entry.bean),
+                      beanNameFor(entry.bean),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: entry.bean == null ? muted : null,
                       ),
@@ -146,13 +145,13 @@ class _HistoryRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    formatDoseYield(shot.doseGrams, summary.finalWeight),
+                    formatDoseYield(item.doseGrams, item.finalWeight),
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontFeatures: tabular,
                     ),
                   ),
                   Text(
-                    formatShotSeconds(summary.durationMillis),
+                    formatShotSeconds(item.durationMillis),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: muted,
                       fontFeatures: tabular,

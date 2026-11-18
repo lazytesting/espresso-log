@@ -3,7 +3,7 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $BeansTable extends Beans with TableInfo<$BeansTable, Bean> {
+class $BeansTable extends Beans with TableInfo<$BeansTable, BeanRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -100,7 +100,7 @@ class $BeansTable extends Beans with TableInfo<$BeansTable, Bean> {
   static const String $name = 'beans';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Bean> instance, {
+    Insertable<BeanRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -158,9 +158,9 @@ class $BeansTable extends Beans with TableInfo<$BeansTable, Bean> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Bean map(Map<String, dynamic> data, {String? tablePrefix}) {
+  BeanRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Bean(
+    return BeanRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -198,7 +198,7 @@ class $BeansTable extends Beans with TableInfo<$BeansTable, Bean> {
   }
 }
 
-class Bean extends DataClass implements Insertable<Bean> {
+class BeanRow extends DataClass implements Insertable<BeanRow> {
   final String id;
   final String name;
   final String? roaster;
@@ -206,7 +206,7 @@ class Bean extends DataClass implements Insertable<Bean> {
   final String? notes;
   final bool archived;
   final double doseGrams;
-  const Bean({
+  const BeanRow({
     required this.id,
     required this.name,
     this.roaster,
@@ -248,12 +248,12 @@ class Bean extends DataClass implements Insertable<Bean> {
     );
   }
 
-  factory Bean.fromJson(
+  factory BeanRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Bean(
+    return BeanRow(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       roaster: serializer.fromJson<String?>(json['roaster']),
@@ -277,7 +277,7 @@ class Bean extends DataClass implements Insertable<Bean> {
     };
   }
 
-  Bean copyWith({
+  BeanRow copyWith({
     String? id,
     String? name,
     Value<String?> roaster = const Value.absent(),
@@ -285,7 +285,7 @@ class Bean extends DataClass implements Insertable<Bean> {
     Value<String?> notes = const Value.absent(),
     bool? archived,
     double? doseGrams,
-  }) => Bean(
+  }) => BeanRow(
     id: id ?? this.id,
     name: name ?? this.name,
     roaster: roaster.present ? roaster.value : this.roaster,
@@ -294,8 +294,8 @@ class Bean extends DataClass implements Insertable<Bean> {
     archived: archived ?? this.archived,
     doseGrams: doseGrams ?? this.doseGrams,
   );
-  Bean copyWithCompanion(BeansCompanion data) {
-    return Bean(
+  BeanRow copyWithCompanion(BeansCompanion data) {
+    return BeanRow(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       roaster: data.roaster.present ? data.roaster.value : this.roaster,
@@ -310,7 +310,7 @@ class Bean extends DataClass implements Insertable<Bean> {
 
   @override
   String toString() {
-    return (StringBuffer('Bean(')
+    return (StringBuffer('BeanRow(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('roaster: $roaster, ')
@@ -328,7 +328,7 @@ class Bean extends DataClass implements Insertable<Bean> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Bean &&
+      (other is BeanRow &&
           other.id == this.id &&
           other.name == this.name &&
           other.roaster == this.roaster &&
@@ -338,7 +338,7 @@ class Bean extends DataClass implements Insertable<Bean> {
           other.doseGrams == this.doseGrams);
 }
 
-class BeansCompanion extends UpdateCompanion<Bean> {
+class BeansCompanion extends UpdateCompanion<BeanRow> {
   final Value<String> id;
   final Value<String> name;
   final Value<String?> roaster;
@@ -370,7 +370,7 @@ class BeansCompanion extends UpdateCompanion<Bean> {
        name = Value(name),
        roastLevel = Value(roastLevel),
        doseGrams = Value(doseGrams);
-  static Insertable<Bean> custom({
+  static Insertable<BeanRow> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? roaster,
@@ -460,7 +460,8 @@ class BeansCompanion extends UpdateCompanion<Bean> {
   }
 }
 
-class $GrindersTable extends Grinders with TableInfo<$GrindersTable, Grinder> {
+class $GrindersTable extends Grinders
+    with TableInfo<$GrindersTable, GrinderRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -533,7 +534,7 @@ class $GrindersTable extends Grinders with TableInfo<$GrindersTable, Grinder> {
   static const String $name = 'grinders';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Grinder> instance, {
+    Insertable<GrinderRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -582,9 +583,9 @@ class $GrindersTable extends Grinders with TableInfo<$GrindersTable, Grinder> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Grinder map(Map<String, dynamic> data, {String? tablePrefix}) {
+  GrinderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Grinder(
+    return GrinderRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -614,13 +615,13 @@ class $GrindersTable extends Grinders with TableInfo<$GrindersTable, Grinder> {
   }
 }
 
-class Grinder extends DataClass implements Insertable<Grinder> {
+class GrinderRow extends DataClass implements Insertable<GrinderRow> {
   final String id;
   final String name;
   final String brand;
   final String settingType;
   final bool archived;
-  const Grinder({
+  const GrinderRow({
     required this.id,
     required this.name,
     required this.brand,
@@ -648,12 +649,12 @@ class Grinder extends DataClass implements Insertable<Grinder> {
     );
   }
 
-  factory Grinder.fromJson(
+  factory GrinderRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Grinder(
+    return GrinderRow(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       brand: serializer.fromJson<String>(json['brand']),
@@ -673,21 +674,21 @@ class Grinder extends DataClass implements Insertable<Grinder> {
     };
   }
 
-  Grinder copyWith({
+  GrinderRow copyWith({
     String? id,
     String? name,
     String? brand,
     String? settingType,
     bool? archived,
-  }) => Grinder(
+  }) => GrinderRow(
     id: id ?? this.id,
     name: name ?? this.name,
     brand: brand ?? this.brand,
     settingType: settingType ?? this.settingType,
     archived: archived ?? this.archived,
   );
-  Grinder copyWithCompanion(GrindersCompanion data) {
-    return Grinder(
+  GrinderRow copyWithCompanion(GrindersCompanion data) {
+    return GrinderRow(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       brand: data.brand.present ? data.brand.value : this.brand,
@@ -700,7 +701,7 @@ class Grinder extends DataClass implements Insertable<Grinder> {
 
   @override
   String toString() {
-    return (StringBuffer('Grinder(')
+    return (StringBuffer('GrinderRow(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('brand: $brand, ')
@@ -715,7 +716,7 @@ class Grinder extends DataClass implements Insertable<Grinder> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Grinder &&
+      (other is GrinderRow &&
           other.id == this.id &&
           other.name == this.name &&
           other.brand == this.brand &&
@@ -723,7 +724,7 @@ class Grinder extends DataClass implements Insertable<Grinder> {
           other.archived == this.archived);
 }
 
-class GrindersCompanion extends UpdateCompanion<Grinder> {
+class GrindersCompanion extends UpdateCompanion<GrinderRow> {
   final Value<String> id;
   final Value<String> name;
   final Value<String> brand;
@@ -749,7 +750,7 @@ class GrindersCompanion extends UpdateCompanion<Grinder> {
        name = Value(name),
        brand = Value(brand),
        settingType = Value(settingType);
-  static Insertable<Grinder> custom({
+  static Insertable<GrinderRow> custom({
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? brand,
@@ -1151,7 +1152,7 @@ class GrindMemoryCompanion extends UpdateCompanion<GrindMemoryData> {
   }
 }
 
-class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
+class $ShotsTable extends Shots with TableInfo<$ShotsTable, ShotRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1165,17 +1166,15 @@ class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _recordedAtMeta = const VerificationMeta(
-    'recordedAt',
-  );
   @override
-  late final GeneratedColumn<DateTime> recordedAt = GeneratedColumn<DateTime>(
-    'recorded_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, int> recordedAt =
+      GeneratedColumn<int>(
+        'recorded_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ShotsTable.$converterrecordedAt);
   static const VerificationMeta _beanIdMeta = const VerificationMeta('beanId');
   @override
   late final GeneratedColumn<String> beanId = GeneratedColumn<String>(
@@ -1276,7 +1275,7 @@ class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
   static const String $name = 'shots';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Shot> instance, {
+    Insertable<ShotRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -1285,14 +1284,6 @@ class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
-    }
-    if (data.containsKey('recorded_at')) {
-      context.handle(
-        _recordedAtMeta,
-        recordedAt.isAcceptableOrUnknown(data['recorded_at']!, _recordedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_recordedAtMeta);
     }
     if (data.containsKey('bean_id')) {
       context.handle(
@@ -1358,17 +1349,19 @@ class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Shot map(Map<String, dynamic> data, {String? tablePrefix}) {
+  ShotRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Shot(
+    return ShotRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      recordedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}recorded_at'],
-      )!,
+      recordedAt: $ShotsTable.$converterrecordedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}recorded_at'],
+        )!,
+      ),
       beanId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}bean_id'],
@@ -1404,10 +1397,16 @@ class $ShotsTable extends Shots with TableInfo<$ShotsTable, Shot> {
   $ShotsTable createAlias(String alias) {
     return $ShotsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, int> $converterrecordedAt =
+      const _MicrosDateTime();
 }
 
-class Shot extends DataClass implements Insertable<Shot> {
+class ShotRow extends DataClass implements Insertable<ShotRow> {
   final String id;
+
+  /// Microseconds since epoch: drift's default (seconds) would truncate the
+  /// precision that shot ids and newest-first ordering rely on.
   final DateTime recordedAt;
   final String? beanId;
   final String? grinderId;
@@ -1416,7 +1415,7 @@ class Shot extends DataClass implements Insertable<Shot> {
   final double? finalWeight;
   final int durationMillis;
   final String snapshotJson;
-  const Shot({
+  const ShotRow({
     required this.id,
     required this.recordedAt,
     this.beanId,
@@ -1431,7 +1430,11 @@ class Shot extends DataClass implements Insertable<Shot> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['recorded_at'] = Variable<DateTime>(recordedAt);
+    {
+      map['recorded_at'] = Variable<int>(
+        $ShotsTable.$converterrecordedAt.toSql(recordedAt),
+      );
+    }
     if (!nullToAbsent || beanId != null) {
       map['bean_id'] = Variable<String>(beanId);
     }
@@ -1476,12 +1479,12 @@ class Shot extends DataClass implements Insertable<Shot> {
     );
   }
 
-  factory Shot.fromJson(
+  factory ShotRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Shot(
+    return ShotRow(
       id: serializer.fromJson<String>(json['id']),
       recordedAt: serializer.fromJson<DateTime>(json['recordedAt']),
       beanId: serializer.fromJson<String?>(json['beanId']),
@@ -1509,7 +1512,7 @@ class Shot extends DataClass implements Insertable<Shot> {
     };
   }
 
-  Shot copyWith({
+  ShotRow copyWith({
     String? id,
     DateTime? recordedAt,
     Value<String?> beanId = const Value.absent(),
@@ -1519,7 +1522,7 @@ class Shot extends DataClass implements Insertable<Shot> {
     Value<double?> finalWeight = const Value.absent(),
     int? durationMillis,
     String? snapshotJson,
-  }) => Shot(
+  }) => ShotRow(
     id: id ?? this.id,
     recordedAt: recordedAt ?? this.recordedAt,
     beanId: beanId.present ? beanId.value : this.beanId,
@@ -1530,8 +1533,8 @@ class Shot extends DataClass implements Insertable<Shot> {
     durationMillis: durationMillis ?? this.durationMillis,
     snapshotJson: snapshotJson ?? this.snapshotJson,
   );
-  Shot copyWithCompanion(ShotsCompanion data) {
-    return Shot(
+  ShotRow copyWithCompanion(ShotsCompanion data) {
+    return ShotRow(
       id: data.id.present ? data.id.value : this.id,
       recordedAt: data.recordedAt.present
           ? data.recordedAt.value
@@ -1556,7 +1559,7 @@ class Shot extends DataClass implements Insertable<Shot> {
 
   @override
   String toString() {
-    return (StringBuffer('Shot(')
+    return (StringBuffer('ShotRow(')
           ..write('id: $id, ')
           ..write('recordedAt: $recordedAt, ')
           ..write('beanId: $beanId, ')
@@ -1585,7 +1588,7 @@ class Shot extends DataClass implements Insertable<Shot> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Shot &&
+      (other is ShotRow &&
           other.id == this.id &&
           other.recordedAt == this.recordedAt &&
           other.beanId == this.beanId &&
@@ -1597,7 +1600,7 @@ class Shot extends DataClass implements Insertable<Shot> {
           other.snapshotJson == this.snapshotJson);
 }
 
-class ShotsCompanion extends UpdateCompanion<Shot> {
+class ShotsCompanion extends UpdateCompanion<ShotRow> {
   final Value<String> id;
   final Value<DateTime> recordedAt;
   final Value<String?> beanId;
@@ -1635,9 +1638,9 @@ class ShotsCompanion extends UpdateCompanion<Shot> {
        recordedAt = Value(recordedAt),
        durationMillis = Value(durationMillis),
        snapshotJson = Value(snapshotJson);
-  static Insertable<Shot> custom({
+  static Insertable<ShotRow> custom({
     Expression<String>? id,
-    Expression<DateTime>? recordedAt,
+    Expression<int>? recordedAt,
     Expression<String>? beanId,
     Expression<String>? grinderId,
     Expression<String>? grindSetting,
@@ -1694,7 +1697,9 @@ class ShotsCompanion extends UpdateCompanion<Shot> {
       map['id'] = Variable<String>(id.value);
     }
     if (recordedAt.present) {
-      map['recorded_at'] = Variable<DateTime>(recordedAt.value);
+      map['recorded_at'] = Variable<int>(
+        $ShotsTable.$converterrecordedAt.toSql(recordedAt.value),
+      );
     }
     if (beanId.present) {
       map['bean_id'] = Variable<String>(beanId.value);
@@ -1784,10 +1789,10 @@ typedef $$BeansTableUpdateCompanionBuilder =
     });
 
 final class $$BeansTableReferences
-    extends BaseReferences<_$AppDatabase, $BeansTable, Bean> {
+    extends BaseReferences<_$AppDatabase, $BeansTable, BeanRow> {
   $$BeansTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$ShotsTable, List<Shot>> _shotsRefsTable(
+  static MultiTypedResultKey<$ShotsTable, List<ShotRow>> _shotsRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.shots,
@@ -1984,14 +1989,14 @@ class $$BeansTableTableManager
         RootTableManager<
           _$AppDatabase,
           $BeansTable,
-          Bean,
+          BeanRow,
           $$BeansTableFilterComposer,
           $$BeansTableOrderingComposer,
           $$BeansTableAnnotationComposer,
           $$BeansTableCreateCompanionBuilder,
           $$BeansTableUpdateCompanionBuilder,
-          (Bean, $$BeansTableReferences),
-          Bean,
+          (BeanRow, $$BeansTableReferences),
+          BeanRow,
           PrefetchHooks Function({bool shotsRefs})
         > {
   $$BeansTableTableManager(_$AppDatabase db, $BeansTable table)
@@ -2048,7 +2053,7 @@ class $$BeansTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$BeansTable, Bean>(table),
+                  e.readTable<$BeansTable, BeanRow>(table),
                   $$BeansTableReferences(db, table, e),
                 ),
               )
@@ -2062,9 +2067,9 @@ class $$BeansTableTableManager
                 return [
                   if (shotsRefs)
                     await $_getPrefetchedDataByColumns<
-                      Bean,
+                      BeanRow,
                       $BeansTable,
-                      Shot,
+                      ShotRow,
                       $ShotsTable
                     >(
                       currentTable: table,
@@ -2089,14 +2094,14 @@ typedef $$BeansTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $BeansTable,
-      Bean,
+      BeanRow,
       $$BeansTableFilterComposer,
       $$BeansTableOrderingComposer,
       $$BeansTableAnnotationComposer,
       $$BeansTableCreateCompanionBuilder,
       $$BeansTableUpdateCompanionBuilder,
-      (Bean, $$BeansTableReferences),
-      Bean,
+      (BeanRow, $$BeansTableReferences),
+      BeanRow,
       PrefetchHooks Function({bool shotsRefs})
     >;
 typedef $$GrindersTableCreateCompanionBuilder =
@@ -2119,7 +2124,7 @@ typedef $$GrindersTableUpdateCompanionBuilder =
     });
 
 final class $$GrindersTableReferences
-    extends BaseReferences<_$AppDatabase, $GrindersTable, Grinder> {
+    extends BaseReferences<_$AppDatabase, $GrindersTable, GrinderRow> {
   $$GrindersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$GrindMemoryTable, List<GrindMemoryData>>
@@ -2140,7 +2145,7 @@ final class $$GrindersTableReferences
     );
   }
 
-  static MultiTypedResultKey<$ShotsTable, List<Shot>> _shotsRefsTable(
+  static MultiTypedResultKey<$ShotsTable, List<ShotRow>> _shotsRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.shots,
@@ -2362,14 +2367,14 @@ class $$GrindersTableTableManager
         RootTableManager<
           _$AppDatabase,
           $GrindersTable,
-          Grinder,
+          GrinderRow,
           $$GrindersTableFilterComposer,
           $$GrindersTableOrderingComposer,
           $$GrindersTableAnnotationComposer,
           $$GrindersTableCreateCompanionBuilder,
           $$GrindersTableUpdateCompanionBuilder,
-          (Grinder, $$GrindersTableReferences),
-          Grinder,
+          (GrinderRow, $$GrindersTableReferences),
+          GrinderRow,
           PrefetchHooks Function({bool grindMemoryRefs, bool shotsRefs})
         > {
   $$GrindersTableTableManager(_$AppDatabase db, $GrindersTable table)
@@ -2418,7 +2423,7 @@ class $$GrindersTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$GrindersTable, Grinder>(table),
+                  e.readTable<$GrindersTable, GrinderRow>(table),
                   $$GrindersTableReferences(db, table, e),
                 ),
               )
@@ -2436,7 +2441,7 @@ class $$GrindersTableTableManager
                     return [
                       if (grindMemoryRefs)
                         await $_getPrefetchedDataByColumns<
-                          Grinder,
+                          GrinderRow,
                           $GrindersTable,
                           GrindMemoryData,
                           $GrindMemoryTable
@@ -2456,9 +2461,9 @@ class $$GrindersTableTableManager
                         ),
                       if (shotsRefs)
                         await $_getPrefetchedDataByColumns<
-                          Grinder,
+                          GrinderRow,
                           $GrindersTable,
-                          Shot,
+                          ShotRow,
                           $ShotsTable
                         >(
                           currentTable: table,
@@ -2486,14 +2491,14 @@ typedef $$GrindersTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $GrindersTable,
-      Grinder,
+      GrinderRow,
       $$GrindersTableFilterComposer,
       $$GrindersTableOrderingComposer,
       $$GrindersTableAnnotationComposer,
       $$GrindersTableCreateCompanionBuilder,
       $$GrindersTableUpdateCompanionBuilder,
-      (Grinder, $$GrindersTableReferences),
-      Grinder,
+      (GrinderRow, $$GrindersTableReferences),
+      GrinderRow,
       PrefetchHooks Function({bool grindMemoryRefs, bool shotsRefs})
     >;
 typedef $$GrindMemoryTableCreateCompanionBuilder =
@@ -2824,7 +2829,7 @@ typedef $$ShotsTableUpdateCompanionBuilder =
     });
 
 final class $$ShotsTableReferences
-    extends BaseReferences<_$AppDatabase, $ShotsTable, Shot> {
+    extends BaseReferences<_$AppDatabase, $ShotsTable, ShotRow> {
   $$ShotsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $BeansTable _beanIdTable(_$AppDatabase db) =>
@@ -2875,10 +2880,11 @@ class $$ShotsTableFilterComposer extends Composer<_$AppDatabase, $ShotsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get recordedAt => $composableBuilder(
-    column: $table.recordedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<DateTime, DateTime, int> get recordedAt =>
+      $composableBuilder(
+        column: $table.recordedAt,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get grindSetting => $composableBuilder(
     column: $table.grindSetting,
@@ -2966,7 +2972,7 @@ class $$ShotsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get recordedAt => $composableBuilder(
+  ColumnOrderings<int> get recordedAt => $composableBuilder(
     column: $table.recordedAt,
     builder: (column) => ColumnOrderings(column),
   );
@@ -3055,10 +3061,11 @@ class $$ShotsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get recordedAt => $composableBuilder(
-    column: $table.recordedAt,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, int> get recordedAt =>
+      $composableBuilder(
+        column: $table.recordedAt,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get grindSetting => $composableBuilder(
     column: $table.grindSetting,
@@ -3135,14 +3142,14 @@ class $$ShotsTableTableManager
         RootTableManager<
           _$AppDatabase,
           $ShotsTable,
-          Shot,
+          ShotRow,
           $$ShotsTableFilterComposer,
           $$ShotsTableOrderingComposer,
           $$ShotsTableAnnotationComposer,
           $$ShotsTableCreateCompanionBuilder,
           $$ShotsTableUpdateCompanionBuilder,
-          (Shot, $$ShotsTableReferences),
-          Shot,
+          (ShotRow, $$ShotsTableReferences),
+          ShotRow,
           PrefetchHooks Function({bool beanId, bool grinderId})
         > {
   $$ShotsTableTableManager(_$AppDatabase db, $ShotsTable table)
@@ -3207,7 +3214,7 @@ class $$ShotsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$ShotsTable, Shot>(table),
+                  e.readTable<$ShotsTable, ShotRow>(table),
                   $$ShotsTableReferences(db, table, e),
                 ),
               )
@@ -3274,14 +3281,14 @@ typedef $$ShotsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $ShotsTable,
-      Shot,
+      ShotRow,
       $$ShotsTableFilterComposer,
       $$ShotsTableOrderingComposer,
       $$ShotsTableAnnotationComposer,
       $$ShotsTableCreateCompanionBuilder,
       $$ShotsTableUpdateCompanionBuilder,
-      (Shot, $$ShotsTableReferences),
-      Shot,
+      (ShotRow, $$ShotsTableReferences),
+      ShotRow,
       PrefetchHooks Function({bool beanId, bool grinderId})
     >;
 

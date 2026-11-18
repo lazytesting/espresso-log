@@ -1,4 +1,5 @@
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
+import 'package:espresso_log/domain/shot/shot_list_item.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
@@ -18,7 +19,8 @@ class _RecordingShotRepository implements ShotRepository {
   Future<void> save(RecordedShot shot) async => saved.add(shot);
 
   @override
-  Future<List<RecordedShot>> list() async => saved;
+  Future<List<ShotListItem>> list() async =>
+      saved.map(ShotListItem.fromShot).toList();
 
   @override
   Future<RecordedShot?> get(String id) async => null;

@@ -35,7 +35,7 @@ DateTime _dateOf(DateTime t) {
 List<HistoryDay> groupByDay(List<HistoryEntry> entries) {
   final days = <DateTime, List<HistoryEntry>>{};
   for (final entry in entries) {
-    days.putIfAbsent(_dateOf(entry.shot.recordedAt), () => []).add(entry);
+    days.putIfAbsent(_dateOf(entry.item.recordedAt), () => []).add(entry);
   }
   return [for (final day in days.entries) HistoryDay(day.key, day.value)];
 }
