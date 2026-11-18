@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Fixed-width label in front of a Home setup row (Bean, Dose), so both rows
+/// Fixed-width label in front of a Home setup row (Grinder, Grind, Bean, Dose), so both rows
 /// use the same label size and their values line up.
 class SetupLabel extends StatelessWidget {
   final String text;

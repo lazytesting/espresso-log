@@ -1,5 +1,7 @@
 import 'package:espresso_log/ui/home/bean_selector.dart';
 import 'package:espresso_log/ui/home/dose_selector.dart';
+import 'package:espresso_log/ui/home/grind_size_selector.dart';
+import 'package:espresso_log/ui/home/grinder_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,6 +22,8 @@ class HomeScreen extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: const Column(
                 children: [
+                  GrinderSelector(),
+                  GrindSizeSelector(),
                   BeanSelector(),
                   Divider(height: 1, indent: 16, endIndent: 16),
                   DoseSelector(),
