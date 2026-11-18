@@ -1,8 +1,11 @@
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_list_item.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
+import 'package:espresso_log/ui/grinders/grinders_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +14,8 @@ import 'package:provider/provider.dart';
 
 import '../../support/fake_settings.dart';
 import '../../support/in_memory_bean_repository.dart';
+import '../../support/in_memory_grind_memory_repository.dart';
+import '../../support/in_memory_grinder_repository.dart';
 
 class _RecordingShotRepository implements ShotRepository {
   final List<RecordedShot> saved = [];
@@ -32,13 +37,27 @@ class _RecordingShotRepository implements ShotRepository {
 void main() {
   late _RecordingShotRepository shots;
   late BeansCubit cubit;
+  late InMemoryGrinderRepository grinderRepo;
+  late FakeSettings settings;
+  late GrindersCubit grinders;
 
   setUp(() {
     shots = _RecordingShotRepository();
-    cubit = BeansCubit(InMemoryBeanRepository(), FakeSettings());
+    settings = FakeSettings();
+    cubit = BeansCubit(InMemoryBeanRepository(), settings);
+    grinderRepo = InMemoryGrinderRepository();
+    grinders = GrindersCubit(
+      grinderRepo,
+      InMemoryGrindMemoryRepository(grinderRepo),
+      settings,
+      cubit,
+    );
   });
 
-  tearDown(() => cubit.close());
+  tearDown(() async {
+    await grinders.close();
+    await cubit.close();
+  });
 
   Future<void> pumpButton(
     WidgetTester tester, [
@@ -49,6 +68,7 @@ void main() {
         providers: [
           Provider<ShotRepository>.value(value: shots),
           BlocProvider<BeansCubit>.value(value: cubit),
+          BlocProvider<GrindersCubit>.value(value: grinders),
         ],
         child: MaterialApp(home: Scaffold(body: SaveShotButton(snapshot))),
       ),
@@ -82,6 +102,41 @@ void main() {
 
     expect(shots.saved.single.beanId, isNull);
     expect(shots.saved.single.doseGrams, 16.0);
+  });
+
+  testWidgets('saves selected grinder and grind setting', (tester) async {
+    grinderRepo.grinders['g1'] = const Grinder(
+      id: 'g1',
+      name: 'Niche',
+      brand: 'Niche',
+      settingType: GrindSettingType.coarseFine,
+      archived: false,
+    );
+    await cubit.load();
+    await grinders.load();
+    await grinders.select('g1');
+    await grinders.setSetting(const GrindSetting.coarseFine(3, 'C'));
+    await pumpButton(tester);
+
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+
+    expect(shots.saved.single.grinderId, 'g1');
+    expect(shots.saved.single.grindSetting, '3C');
+  });
+
+  testWidgets('saves null grinder and setting when none selected', (
+    tester,
+  ) async {
+    await cubit.load();
+    await grinders.load();
+    await pumpButton(tester);
+
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+
+    expect(shots.saved.single.grinderId, isNull);
+    expect(shots.saved.single.grindSetting, isNull);
   });
 
   testWidgets('shows a check and disables after saving', (tester) async {

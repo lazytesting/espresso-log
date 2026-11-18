@@ -1,4 +1,6 @@
 import 'package:espresso_log/domain/bean/bean.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/shot/shot_result_view.dart';
@@ -12,6 +14,14 @@ const _guji = Bean(
   roastLevel: 1,
   archived: false,
   doseGrams: 18,
+);
+
+const _niche = Grinder(
+  id: 'g1',
+  name: 'Niche',
+  brand: 'Niche',
+  settingType: GrindSettingType.numeric,
+  archived: false,
 );
 
 const _fullShot = ShotSnapshot(
@@ -30,10 +40,18 @@ Future<void> _pump(
   required ShotSnapshot snapshot,
   Bean? bean,
   double? dose,
+  Grinder? grinder,
+  String? grindSetting,
 }) => tester.pumpWidget(
   MaterialApp(
     home: Scaffold(
-      body: ShotResultView(snapshot: snapshot, bean: bean, doseGrams: dose),
+      body: ShotResultView(
+        snapshot: snapshot,
+        bean: bean,
+        doseGrams: dose,
+        grinder: grinder,
+        grindSetting: grindSetting,
+      ),
     ),
   ),
 );
@@ -98,5 +116,29 @@ void main() {
         .style
         ?.color;
     expect(colorOf('1:2.0'), colorOf('28.4'));
+  });
+
+  testWidgets('shows grinder name and grind setting', (tester) async {
+    await _pump(
+      tester,
+      snapshot: _fullShot,
+      bean: _guji,
+      dose: 18.0,
+      grinder: _niche,
+      grindSetting: '3C',
+    );
+
+    expect(find.text('Niche'), findsOneWidget);
+    expect(find.text('Grind'), findsOneWidget);
+    expect(find.text('3C', findRichText: true), findsOneWidget);
+  });
+
+  testWidgets('without a grinder shows Unknown grinder and no Grind', (
+    tester,
+  ) async {
+    await _pump(tester, snapshot: _fullShot, bean: _guji, dose: 18.0);
+
+    expect(find.text('Unknown grinder'), findsOneWidget);
+    expect(find.text('Grind'), findsNothing);
   });
 }

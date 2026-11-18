@@ -3,6 +3,7 @@ import 'package:espresso_log/domain/shot/shot_metrics.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
+import 'package:espresso_log/ui/grinders/grinders_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
 import 'package:espresso_log/ui/shot/shot_result_view.dart';
 import 'package:espresso_log/ui/shot/shot_screen.dart';
@@ -16,6 +17,8 @@ import 'package:provider/provider.dart';
 
 import '../../support/fake_settings.dart';
 import '../../support/in_memory_bean_repository.dart';
+import '../../support/in_memory_grind_memory_repository.dart';
+import '../../support/in_memory_grinder_repository.dart';
 import '../../support/in_memory_shot_repository.dart';
 import 'shot_screen_test.mocks.dart';
 
@@ -44,6 +47,15 @@ void main() {
     final beansCubit = BeansCubit(beans, settings);
     addTearDown(beansCubit.close);
     await beansCubit.load();
+    final grinderRepo = InMemoryGrinderRepository();
+    final grindersCubit = GrindersCubit(
+      grinderRepo,
+      InMemoryGrindMemoryRepository(grinderRepo),
+      settings,
+      beansCubit,
+    );
+    addTearDown(grindersCubit.close);
+    await grindersCubit.load();
 
     final graph = MockShotGraphCubit();
     when(graph.state).thenReturn(
@@ -64,6 +76,7 @@ void main() {
         providers: [
           Provider<ShotRepository>.value(value: InMemoryShotRepository()),
           BlocProvider<BeansCubit>.value(value: beansCubit),
+          BlocProvider<GrindersCubit>.value(value: grindersCubit),
           BlocProvider<ShotGraphCubit>.value(value: graph),
           BlocProvider<TimerCubit>.value(value: timer),
         ],
@@ -75,6 +88,7 @@ void main() {
     expect(find.text('Shot done'), findsOneWidget);
     expect(find.byType(ShotResultView), findsOneWidget);
     expect(find.text('Guji'), findsOneWidget);
+    expect(find.text('Unknown grinder'), findsOneWidget);
     expect(find.text('Dose'), findsOneWidget);
     expect(find.text('1:2.0', findRichText: true), findsOneWidget);
     expect(find.text('Save'), findsOneWidget);

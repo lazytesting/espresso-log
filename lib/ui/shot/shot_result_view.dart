@@ -1,4 +1,5 @@
 import 'package:espresso_log/domain/bean/bean.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/brew_ratio.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/beans/beans_screen.dart';
@@ -13,18 +14,23 @@ class ShotResultView extends StatelessWidget {
   final ShotSnapshot snapshot;
   final Bean? bean;
   final double? doseGrams;
+  final Grinder? grinder;
+  final String? grindSetting;
 
   const ShotResultView({
     super.key,
     required this.snapshot,
     required this.bean,
     required this.doseGrams,
+    required this.grinder,
+    required this.grindSetting,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bean = this.bean;
+    final grindSetting = this.grindSetting;
     final summary = snapshot.summary;
     final ratio = brewRatio(
       outputGrams: summary.finalWeight,
@@ -53,6 +59,14 @@ class ShotResultView extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+              Text(
+                grinder?.name ?? unknownGrinderLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
@@ -87,6 +101,8 @@ class ShotResultView extends StatelessWidget {
               unit: 'g/s',
               label: 'Peak flow',
             ),
+            if (grindSetting != null)
+              MetricCell(value: grindSetting, label: 'Grind'),
           ],
         ),
         const SizedBox(height: 16),

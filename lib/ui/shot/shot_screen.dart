@@ -2,6 +2,7 @@ import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_snapshot.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
+import 'package:espresso_log/ui/grinders/grinders_cubit.dart';
 import 'package:espresso_log/ui/components/current-weight/current_weight_widget.dart';
 import 'package:espresso_log/ui/components/pressure/pressure_widget.dart';
 import 'package:espresso_log/ui/shot/shot_graph/shot_graph_cubit.dart';
@@ -48,11 +49,16 @@ class ShotScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is ShotGraphStopped) {
             return BlocBuilder<BeansCubit, BeansState>(
-              builder: (context, beans) => ShotResultView(
-                snapshot: state.snapshot,
-                bean: beans.selectedBean,
-                doseGrams: beans.doseGrams,
-              ),
+              builder: (context, beans) =>
+                  BlocBuilder<GrindersCubit, GrindersState>(
+                    builder: (context, grinders) => ShotResultView(
+                      snapshot: state.snapshot,
+                      bean: beans.selectedBean,
+                      doseGrams: beans.doseGrams,
+                      grinder: grinders.selectedGrinder,
+                      grindSetting: grinders.setting?.text,
+                    ),
+                  ),
             );
           }
           return Padding(
@@ -104,11 +110,14 @@ class _SaveShotButtonState extends State<SaveShotButton> {
     final repository = context.read<ShotRepository>();
     final messenger = ScaffoldMessenger.of(context);
     final beans = context.read<BeansCubit>().state;
+    final grinders = context.read<GrindersCubit>().state;
     await repository.save(
       RecordedShot.create(
         widget.snapshot,
         beanId: beans.selectedBeanId,
         doseGrams: beans.doseGrams,
+        grinderId: grinders.selectedGrinderId,
+        grindSetting: grinders.setting?.text,
       ),
     );
     if (!mounted) return;

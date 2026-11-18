@@ -1,6 +1,7 @@
 import 'package:espresso_log/domain/bean/bean.dart';
 
 const unknownBeanLabel = 'Unknown bean';
+const unknownGrinderLabel = 'Unknown grinder';
 
 String beanNameFor(Bean? bean) => bean?.name ?? unknownBeanLabel;
 

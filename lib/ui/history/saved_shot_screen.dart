@@ -54,6 +54,8 @@ class SavedShotScreen extends StatelessWidget {
               snapshot: shot!.snapshot,
               bean: loaded!.bean,
               doseGrams: shot.doseGrams,
+              grinder: null,
+              grindSetting: null,
             ),
             _ => const Center(child: CircularProgressIndicator()),
           },
