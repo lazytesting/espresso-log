@@ -126,7 +126,12 @@ A finished shot is shown by one shared widget, `ShotResultView`
 (`lib/ui/shot/shot_result_view.dart`): bean header, all metrics in one `MetricGrid`
 (`lib/ui/shot/metric_grid.dart`; Dose, Yield, Ratio, Time, Peak pressure, Peak flow), then the
 graph. Both the shot-done state of `ShotScreen` (with a Save button) and `SavedShotScreen` (History
-detail, with share) use it; add new shot metrics as extra `MetricCell`s there.
+detail, with share and delete via `ShotRepository.delete`) use it; add new shot metrics as extra
+`MetricCell`s there.
+
+Shared UI pieces live in `lib/ui/components/`: `SectionHeader` (accent label above a group of
+rows, used by History and Settings) and `BeanIcon` (custom-painted Beans tab icon). UI copy uses
+sentence case; dates use `formatShotTitle` (`Thu 12 Nov · 08:42`); ratios are `1:2.0`.
 
 `ShotGraphCubit` (`lib/ui/shot/shot_graph/shot_graph_cubit.dart`) is the central orchestrator for
 an active shot, but is now a thin one: it composes `AbstractAutoStartStopRule`,

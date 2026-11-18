@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 Future<void> _pump(WidgetTester tester, {required bool paused}) =>
     tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: ConnectionDialog(paused: paused))),
+      MaterialApp(
+        home: Scaffold(body: ConnectionDialog(paused: paused)),
+      ),
     );
 
 void main() {

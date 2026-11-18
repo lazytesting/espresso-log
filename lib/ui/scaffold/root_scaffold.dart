@@ -1,3 +1,4 @@
+import 'package:espresso_log/ui/components/bean_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,16 +17,16 @@ class RootScaffold extends StatelessWidget {
         onTap: (index) {
           child.goBranch(index, initialLocation: index == child.currentIndex);
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.grain), label: 'Beans'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        items: rootNavItems,
       ),
     );
   }
 }
+
+/// The bottom bar tabs, in branch order.
+const rootNavItems = [
+  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+  BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
+  BottomNavigationBarItem(icon: BeanIcon(), label: 'Beans'),
+  BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+];
