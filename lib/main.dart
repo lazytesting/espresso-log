@@ -1,8 +1,9 @@
-import 'dart:io';
 // lib/main.dart
 import 'dart:async';
 
-import 'package:espresso_log/data/bean/file_bean_repository.dart';
+import 'package:espresso_log/data/bean/drift_bean_repository.dart';
+import 'package:espresso_log/data/db/app_database.dart';
+import 'package:espresso_log/data/db/legacy_file_importer.dart';
 import 'package:espresso_log/domain/bean/bean_repository.dart';
 import 'package:espresso_log/ui/beans/beans_cubit.dart';
 import 'package:espresso_log/data/mock/mock_shot_simulator.dart';
@@ -38,7 +39,7 @@ import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:espresso_log/data/shot/file_shot_repository.dart';
+import 'package:espresso_log/data/shot/drift_shot_repository.dart';
 import 'package:espresso_log/domain/shot/shot_repository.dart';
 
 import 'data/bluetooth/bluetooth_devices_service.dart';
@@ -68,15 +69,18 @@ void main() async {
   final SettingsRepository settings =
       await SharedPreferencesSettingsService.create();
 
-  final documents = (await getApplicationDocumentsDirectory()).path;
-  final ShotRepository shotRepository = FileShotRepository(
-    Directory('$documents/shots'),
-    talker: talker,
-  );
-  final BeanRepository beanRepository = FileBeanRepository(
-    Directory('$documents/beans'),
-    talker: talker,
-  );
+  final db = AppDatabase.open();
+  try {
+    await LegacyFileImporter(
+      db,
+      await getApplicationDocumentsDirectory(),
+      talker: talker,
+    ).run();
+  } catch (error, stackTrace) {
+    talker.handle(error, stackTrace, 'Legacy import failed');
+  }
+  final ShotRepository shotRepository = DriftShotRepository(db);
+  final BeanRepository beanRepository = DriftBeanRepository(db);
 
   final AbstractShotClock shotClock = ShotClock(talker: talker);
 
