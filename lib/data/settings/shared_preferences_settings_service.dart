@@ -8,6 +8,7 @@ class SharedPreferencesSettingsService implements SettingsRepository {
   static const _scaleSourceKey = 'scaleSource';
   static const _pressureSourceKey = 'pressureSource';
   static const _selectedBeanIdKey = 'selectedBeanId';
+  static const _selectedGrinderIdKey = 'selectedGrinderId';
   static const _unknownBeanDoseKey = 'unknownBeanDoseGrams';
 
   final SharedPreferences _prefs;
@@ -60,6 +61,18 @@ class SharedPreferencesSettingsService implements SettingsRepository {
       await _prefs.remove(_selectedBeanIdKey);
     } else {
       await _prefs.setString(_selectedBeanIdKey, id);
+    }
+  }
+
+  @override
+  String? get selectedGrinderId => _prefs.getString(_selectedGrinderIdKey);
+
+  @override
+  Future<void> setSelectedGrinderId(String? id) async {
+    if (id == null) {
+      await _prefs.remove(_selectedGrinderIdKey);
+    } else {
+      await _prefs.setString(_selectedGrinderIdKey, id);
     }
   }
 

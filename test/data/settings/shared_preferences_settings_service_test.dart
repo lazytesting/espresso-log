@@ -30,6 +30,21 @@ void main() {
     });
   });
 
+  group('selectedGrinderId', () {
+    test('is null by default', () async {
+      final settings = await create();
+      expect(settings.selectedGrinderId, isNull);
+    });
+
+    test('round-trips and clears', () async {
+      final settings = await create();
+      await settings.setSelectedGrinderId('g1');
+      expect(settings.selectedGrinderId, 'g1');
+      await settings.setSelectedGrinderId(null);
+      expect(settings.selectedGrinderId, isNull);
+    });
+  });
+
   group('unknownBeanDoseGrams', () {
     test('defaults to 18.0', () async {
       final settings = await create();

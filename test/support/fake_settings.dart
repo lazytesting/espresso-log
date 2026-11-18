@@ -16,6 +16,9 @@ class FakeSettings implements SettingsRepository {
   String? selectedBeanId;
 
   @override
+  String? selectedGrinderId;
+
+  @override
   double unknownBeanDoseGrams = defaultDoseGrams;
 
   @override
@@ -31,6 +34,9 @@ class FakeSettings implements SettingsRepository {
 
   @override
   Future<void> setSelectedBeanId(String? id) async => selectedBeanId = id;
+
+  @override
+  Future<void> setSelectedGrinderId(String? id) async => selectedGrinderId = id;
 
   @override
   Future<void> setUnknownBeanDoseGrams(double grams) async =>

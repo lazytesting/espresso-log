@@ -1,4 +1,6 @@
 import 'package:espresso_log/domain/bean/bean.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
@@ -17,8 +19,8 @@ ShotSnapshot _snapshot() => ShotSnapshot(
 );
 
 void main() {
-  test('format version is 2', () {
-    expect(RecordedShot.formatVersion, 2);
+  test('format version is 3', () {
+    expect(RecordedShot.formatVersion, 3);
   });
 
   test('round trip keeps bean and dose', () {
@@ -63,5 +65,51 @@ void main() {
     expect(shot.toExportJson(bean: bean)['bean'], bean.toJson());
     expect(shot.toExportJson()['bean'], isNull);
     expect(shot.toJson().containsKey('bean'), isFalse);
+  });
+
+  test('round trip keeps grinder and grind setting', () {
+    final shot = RecordedShot.create(
+      _snapshot(),
+      grinderId: 'g1',
+      grindSetting: '3C',
+    );
+    final copy = RecordedShot.fromJson(shot.toJson());
+
+    expect(copy.grinderId, 'g1');
+    expect(copy.grindSetting, '3C');
+    expect(shot.toJson()['version'], 3);
+  });
+
+  test('version 2 files load with null grinder fields', () {
+    final json = RecordedShot.create(_snapshot(), beanId: 'b1').toJson()
+      ..['version'] = 2
+      ..remove('grinderId')
+      ..remove('grindSetting');
+    final copy = RecordedShot.fromJson(json);
+
+    expect(copy.beanId, 'b1');
+    expect(copy.grinderId, isNull);
+    expect(copy.grindSetting, isNull);
+  });
+
+  test('export json embeds bean and grinder', () {
+    final bean = Bean.create(name: 'Ethiopia');
+    final grinder = Grinder.create(
+      name: 'Zero',
+      brand: 'Brand',
+      settingType: GrindSettingType.coarseFine,
+    );
+    final shot = RecordedShot.create(
+      _snapshot(),
+      beanId: bean.id,
+      grinderId: grinder.id,
+      grindSetting: '3C',
+    );
+    final json = shot.toExportJson(bean: bean, grinder: grinder);
+
+    expect(json['bean'], bean.toJson());
+    expect(json['grinder'], grinder.toJson());
+    expect(shot.toExportJson()['grinder'], isNull);
+    expect(shot.toJson().containsKey('grinder'), isFalse);
   });
 }

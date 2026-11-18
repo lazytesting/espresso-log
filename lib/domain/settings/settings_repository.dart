@@ -32,6 +32,12 @@ abstract class SettingsRepository {
   /// Passing null clears the selection.
   Future<void> setSelectedBeanId(String? id);
 
+  /// Id of the grinder currently in use, or null when none is selected.
+  String? get selectedGrinderId;
+
+  /// Passing null clears the selection.
+  Future<void> setSelectedGrinderId(String? id);
+
   /// Dose used for shots when no bean is selected.
   double get unknownBeanDoseGrams;
 

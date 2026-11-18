@@ -1,5 +1,8 @@
 import 'package:espresso_log/data/db/app_database.dart' show AppDatabase;
+import 'package:espresso_log/data/grinder/drift_grinder_repository.dart';
 import 'package:espresso_log/data/shot/drift_shot_repository.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
@@ -55,6 +58,32 @@ void main() {
     expect(loaded.snapshot.summary, shot.snapshot.summary);
     expect(loaded.snapshot.metrics, shot.snapshot.metrics);
   });
+
+  test(
+    'grinder id and grind setting round trip through get and list',
+    () async {
+      final grinder = Grinder.create(
+        name: 'Zero',
+        brand: 'Brand',
+        settingType: GrindSettingType.coarseFine,
+      );
+      await DriftGrinderRepository(db).save(grinder);
+      final shot = RecordedShot.create(
+        _snapshot(),
+        grinderId: grinder.id,
+        grindSetting: '3C',
+      );
+      await repository.save(shot);
+
+      final loaded = (await repository.get(shot.id))!;
+      final item = (await repository.list()).single;
+
+      expect(loaded.grinderId, grinder.id);
+      expect(loaded.grindSetting, '3C');
+      expect(item.grinderId, grinder.id);
+      expect(item.grindSetting, '3C');
+    },
+  );
 
   test('get returns null for an unknown id', () async {
     expect(await repository.get('nope'), isNull);

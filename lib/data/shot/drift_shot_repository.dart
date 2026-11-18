@@ -31,6 +31,8 @@ class DriftShotRepository implements ShotRepository {
       id: shot.id,
       recordedAt: shot.recordedAt,
       beanId: Value(shot.beanId),
+      grinderId: Value(shot.grinderId),
+      grindSetting: Value(shot.grindSetting),
       doseGrams: Value(shot.doseGrams),
       finalWeight: Value(summary.finalWeight),
       durationMillis: summary.durationMillis,
@@ -79,6 +81,8 @@ class DriftShotRepository implements ShotRepository {
       id: row.id,
       recordedAt: row.recordedAt,
       beanId: row.beanId,
+      grinderId: row.grinderId,
+      grindSetting: row.grindSetting,
       doseGrams: row.doseGrams,
       snapshot: ShotSnapshot.fromJson(
         jsonDecode(row.snapshotJson) as Map<String, dynamic>,
