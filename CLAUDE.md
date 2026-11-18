@@ -9,7 +9,7 @@ devices while pulling an espresso shot — a Decent Espresso Scale and a Bookoo 
 currently supported. The app is explicitly meant to add zero steps to the espresso workflow: scale
 taring and shot timing are automated from sensor data rather than by the user pressing buttons. It
 is early WiP. Finished shots are saved as JSON files and listed in a History tab, and shots can be
-tagged with a bean and a dose (grams in); see README.md future plans for what is still missing.
+tagged with a bean, a dose (grams in), and a grinder with a grind size; see README.md future plans for what is still missing.
 
 ## Commands
 
@@ -67,10 +67,17 @@ old `lib/devices/`/`lib/services/` split.
 - `lib/domain/bean/` — `Bean` (`bean.dart`: id, name, roaster, roastLevel 1-5, notes, archived,
   doseGrams) and the `BeanRepository` port (`bean_repository.dart`; `list()` includes archived
   beans). `dose.dart` holds the dose rules: default 18.0 g, allowed 5.0-30.0 g, one decimal.
+- `lib/domain/grinder/` — `GrindSetting` (`grind_setting.dart`: either numeric 1-10 or coarse 1-10
+  plus fine A-F, with parse/step helpers), `Grinder` (`grinder.dart`: id, name, brand, setting type,
+  archived), the `GrinderRepository` port (`list()` includes archived grinders) and
+  `GrindMemoryRepository` (`grind_memory_repository.dart`: the last grind setting per grinder and
+  bean, a null bean id meaning the unknown bean; `entriesFor` lists a grinder's entries newest
+  first).
 - `lib/domain/shot/recorded_shot.dart` — `RecordedShot`, a finished shot as saved/exported, with
-  optional `beanId`/`doseGrams`, `formatVersion` 2 (version 1 files still load) and a `ratio` getter
-  (`brew_ratio.dart`). `toExportJson` (share/export) embeds the full bean; stored shot files hold
-  only the bean id.
+  optional `beanId`/`doseGrams`/`grinderId`/`grindSetting`, `formatVersion` 3 (older versions still
+  load) and a `ratio` getter (`brew_ratio.dart`). `toExportJson` (share/export) embeds the full bean
+  and grinder; the stored shot holds only their ids. `ShotListItem` (`shot_list_item.dart`) is the
+  summary of a shot used by the History list.
 
 ### Data layer: adapters implementing the domain's repository interfaces
 
@@ -87,9 +94,19 @@ old `lib/devices/`/`lib/services/` split.
   (`lib/data/pressure/mock_pressure_service.dart`) — synthetic data generators implementing the
   same interfaces, used when the `USE_MOCK_SCALE`/`USE_MOCK_PRESSURE` dart-defines are set.
 
-- `FileBeanRepository` (`lib/data/bean/file_bean_repository.dart`) — implements `BeanRepository`,
-  one `<id>.json` per bean under `<documents>/beans/`. Shots are stored similarly by
-  `FileShotRepository` (`lib/data/shot/`), settings by `SharedPreferencesSettingsService`.
+- Beans, grinders, grind memory and shots are stored in a SQLite database via drift:
+  `AppDatabase` (`lib/data/db/app_database.dart`, tables `Beans`, `Grinders`, `GrindMemory`,
+  `Shots`; `AppDatabase.memory()` for tests) plus `DriftBeanRepository` (`lib/data/bean/`),
+  `DriftShotRepository` (`lib/data/shot/`), `DriftGrinderRepository` and
+  `DriftGrindMemoryRepository` (`lib/data/grinder/`). The generated `app_database.g.dart` is checked
+  in; after changing the schema run `fvm dart run build_runner build --delete-conflicting-outputs`.
+  The Shots table keeps summary columns (bean, grinder, grind setting, dose, final weight, duration)
+  next to a `snapshot_json` blob: `ShotRepository.list()` reads only the summary columns
+  into `ShotListItem`s for History, `get` reads the snapshot.
+  `LegacyFileImporter` (`lib/data/db/legacy_file_importer.dart`) is a one-time import of the old
+  per-file JSON `beans/` and `shots/` folders in the documents directory: it inserts them in one
+  transaction and then renames the folders to `beans.imported`/`shots.imported`. Settings stay in
+  `SharedPreferencesSettingsService`.
 
 Everything downstream (cubits) depends on the domain's abstract interfaces, never these concrete
 implementations — `lib/main.dart` is the only place that decides real vs. mock and wires concrete
@@ -116,14 +133,20 @@ on `ScaleEvent`/`TimerEvent` subtypes) and emitting UI state.
 `BeansCubit` (`lib/ui/beans/beans_cubit.dart`) is app-wide, created in `main()`. It holds the
 non-archived beans, the selected bean and the current dose. The dose is remembered per bean on the
 bean itself; the dose for the "Unknown bean" case and the selected bean id live in
-`SettingsRepository`. The Home screen is only one card with a bean selector and dose control
-(`lib/ui/home/bean_selector.dart`, `dose_selector.dart`, sharing `SetupLabel`) plus the START SHOT
-button; `lib/ui/beans/` has `BeansScreen` and `BeanEditScreen`. The History list is grouped by
-local day (`lib/ui/history/history_format.dart`) and shows time, bean, roaster, dose → yield and
-shot time per row.
+`SettingsRepository`. `GrindersCubit` (`lib/ui/grinders/grinders_cubit.dart`) is likewise app-wide
+and cooperates with `BeansCubit`: it holds the non-archived grinders, the selected grinder (id in
+`SettingsRepository`) and its grind setting, reloads the setting when the selected bean changes, and
+on selecting a grinder switches to the bean last used with it (derived from the newest
+`grind_memory.last_used_at`). The Home screen is only one card with, in order, a grinder selector,
+grind size control, bean selector and dose control (`lib/ui/home/grinder_selector.dart`,
+`grind_size_selector.dart`, `bean_selector.dart`, `dose_selector.dart`, sharing `SetupLabel`) plus
+the START SHOT button; `lib/ui/beans/` has `BeansScreen` and `BeanEditScreen`, and `lib/ui/grinders/` has
+`GrindersScreen` and `GrinderEditScreen`. The History list is grouped by
+local day (`lib/ui/history/history_format.dart`) and shows time, bean, roaster, grinder and grind
+size, dose → yield and shot time per row.
 
 A finished shot is shown by one shared widget, `ShotResultView`
-(`lib/ui/shot/shot_result_view.dart`): bean header, all metrics in one `MetricGrid`
+(`lib/ui/shot/shot_result_view.dart`): bean and grinder header, all metrics in one `MetricGrid`
 (`lib/ui/shot/metric_grid.dart`; Dose, Yield, Ratio, Time, Peak pressure, Peak flow), then the
 graph. Both the shot-done state of `ShotScreen` (with a Save button) and `SavedShotScreen` (History
 detail, with share and delete via `ShotRepository.delete`) use it; add new shot metrics as extra
@@ -148,7 +171,8 @@ app-wide via `MultiBlocProvider`/`MultiProvider`, rather than being scoped to a 
 
 `lib/router.dart` defines a `go_router` config with a bottom-tab `StatefulShellRoute` (Home /
 History / Beans / Settings, each with its own navigator so tab state survives switching; Beans has `/beans`, `/beans/new` and
-`/beans/:id`) plus a
+`/beans/:id`; Settings has `/settings/log`, `/settings/recorder` and the grinder management
+screens `/settings/grinders`, `/settings/grinders/new` and `/settings/grinders/:id`) plus a
 full-screen `/shot` route pushed on top of the shell for the active-shot view. `Talker`
 (`talker_flutter`) is wired in as a route observer and also powers the in-app log viewer at
 `/settings/log`.
