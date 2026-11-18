@@ -11,6 +11,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'grinders_state.dart';
 
+/// Holds the grinders, the selected grinder and its current grind setting.
+///
+/// Selecting a bean (or a grinder) loads the remembered setting of that
+/// grinder/bean pair. A pair with no history gets a row persisted with the
+/// default setting, and `last_used_at` of the pair's row is touched on every
+/// bean selection so the most recently used bean is restored on grinder switch.
 class GrindersCubit extends Cubit<GrindersState> {
   GrindersCubit(this._grinders, this._memory, this._settings, this._beans)
     : _lastBeanId = _beans.state.selectedBeanId,
@@ -146,7 +152,8 @@ class GrindersCubit extends Cubit<GrindersState> {
   }
 
   /// The remembered setting for [grinder] and [beanId]. Creates the memory
-  /// row with the default setting when the pair has none yet. Returns null
+  /// row with the default setting when the pair has none yet, otherwise
+  /// re-remembers it to refresh its last-used time. Returns null
   /// (without writing) when superseded by a newer operation ([gen]).
   Future<GrindSetting?> _loadSetting(
     Grinder grinder,
@@ -158,7 +165,16 @@ class GrindersCubit extends Cubit<GrindersState> {
       beanId: beanId,
     );
     if (isClosed || gen != _gen) return null;
-    if (remembered != null) return remembered;
+    if (remembered != null) {
+      // Touch last_used_at (the port has no touch-only method).
+      await _memory.remember(
+        grinderId: grinder.id,
+        beanId: beanId,
+        setting: remembered,
+      );
+      if (isClosed || gen != _gen) return null;
+      return remembered;
+    }
     final setting = GrindSetting.defaultFor(grinder.settingType);
     await _memory.remember(
       grinderId: grinder.id,

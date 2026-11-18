@@ -4,8 +4,11 @@ import 'dart:io';
 import 'package:espresso_log/data/bean/drift_bean_repository.dart';
 import 'package:espresso_log/data/db/app_database.dart' show AppDatabase;
 import 'package:espresso_log/data/db/legacy_file_importer.dart';
+import 'package:espresso_log/data/grinder/drift_grinder_repository.dart';
 import 'package:espresso_log/data/shot/drift_shot_repository.dart';
 import 'package:espresso_log/domain/bean/bean.dart';
+import 'package:espresso_log/domain/grinder/grind_setting.dart';
+import 'package:espresso_log/domain/grinder/grinder.dart';
 import 'package:espresso_log/domain/shot/recorded_shot.dart';
 import 'package:espresso_log/domain/shot/shot_graph_point.dart';
 import 'package:espresso_log/domain/shot/shot_metrics.dart';
@@ -145,5 +148,64 @@ void main() {
     expect(dir('shots').existsSync(), isTrue);
     expect(dir('beans.imported').existsSync(), isFalse);
     expect(dir('shots.imported').existsSync(), isFalse);
+  });
+
+  test('skips the import when the database already has data', () async {
+    await DriftBeanRepository(
+      db,
+    ).save(Bean.create(name: 'Existing', now: DateTime(2026, 1, 1)));
+    final a = Bean.create(name: 'A', now: DateTime(2026, 1, 2));
+    await writeBean(a);
+    await writeShot(
+      RecordedShot.create(_snapshot(), now: DateTime(2026, 2, 1)),
+    );
+
+    await LegacyFileImporter(db, documents).run();
+
+    expect(await DriftBeanRepository(db).list(), hasLength(1));
+    expect(await DriftShotRepository(db).list(), isEmpty);
+    expect(dir('beans').existsSync(), isTrue);
+    expect(dir('shots').existsSync(), isTrue);
+    expect(dir('beans.imported').existsSync(), isFalse);
+    expect(dir('shots.imported').existsSync(), isFalse);
+  });
+
+  test('skips the import when only shots exist in the database', () async {
+    await DriftShotRepository(
+      db,
+    ).save(RecordedShot.create(_snapshot(), now: DateTime(2026, 2, 1)));
+    await writeBean(Bean.create(name: 'A', now: DateTime(2026, 1, 2)));
+
+    await LegacyFileImporter(db, documents).run();
+
+    expect(await DriftBeanRepository(db).list(), isEmpty);
+    expect(dir('beans').existsSync(), isTrue);
+  });
+
+  test('keeps grinder fields when dropping an unknown bean', () async {
+    final shot = RecordedShot.create(
+      _snapshot(),
+      beanId: 'ghost',
+      grinderId: 'g1',
+      grindSetting: '3C',
+      now: DateTime(2026, 2, 1),
+    );
+    await writeShot(shot);
+    await DriftGrinderRepository(db).save(
+      const Grinder(
+        id: 'g1',
+        name: 'Niche',
+        brand: 'Niche',
+        settingType: GrindSettingType.coarseFine,
+        archived: false,
+      ),
+    );
+
+    await LegacyFileImporter(db, documents).run();
+
+    final shots = await DriftShotRepository(db).list();
+    expect(shots.single.beanId, isNull);
+    expect(shots.single.grinderId, 'g1');
+    expect(shots.single.grindSetting, '3C');
   });
 }

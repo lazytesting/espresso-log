@@ -15,6 +15,7 @@ import 'package:espresso_log/ui/shot/timer/timer_widget.dart';
 import 'package:espresso_log/ui/components/weight-change/weight_change_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class ShotScreen extends StatelessWidget {
   const ShotScreen({super.key});
@@ -111,15 +112,24 @@ class _SaveShotButtonState extends State<SaveShotButton> {
     final messenger = ScaffoldMessenger.of(context);
     final beans = context.read<BeansCubit>().state;
     final grinders = context.read<GrindersCubit>().state;
-    await repository.save(
-      RecordedShot.create(
-        widget.snapshot,
-        beanId: beans.selectedBeanId,
-        doseGrams: beans.doseGrams,
-        grinderId: grinders.selectedGrinderId,
-        grindSetting: grinders.setting?.text,
-      ),
-    );
+    final talker = context.read<Talker>();
+    try {
+      await repository.save(
+        RecordedShot.create(
+          widget.snapshot,
+          beanId: beans.selectedBeanId,
+          doseGrams: beans.doseGrams,
+          grinderId: grinders.selectedGrinderId,
+          grindSetting: grinders.setting?.text,
+        ),
+      );
+    } catch (error, stackTrace) {
+      talker.handle(error, stackTrace, 'Saving shot failed');
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Could not save shot')),
+      );
+      return;
+    }
     if (!mounted) return;
     setState(() => _saved = true);
     messenger.showSnackBar(const SnackBar(content: Text('Shot saved')));

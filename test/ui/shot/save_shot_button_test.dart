@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import '../../support/fake_settings.dart';
 import '../../support/in_memory_bean_repository.dart';
@@ -19,9 +20,13 @@ import '../../support/in_memory_grinder_repository.dart';
 
 class _RecordingShotRepository implements ShotRepository {
   final List<RecordedShot> saved = [];
+  bool failSave = false;
 
   @override
-  Future<void> save(RecordedShot shot) async => saved.add(shot);
+  Future<void> save(RecordedShot shot) async {
+    if (failSave) throw StateError('db down');
+    saved.add(shot);
+  }
 
   @override
   Future<List<ShotListItem>> list() async =>
@@ -67,6 +72,7 @@ void main() {
       MultiProvider(
         providers: [
           Provider<ShotRepository>.value(value: shots),
+          Provider<Talker>.value(value: Talker()),
           BlocProvider<BeansCubit>.value(value: cubit),
           BlocProvider<GrindersCubit>.value(value: grinders),
         ],
@@ -166,5 +172,20 @@ void main() {
     );
 
     expect(find.text('Save'), findsOneWidget);
+  });
+
+  testWidgets('shows a snackbar and stays usable when saving fails', (
+    tester,
+  ) async {
+    await cubit.load();
+    shots.failSave = true;
+    await pumpButton(tester);
+
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+
+    expect(find.text('Could not save shot'), findsOneWidget);
+    expect(find.text('Save'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

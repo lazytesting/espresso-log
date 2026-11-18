@@ -30,6 +30,15 @@ class LegacyFileImporter {
     final hasShots = await _shotsDir.exists();
     if (!hasBeans && !hasShots) return;
 
+    // Only import into an empty database, so a failed folder rename after a
+    // committed import cannot resurrect shots the user deleted since.
+    final existingBeans = await _db.select(_db.beans).get();
+    final existingShots = await _db.select(_db.shots).get();
+    if (existingBeans.isNotEmpty || existingShots.isNotEmpty) {
+      _talker?.info('Skipped legacy import: database already has data');
+      return;
+    }
+
     final beans = hasBeans
         ? await _readAll(_beansDir, Bean.fromJson)
         : <Bean>[];
@@ -63,6 +72,8 @@ class LegacyFileImporter {
       recordedAt: shot.recordedAt,
       snapshot: shot.snapshot,
       doseGrams: shot.doseGrams,
+      grinderId: shot.grinderId,
+      grindSetting: shot.grindSetting,
     );
   }
 

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 devices while pulling an espresso shot — a Decent Espresso Scale and a Bookoo Pressure Sensor are
 currently supported. The app is explicitly meant to add zero steps to the espresso workflow: scale
 taring and shot timing are automated from sensor data rather than by the user pressing buttons. It
-is early WiP. Finished shots are saved as JSON files and listed in a History tab, and shots can be
+is early WiP. Finished shots are saved in a local SQLite database and listed in a History tab, and shots can be
 tagged with a bean, a dose (grams in), and a grinder with a grind size; see README.md future plans for what is still missing.
 
 ## Commands
@@ -81,7 +81,8 @@ old `lib/devices/`/`lib/services/` split.
 
 ### Data layer: adapters implementing the domain's repository interfaces
 
-`lib/data/` contains the concrete, hardware-facing implementations of the telemetry ports:
+`lib/data/` contains the concrete adapters implementing the domain's ports: the hardware-facing telemetry ports and the
+SQLite-backed repositories (see the Drift bullet below):
 - `DecentScaleService` (`lib/data/scale/decent_scale_service.dart`) / `BookooPressureService`
   (`lib/data/pressure/bookoo_pressure_service.dart`) — real BLE devices implementing
   `ScaleRepository`/`PressureRepository`, built on `BluetoothDevicesService`

@@ -251,4 +251,32 @@ void main() {
     expect(beans.state.selectedBeanId, 'b');
     expect(cubit.state.setting, const GrindSetting.numeric(8));
   });
+
+  test(
+    're-selecting a bean touches last used so grinder switch restores it',
+    () async {
+      beanRepo.beans['g2'] = bean('g2');
+      grinderRepo.grinders['h'] = grinder('h');
+      await loadAll();
+      await cubit.select('g');
+      Future<void> tick() =>
+          Future<void>.delayed(const Duration(milliseconds: 2));
+      // 'b' then 'a' then 'b' again: a tie would favor 'a', so the touch matters.
+      await beans.select('b');
+      await pumpEventQueue();
+      await tick();
+      await beans.select('a');
+      await pumpEventQueue();
+      await tick();
+      await beans.select('b');
+      await pumpEventQueue();
+      await tick();
+
+      await cubit.select('h');
+      await tick();
+      await cubit.select('g');
+
+      expect(beans.state.selectedBeanId, 'b');
+    },
+  );
 }
