@@ -5,7 +5,9 @@ enum GrindSettingType { numeric, coarseFine }
 class GrindSetting extends Equatable {
   static const int minCoarse = 1;
   static const int maxCoarse = 10;
-  static const List<String> fineSteps = ['A', 'B', 'C', 'D', 'E', 'F'];
+  static final List<String> fineSteps = List.unmodifiable([
+    for (var c = 0x41; c <= 0x5A; c++) String.fromCharCode(c),
+  ]);
 
   final GrindSettingType type;
   final int coarse;
@@ -36,7 +38,7 @@ class GrindSetting extends Equatable {
         }
         return GrindSetting.numeric(value);
       case GrindSettingType.coarseFine:
-        final match = RegExp(r'^(\d{1,2})([A-F])$').firstMatch(trimmed);
+        final match = RegExp(r'^(\d{1,2})([A-Z])$').firstMatch(trimmed);
         if (match == null) return null;
         final coarse = int.parse(match.group(1)!);
         if (coarse < minCoarse || coarse > maxCoarse) return null;

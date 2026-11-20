@@ -87,7 +87,7 @@ void main() {
     await pump(tester);
     await tester.enterText(find.byKey(const Key('grinder-name')), ' Zero ');
     await tester.enterText(find.byKey(const Key('grinder-brand')), ' Eureka ');
-    await tester.tap(find.text('Coarse + fine'));
+    await tester.tap(find.text('Macro + micro'));
     await tester.pump();
     await tester.tap(saveButton());
     await tester.pumpAndSettle();

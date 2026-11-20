@@ -20,7 +20,7 @@ class GrindSizeSelector extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
             child: Row(
               children: [
-                const SetupLabel('Grind'),
+                const SetupLabel('Grind size'),
                 const Spacer(),
                 IconButton.outlined(
                   icon: const Icon(Icons.remove),
@@ -80,7 +80,7 @@ class _GrindPickerDialogState extends State<_GrindPickerDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Grind'),
+      title: const Text('Grind size'),
       content: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -21,24 +21,30 @@ void main() {
     );
   });
 
+  test('parse accepts the whole micro range A-Z', () {
+    expect(GrindSetting.parse(GrindSettingType.coarseFine, '3G')!.text, '3G');
+    expect(GrindSetting.parse(GrindSettingType.coarseFine, '10Z')!.text, '10Z');
+  });
+
   test('parse returns null for invalid text', () {
     expect(GrindSetting.parse(GrindSettingType.numeric, '11'), isNull);
     expect(GrindSetting.parse(GrindSettingType.numeric, '0'), isNull);
     expect(GrindSetting.parse(GrindSettingType.numeric, ''), isNull);
     expect(GrindSetting.parse(GrindSettingType.numeric, '3C'), isNull);
-    expect(GrindSetting.parse(GrindSettingType.coarseFine, '3G'), isNull);
+    expect(GrindSetting.parse(GrindSettingType.coarseFine, '3?'), isNull);
+    expect(GrindSetting.parse(GrindSettingType.coarseFine, '3AA'), isNull);
     expect(GrindSetting.parse(GrindSettingType.coarseFine, ''), isNull);
     expect(GrindSetting.parse(GrindSettingType.coarseFine, '11A'), isNull);
   });
 
   test('stepped rolls fine over into the next coarse step', () {
     expect(
-      const GrindSetting.coarseFine(3, 'F').stepped(1),
+      const GrindSetting.coarseFine(3, 'Z').stepped(1),
       const GrindSetting.coarseFine(4, 'A'),
     );
     expect(
       const GrindSetting.coarseFine(4, 'A').stepped(-1),
-      const GrindSetting.coarseFine(3, 'F'),
+      const GrindSetting.coarseFine(3, 'Z'),
     );
     expect(
       const GrindSetting.coarseFine(3, 'B').stepped(1),
@@ -56,8 +62,8 @@ void main() {
       const GrindSetting.coarseFine(1, 'A'),
     );
     expect(
-      const GrindSetting.coarseFine(10, 'F').stepped(1),
-      const GrindSetting.coarseFine(10, 'F'),
+      const GrindSetting.coarseFine(10, 'Z').stepped(1),
+      const GrindSetting.coarseFine(10, 'Z'),
     );
   });
 

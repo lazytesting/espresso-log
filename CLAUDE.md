@@ -67,8 +67,8 @@ old `lib/devices/`/`lib/services/` split.
 - `lib/domain/bean/` — `Bean` (`bean.dart`: id, name, roaster, roastLevel 1-5, notes, archived,
   doseGrams) and the `BeanRepository` port (`bean_repository.dart`; `list()` includes archived
   beans). `dose.dart` holds the dose rules: default 18.0 g, allowed 5.0-30.0 g, one decimal.
-- `lib/domain/grinder/` — `GrindSetting` (`grind_setting.dart`: either numeric 1-10 or coarse 1-10
-  plus fine A-F, with parse/step helpers), `Grinder` (`grinder.dart`: id, name, brand, setting type,
+- `lib/domain/grinder/` — `GrindSetting` (`grind_setting.dart`: either numeric 1-10 or macro 1-10
+  plus micro A-Z (the type is stored as `coarseFine`), with parse/step helpers), `Grinder` (`grinder.dart`: id, name, brand, setting type,
   archived), the `GrinderRepository` port (`list()` includes archived grinders) and
   `GrindMemoryRepository` (`grind_memory_repository.dart`: the last grind setting per grinder and
   bean, a null bean id meaning the unknown bean; `entriesFor` lists a grinder's entries newest

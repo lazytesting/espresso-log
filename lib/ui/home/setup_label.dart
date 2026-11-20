@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Fixed-width label in front of a Home setup row (Grinder, Grind, Bean, Dose), so both rows
+/// Fixed-width label in front of a Home setup row (Grinder, Grind size, Bean, Dose), so all rows
 /// use the same label size and their values line up.
 class SetupLabel extends StatelessWidget {
   final String text;
@@ -11,7 +11,7 @@ class SetupLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
-      width: 64,
+      width: 88,
       child: Text(
         text,
         style: theme.textTheme.labelLarge?.copyWith(

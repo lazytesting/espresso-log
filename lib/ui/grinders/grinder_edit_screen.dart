@@ -155,7 +155,7 @@ class _GrinderEditScreenState extends State<GrinderEditScreen> {
               ),
               ButtonSegment(
                 value: GrindSettingType.coarseFine,
-                label: Text('Coarse + fine'),
+                label: Text('Macro + micro'),
               ),
             ],
             selected: {_settingType},

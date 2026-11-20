@@ -81,7 +81,7 @@ void main() {
     await pump(tester);
 
     expect(find.text('Grinder'), findsOneWidget);
-    expect(find.text('Grind'), findsOneWidget);
+    expect(find.text('Grind size'), findsOneWidget);
     expect(find.text('Bean'), findsOneWidget);
     expect(find.text('Dose'), findsOneWidget);
     expect(find.text('Start shot'), findsOneWidget);
@@ -96,7 +96,7 @@ void main() {
     await pump(tester);
 
     final ys = [
-      for (final label in ['Grinder', 'Grind', 'Bean', 'Dose'])
+      for (final label in ['Grinder', 'Grind size', 'Bean', 'Dose'])
         tester.getTopLeft(find.text(label)).dy,
     ];
     expect(ys, [...ys]..sort());

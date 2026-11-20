@@ -78,13 +78,13 @@ void main() {
 
   testWidgets('hidden when no grinder is selected', (tester) async {
     await pump(tester);
-    expect(find.text('Grind'), findsNothing);
+    expect(find.text('Grind size'), findsNothing);
     expect(find.byKey(const Key('grind-text')), findsNothing);
   });
 
   testWidgets('plus on numeric 5 shows 6', (tester) async {
     await pump(tester, grinderId: 'n', setting: const GrindSetting.numeric(5));
-    expect(find.text('Grind'), findsOneWidget);
+    expect(find.text('Grind size'), findsOneWidget);
     expect(find.text('5'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -96,13 +96,13 @@ void main() {
     expect(find.text('4'), findsOneWidget);
   });
 
-  testWidgets('plus on 3F shows 4A', (tester) async {
+  testWidgets('plus on 3Z shows 4A', (tester) async {
     await pump(
       tester,
       grinderId: 'c',
-      setting: const GrindSetting.coarseFine(3, 'F'),
+      setting: const GrindSetting.coarseFine(3, 'Z'),
     );
-    expect(find.text('3F'), findsOneWidget);
+    expect(find.text('3Z'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
     expect(find.text('4A'), findsOneWidget);
